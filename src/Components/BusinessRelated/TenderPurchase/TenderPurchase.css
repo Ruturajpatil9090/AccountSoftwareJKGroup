@@ -1,0 +1,284 @@
+/* SugarTenderPurchase.css */
+.SugarTenderPurchase-container {
+  max-width: 100%;
+  margin: auto;
+  padding: 20px;
+}
+
+.SugarTenderPurchase-col-Text {
+  flex: 0 0 auto;
+  padding: 0px;
+  margin-left: 10px;
+  width: 130px;
+}
+
+.SugarTenderPurchase-col-Ewaybillno {
+  flex: 0 0 auto;
+  padding: 0px;
+  margin-left: 10px;
+  width: 200px;
+}
+
+.SugarTenderPurchase-form-group-type {
+  flex: 0 0 auto;
+  padding: 0px;
+  margin-left: 10px;
+  width: 250px;
+}
+
+.SugarTenderPurchase-row {
+  display: flex;
+  flex-wrap: nowrap;
+  margin-bottom: 0.5rem;
+}
+
+.SugarTenderPurchase-col {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.SugarTenderPurchase-form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex: 1;
+}
+
+.SugarTenderPurchase-form-label {
+  font-weight: bold;
+  margin-right: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.SugarTenderPurchase-form-control {
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.SugarTenderPurchase-form-control[disabled],
+.SugarTenderPurchase-form-control[readonly] {
+  background-color: #e9ecef;
+  opacity: 1;
+}
+
+textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+#IsmillName {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  color: blue;
+  font-weight: bold;
+}
+
+/* Modal styles */
+/* Modal styles */
+.modal-body {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.modal-body form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-body .form-element {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.modal-body label {
+  font-weight: bold;
+  margin-right: 15px;
+  white-space: nowrap;
+  width: 150px;
+}
+
+.modal-body .form-control {
+  flex: 1;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.modal-body .form-control[disabled],
+.modal-body .form-control[readonly] {
+  background-color: #e9ecef;
+  opacity: 1;
+}
+
+textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.account-master-help {
+  margin-top: 5px;
+}
+
+/* CGST styles */
+.SugarTenderPurchase-CGST-row {
+  display: flex;
+  align-items: center;
+}
+
+.SugarTenderPurchase-CGST-form-label {
+  margin-right: 10px;
+}
+
+.SugarTenderPurchase-CGST-col-Text {
+  display: flex;
+  flex: 1;
+  gap: 10px;
+}
+
+.SugarTenderPurchase-CGST-form-group {
+  display: flex;
+  flex: 1;
+}
+
+.SugarTenderPurchase-CGST-form-control {
+  width: 100%;
+}
+
+/* LoadingOverlay.css */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spinner-container {
+  text-align: center;
+}
+
+.Heading {
+  margin-bottom: -30px;
+}
+
+/* Overlay styling for modal background */
+.custom-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Modal dialog container */
+.custom-modal-dialog {
+  width: 90%;
+  max-width: 900px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+/* Adjusted Form Row for Compact Layout */
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: nowrap;
+}
+
+.form-row label {
+  width: auto;
+  flex-shrink: 0;
+  font-weight: bold;
+  color: #555;
+  margin-right: 5px;
+  text-align: right;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+  flex-grow: 1;
+  max-width: 250px;
+  min-width: 150px;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+/* Focus Styling for Inputs */
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+  outline: none;
+}
+
+/* Modal Content Refinements */
+.custom-modal-content {
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #ffffff;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+/* Close button styling */
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 1.5rem;
+  color: #666;
+  border: none;
+  cursor: pointer;
+  z-index: 1100;
+  transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+  color: #d9534f;
+}
+
+body.modal-open {
+  overflow: hidden;
+}

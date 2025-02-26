@@ -1,0 +1,72 @@
+.state-master-form {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .state-master-title {
+    font-size: 24px;
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .change-no-label,
+  .state-code-label,
+  .state-name-label {
+    font-weight: bold;
+    color: #555;
+    display: block;
+    margin-bottom: 8px;
+  }
+  
+  .change-no-input,
+  .state-code-input,
+  .state-name-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  .change-no-input:disabled,
+  .state-code-input:disabled,
+  .state-name-input:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+  }
+  
+  .change-no-input:focus,
+  .state-code-input:focus,
+  .state-name-input:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  
+
+  .change-no-group {
+    margin-bottom: 20px;
+  }
+  
+  .state-code-group input:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+  }
+  
+  .state-name-input:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+  }
+  
+  .state-name-group {
+    margin-bottom: 30px;
+  }
+  
