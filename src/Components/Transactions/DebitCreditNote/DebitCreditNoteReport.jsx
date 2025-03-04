@@ -4,63 +4,30 @@ import Sign from "../../../Assets/jksign.png";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import PdfPreview from '../../../Common/PDFPreview';
+import { ConvertNumberToWord } from "../../../Common/FormatFunctions/ConvertNumberToWord";
 
 const API_URL = process.env.REACT_APP_API;
 
 const DebitCreditNoteReport = ({ doc_no, tran_type, disabledFeild }) => {
 
+  //GET Values from Session Storage
   const companyCode = sessionStorage.getItem("Company_Code");
   const Year_Code = sessionStorage.getItem("Year_Code");
 
   const [invoiceData, setInvoiceData] = useState([]);
   const [pdfPreview, setPdfPreview] = useState(null);
 
-  const numberToWords = (num) => {
-    const belowTwenty = [
-      "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
-      "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"
-    ];
+  const AccountYear = sessionStorage.getItem("Accounting_Year");
+  let formattedYear = "";
 
-    const tens = [
-      "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"
-    ];
-
-    const scales = [
-      "", "Thousand", "Lakh", "Crore"
-    ];
-
-    const words = (num) => {
-      if (num === 0) return "";
-      if (num < 20) return belowTwenty[num];
-      if (num < 100) return tens[Math.floor(num / 10)] + (num % 10 !== 0 ? " " + belowTwenty[num % 10] : "");
-      if (num < 1000) return belowTwenty[Math.floor(num / 100)] + " Hundred" + (num % 100 !== 0 ? " and " + words(num % 100) : "");
-
-      if (num < 100000) {
-        return words(Math.floor(num / 1000)) + " Thousand" + (num % 1000 !== 0 ? " " + words(num % 1000) : "");
-      } else if (num < 10000000) {
-        return words(Math.floor(num / 100000)) + " Lakh" + (num % 100000 !== 0 ? " " + words(num % 100000) : "");
-      } else {
-        return words(Math.floor(num / 10000000)) + " Crore" + (num % 10000000 !== 0 ? " " + words(num % 10000000) : "");
-      }
-    };
-
-    const convertFraction = (fraction) => {
-      if (fraction === 0) return "Zero Paise";
-      return words(fraction);
-    };
-    const integerPart = Math.floor(num);
-    const fractionPart = Math.round((num - integerPart) * 100);
-
-    let result = words(integerPart);
-
-    if (fractionPart > 0) {
-      result += " and " + convertFraction(fractionPart);
-    } else {
-      result += " Only";
+  if (AccountYear) {
+    const years = AccountYear.split(" - ");
+    if (years.length === 2) {
+      const startYear = years[0].slice(0, 4);
+      const endYear = years[1].slice(2, 4);
+      formattedYear = `${startYear}-${endYear}`;
     }
-
-    return result;
-  };
+  }
 
   const fetchData = async () => {
     try {
@@ -75,6 +42,8 @@ const DebitCreditNoteReport = ({ doc_no, tran_type, disabledFeild }) => {
       console.error("Error fetching data:", error);
     }
   };
+
+  //Genrate PDF Functionality
   const generatePdf = async (data) => {
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
     const allData = data?.[0] || {};
@@ -108,7 +77,7 @@ const DebitCreditNoteReport = ({ doc_no, tran_type, disabledFeild }) => {
 
       const tableData = [
         ["Reverse Charge", "No"],
-        ["Note No:", `${allData.doc_no}`],
+        ["Note No:", `${tran_type}${formattedYear}-${allData.doc_no}`],
         ["Note Date:", allData.doc_date],
         ["DO No:", allData.DO_No],
         ["State:", allData.companyStateName],
@@ -154,7 +123,6 @@ const DebitCreditNoteReport = ({ doc_no, tran_type, disabledFeild }) => {
         ["TAN No:", allData.shiptoTAN],
       ];
 
-
       pdf.autoTable({
         startY: 55,
         margin: { left: 110 },
@@ -167,8 +135,8 @@ const DebitCreditNoteReport = ({ doc_no, tran_type, disabledFeild }) => {
       });
 
       const particulars = [
-        ["Particulars", "HSN/ACS", "Quntal", "Bags", "Value"],
-        [allData.Item_Name, allData.HSN, allData.Quantal, allData.Quantal, allData.value],
+        ["Particulars", "HSN/ACS", "Quintal ", "Value"],
+        [allData.Item_Name, allData.HSN, allData.Quantal, allData.value],
       ];
 
       pdf.autoTable({
@@ -237,7 +205,7 @@ const DebitCreditNoteReport = ({ doc_no, tran_type, disabledFeild }) => {
 
       let yPosition = pdf.lastAutoTable.finalY + 10;
 
-      pdf.text(`Total Amount: ${numberToWords(allData.TCS_Net_Payable)}`, 10, yPosition);
+      pdf.text(`Total Amount: ${ConvertNumberToWord(allData.TCS_Net_Payable)}`, 10, yPosition);
 
       yPosition += 5;
 
@@ -263,7 +231,7 @@ const DebitCreditNoteReport = ({ doc_no, tran_type, disabledFeild }) => {
   return (
     <div id="pdf-content" className="centered-container">
       {pdfPreview && <PdfPreview pdfData={pdfPreview} apiData={invoiceData[0]} label={"DebitCredit"} />}
-      <button onClick={fetchData} className="print-button" disabled={disabledFeild}>Print</button>
+      <button onClick={fetchData} className="print-button" style={{height:"38px"}} disabled={disabledFeild}>Print</button>
     </div>
   );
 };

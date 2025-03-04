@@ -12,6 +12,19 @@ const DebitCreditNoteSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_
     const [error, setError] = useState('');
     const [isDataFetched, setIsDataFetched] = useState(false);
 
+    const AccountYear = sessionStorage.getItem("Accounting_Year");
+
+    let formattedYear = "";
+
+    if (AccountYear) {
+        const years = AccountYear.split(" - ");
+        if (years.length === 2) {
+            const startYear = years[0].slice(0, 4);
+            const endYear = years[1].slice(2, 4);
+            formattedYear = `${startYear}-${endYear}`;
+        }
+    }
+
     const fetchDebitCreditNoteSummary = async () => {
         try {
             setLoading(true);
@@ -95,18 +108,18 @@ const DebitCreditNoteSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_
                         </thead>
                         <tbody>
                             ${data.map(row => {
-                                return `
+            return `
                                     <tr>
                                     ${columns.map(column => {
-                                        if (['TaxableAmt', 'CGST', 'SGST', 'IGST', 'Payable_Amount'].includes(column)) {
-                                           return `<td style="text-align: right;">${formatReadableAmount(row[column] || 0)}</td>`;
-                                         } else {
-                                         return `<td>${row[column] || ''}</td>`;
-                                        }
-                                       }).join('')}
+                if (['TaxableAmt', 'CGST', 'SGST', 'IGST', 'Payable_Amount'].includes(column)) {
+                    return `<td style="text-align: right;">${formatReadableAmount(row[column] || 0)}</td>`;
+                } else {
+                    return `<td>${row[column] || ''}</td>`;
+                }
+            }).join('')}
                                     </tr>
                                 `;
-                            }).join('')}
+        }).join('')}
                         </tbody>
                         <tfoot>
                             <tr class="total-row">

@@ -206,7 +206,6 @@ const BankBookReport = () => {
         );
         const pdfBlob = doc.output('blob');
         const pdfUrl = URL.createObjectURL(pdfBlob);
-        console.log("Generated PDF URL:", pdfUrl);
         setPdfPreview(pdfUrl);
     };
 
@@ -334,10 +333,10 @@ const BankBookReport = () => {
                                         <td style={{ padding: '8px' }}>{tran.TRAN_TYPE}</td>
                                         <td style={{ padding: '8px' }}>{tran.DOC_NO}</td>
                                         <td dangerouslySetInnerHTML={{ __html: tran.formattedNarration }} style={{ textAlign: "left" }}></td>
-                                        <td style={{ textAlign: "right" }}>{formatReadableAmount(tran.debit)}</td>
-                                        <td style={{ textAlign: "right" }}>{formatReadableAmount(tran.credit)}</td>
-                                        <td style={{ textAlign: "right" }}>{formatReadableAmount(tran.balanceAfterTransaction)}</td>
-                                        <td style={{ padding: '8px' }}>{group.balanceType}</td>
+                                        <td style={{ padding: '8px', textAlign: "right" }}>{formatReadableAmount(tran.debit)}</td>
+                                        <td style={{ padding: '8px', textAlign: "right" }}>{formatReadableAmount(tran.credit)}</td>
+                                        <td style={{ padding: '8px', textAlign: "right" }}>{formatReadableAmount(tran.balanceAfterTransaction)}</td>
+                                        <td style={{ padding: '8px', padding: '8px' }}>{group.balanceType}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -349,21 +348,18 @@ const BankBookReport = () => {
                                     <th style={{ padding: '8px', textAlign: "right" }}>{formatReadableAmount(group.balance)}</th>
                                     <th style={{ padding: '8px' }}>{group.balance >= 0 ? "Dr" : "Cr"}</th>
                                 </tr>
+
+                                <tr style={{ backgroundColor: '#e8e8e8' }}>
+                                    <th style={{ padding: '5px', textAlign: 'right' }} colSpan="3">Net Total:</th>
+                                    <th style={{ textAlign: "right", padding: '5px' }}>{formatReadableAmount(netDebit)}</th>
+                                    <th style={{ textAlign: "right", padding: '5px' }}>{formatReadableAmount(netCredit)}</th>
+                                    <th style={{ textAlign: "right", padding: '5px' }}>{formatReadableAmount(Math.abs(netBalance))}</th>
+                                    <th style={{ textAlign: "right", padding: '5px' }}>{balanceType}</th>
+                                </tr>
                             </tfoot>
                         </table>
                     </div>
                 ))}
-                <table style={{ width: '40%', marginLeft: '122vh', marginBottom: '60px' }}>
-                    <tfoot>
-                        <tr style={{ backgroundColor: '#e8e8e8' }}>
-                            <th style={{ padding: '5px', textAlign: 'right' }} colSpan="2">Net Total:</th>
-                            <th style={{ textAlign: "right", padding: '5px' }}>{formatReadableAmount(netDebit)}</th>
-                            <th style={{ textAlign: "right", padding: '5px' }}>{formatReadableAmount(netCredit)}</th>
-                            <th style={{ textAlign: "right", padding: '5px' }}>{formatReadableAmount(Math.abs(netBalance))}</th>
-                            <th style={{ textAlign: "right", padding: '5px' }}>{balanceType}</th>
-                        </tr>
-                    </tfoot>
-                </table>
             </div>
         </div>
     );

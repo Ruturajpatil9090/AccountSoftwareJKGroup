@@ -18,7 +18,6 @@ const AccountMasterHelp = ({ onAcCodeClick, name, CategoryName, CategoryCode, ta
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
     const [selectedRowIndex, setSelectedRowIndex] = useState(-1);
-    const [balance, setBalance] = useState("");
 
     const handleButtonClicked = () => {
         setShowModal(true);
@@ -37,7 +36,12 @@ const AccountMasterHelp = ({ onAcCodeClick, name, CategoryName, CategoryCode, ta
             setEnteredAccoid("");
             setEnteredMobNo("");
             setCity("");
+
+            if (onAcCodeClick) {
+                onAcCodeClick("", "", "");
+            }
         }
+
     };
 
     const handleKeyDown = (event) => {
@@ -48,10 +52,9 @@ const AccountMasterHelp = ({ onAcCodeClick, name, CategoryName, CategoryCode, ta
                 setEnteredAccoid(matchingItem.accoid);
                 setEnteredMobNo(matchingItem.Mobile_No);
                 setCity(matchingItem.cityname);
-                setBalance(matchingItem.Balance);
 
                 if (onAcCodeClick) {
-                    onAcCodeClick(matchingItem.Ac_Code, matchingItem.accoid, matchingItem.Ac_Name_E, matchingItem.Mobile_No, matchingItem.Gst_No, matchingItem.TDSApplicable, matchingItem.GSTStateCode,matchingItem.Balance);
+                    onAcCodeClick(matchingItem.Ac_Code, matchingItem.accoid, matchingItem.Ac_Name_E, matchingItem.Mobile_No, matchingItem.Gst_No, matchingItem.TDSApplicable, matchingItem.GSTStateCode);
                 }
             }
         }
@@ -63,10 +66,9 @@ const AccountMasterHelp = ({ onAcCodeClick, name, CategoryName, CategoryCode, ta
         setEnteredAccoid(item.accoid);
         setEnteredMobNo(item.Mobile_No);
         setCity(item.cityname);
-        setBalance(item.Balance);
 
         if (onAcCodeClick) {
-            onAcCodeClick(item.Ac_Code, item.accoid, item.Ac_Name_E, item.Mobile_No, item.Gst_No, item.TDSApplicable, item.GSTStateCode,item.Balance);
+            onAcCodeClick(item.Ac_Code, item.accoid, item.Ac_Name_E, item.Mobile_No, item.Gst_No, item.TDSApplicable, item.GSTStateCode);
         }
         setShowModal(false);
     };
@@ -81,7 +83,7 @@ const AccountMasterHelp = ({ onAcCodeClick, name, CategoryName, CategoryCode, ta
 
     const filteredData = accountData.filter((item) =>
         item.Ac_Name_E && item.Ac_Name_E.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.Ac_Code && String(item.Ac_Code).toLowerCase().includes(searchTerm.toLowerCase())
+        String(item.Ac_Code) && String(item.Ac_Code).toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -143,7 +145,6 @@ const AccountMasterHelp = ({ onAcCodeClick, name, CategoryName, CategoryCode, ta
         };
     }, [showModal, selectedRowIndex, itemsToDisplay]);
 
-
     return (
         <div className="d-flex flex-row ">
             <div className="d-flex ">
@@ -178,13 +179,12 @@ const AccountMasterHelp = ({ onAcCodeClick, name, CategoryName, CategoryCode, ta
             <Modal
                 show={showModal}
                 onHide={handleCloseModal}
-                dialogClassName="modal-dialog modal-fullscreen"
+                dialogClassName="modal-dialog "
             >
-                <Modal.Header >
+                <Modal.Header  >
                     <Modal.Title>Account Master</Modal.Title>
                     <Button style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start' }} onClick={handleCloseModal}>X</Button>
                 </Modal.Header>
-
                 <DataTableSearch data={accountData} onSearch={handleSearch} />
                 <Modal.Body>
                     <div style={{ overflowX: "auto" }}>
@@ -204,7 +204,6 @@ const AccountMasterHelp = ({ onAcCodeClick, name, CategoryName, CategoryCode, ta
                                     <th style={{ border: "1px solid #dee2e6", padding: "8px" }}>Mobile No</th>
                                     <th style={{ border: "1px solid #dee2e6", padding: "8px" }}>GST No</th>
                                     <th style={{ border: "1px solid #dee2e6", padding: "8px" }}>Ac Type</th>
-                                    <th style={{ border: "1px solid #dee2e6", padding: "8px" }}>Balance</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -224,7 +223,6 @@ const AccountMasterHelp = ({ onAcCodeClick, name, CategoryName, CategoryCode, ta
                                         <td style={{ border: "1px solid #dee2e6", padding: "8px" }}>{item.Mobile_No}</td>
                                         <td style={{ border: "1px solid #dee2e6", padding: "8px" }}>{item.Gst_No}</td>
                                         <td style={{ border: "1px solid #dee2e6", padding: "8px" }}>{item.Ac_type}</td>
-                                        <td style={{ border: "1px solid #dee2e6", padding: "8px" }}>{item.Balance}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -237,9 +235,9 @@ const AccountMasterHelp = ({ onAcCodeClick, name, CategoryName, CategoryCode, ta
                         itemsPerPage={itemsPerPage}
                         onPageChange={handlePageChange}
                     />
-                    <Button variant="secondary" onClick={handleCloseModal}>
+                    {/* <Button variant="secondary" onClick={handleCloseModal}>
                         Close
-                    </Button>
+                    </Button> */}
                 </Modal.Footer>
             </Modal>
         </div>

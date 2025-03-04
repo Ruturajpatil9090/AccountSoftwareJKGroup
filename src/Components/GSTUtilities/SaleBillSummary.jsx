@@ -38,12 +38,12 @@ const SaleBillSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
     const columns = [
         'SR_No',
         'Invoice_No',
+        'Invoice_Date',
         'PartyGSTNo',
         'PartyCode',
         'PartyName',
         'Mill_Name',
         'billtogststatecode',
-        'Invoice_Date',
         'Vehicle_No',
         'Quintal',
         'Rate',
@@ -141,7 +141,7 @@ const SaleBillSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                     <script>
                     window.exportToXlsx = function() {
                     const data = ${JSON.stringify(data)};
-                    const columnOrder = ['SR_No','Invoice_No','PartyGSTNo','PartyCode','PartyName','Mill_Name','billtogststatecode','Invoice_Date','Vehicle_No','Quintal','Rate','TaxableAmount','CGST','SGST','IGST','Payable_Amount','DO_No','ACKNo'];
+                    const columnOrder = ['SR_No','Invoice_No','Invoice_Date','PartyGSTNo','PartyCode','PartyName','Mill_Name','billtogststatecode','Vehicle_No','Quintal','Rate','TaxableAmount','CGST','SGST','IGST','Payable_Amount','DO_No','ACKNo'];
                     
                     const formattedData = data.map(row => {
                         return {

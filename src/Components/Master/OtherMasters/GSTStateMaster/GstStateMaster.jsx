@@ -6,9 +6,10 @@ import "./GstStateMaster.css";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import Swal from "sweetalert2";
 
 const API_URL = process.env.REACT_APP_API;
+
 
 const GstStateMaster = () => {
   //GET all necessary values from the session.
@@ -165,11 +166,20 @@ const GstStateMaster = () => {
   };
 
   const handleDelete = async () => {
-    const isConfirmed = window.confirm(
-      `Are you sure you want to delete ${formData.State_Code}?`
-    );
+     const result = await Swal.fire({
+          title: "Are you sure?",
+          text: `You won't be able to revert this State Code : ${formData.State_Code}`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          cancelButtonText: "Cancel",
+          confirmButtonText: "Delete",
+          reverseButtons: true,
+          focusCancel: true,
+        });
 
-    if (isConfirmed) {
+    if (result.isConfirmed) {
       setIsEditMode(false);
       setAddOneButtonEnabled(true);
       setEditButtonEnabled(true);
@@ -187,7 +197,11 @@ const GstStateMaster = () => {
         console.error("Error during API call:", error);
       }
     } else {
-      console.log("Deletion cancelled");
+      Swal.fire({
+             title: "Cancelled",
+             text: "Your record is safe 🙂",
+             icon: "info",
+           });
     }
   };
 

@@ -31,13 +31,6 @@ const BankBook = () => {
     setacname(name);
   };
 
-  // const handleGetReportClick = (e) => {
-  //   e.preventDefault();
-  //   navigate(`/bank-book-report`, {
-  //     state: { acCode, fromDate, toDate, acname },
-  //   });
-  // };
-
   const handleGetReportClick = (e) => {
     e.preventDefault();
     setLoading(true);

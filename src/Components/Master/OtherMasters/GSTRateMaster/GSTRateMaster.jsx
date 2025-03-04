@@ -7,7 +7,7 @@ import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import UserAuditInfo from "../../../../Common/UserAuditInfo/UserAuditInfo";
-
+import Swal from "sweetalert2";
 
 const API_URL = process.env.REACT_APP_API;
 
@@ -93,11 +93,11 @@ const GSTRateMaster = () => {
   }
 
   const handleSaveOrUpdate = () => {
-    let updatedFormData ={
+    let updatedFormData = {
       ...formData
     }
     if (isEditMode) {
-      updatedFormData={
+      updatedFormData = {
         ...updatedFormData,
         Modified_By: username
       }
@@ -122,7 +122,7 @@ const GSTRateMaster = () => {
           console.error("Error updating data:", error);
         });
     } else {
-      updatedFormData={
+      updatedFormData = {
         ...updatedFormData,
         Created_By: username
       }
@@ -181,9 +181,20 @@ const GSTRateMaster = () => {
   };
 
   const handleDelete = async () => {
-    const isConfirmed = window.confirm(`Are you sure you want to delete ${formData.Doc_no}?`);
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `You won't be able to revert this Doc No : ${formData.Doc_no}`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      cancelButtonText: "Cancel",
+      confirmButtonText: "Delete",
+      reverseButtons: true,
+      focusCancel: true,
+    });
 
-    if (isConfirmed) {
+    if (result.isConfirmed) {
       setIsEditMode(false);
       setAddOneButtonEnabled(true);
       setEditButtonEnabled(true);
@@ -203,7 +214,11 @@ const GSTRateMaster = () => {
         console.error("Error during API call:", error);
       }
     } else {
-      console.log("Deletion cancelled");
+      Swal.fire({
+        title: "Cancelled",
+        text: "Your record is safe 🙂",
+        icon: "info",
+      });
     }
   };
 
@@ -373,7 +388,7 @@ const GSTRateMaster = () => {
         </div>
       </div>
       <div >
-      <form className="gst-rate-master-form">
+        <form className="gst-rate-master-form">
           <h2 className="form-title">GST Rate Master</h2>
           <br />
           <div className="form-group">

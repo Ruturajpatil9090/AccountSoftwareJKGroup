@@ -91,6 +91,7 @@ const Navbar = () => {
   }
 
   return (
+    <>
     <div ref={navbarRef} className="navbar" onMouseLeave={handleMouseLeave}>
       <img className="logo" src={logo} alt="Logo" onClick={handleLogoClick} />
       <div
@@ -294,8 +295,8 @@ const Navbar = () => {
                 handleClick("stock_report");
               }}
             >
-              Stock Report
-              <FaCaretRight  />
+              Stock Report 
+              <FaCaretRight  style={{marginLeft:"5px"}}/>
               {activeSubMenu === "stock_report" && (
                 <div className="submenu1">
                   <div className="submenu-item1">
@@ -371,6 +372,9 @@ const Navbar = () => {
                 <div className="submenu1">
                   <div className="submenu-item1">
                     <a ><Link to="/ledger">Ledger</Link></a>
+                  </div>
+                  <div className="submenu-item1">
+                    <a ><Link to="/daybook">Day Book</Link></a>
                   </div>
                   <div className="submenu-item1">
                     <a href="/multiple-ledger">Multiple Ledger</a>
@@ -486,8 +490,10 @@ const Navbar = () => {
       <div className="nav-item" onMouseEnter={() => handleMouseEnter('eTender')}>
         <Link to="/eBuySugarian-user-utility" className="nav-link"><label className="navbarlabel">eTender</label></Link>
       </div>
-      <AvatarIcon />
+      <AvatarIcon style={{display:"flex"}} />
     </div>
+  
+    </>
   );
 }
 

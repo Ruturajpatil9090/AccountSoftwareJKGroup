@@ -29,6 +29,7 @@ import DeleteButton from "../../../Common/Buttons/DeleteButton";
 import OpenButton from "../../../Common/Buttons/OpenButton";
 import { formatReadableAmount } from "../../../Common/FormatFunctions/FormatAmount";
 import RecieptPaymentReport from "./RecieptPaymentReport";
+import Swal from "sweetalert2";
 
 const API_URL = process.env.REACT_APP_API;
 
@@ -343,6 +344,10 @@ const RecieptPayment = () => {
 
   //Handle Save Or Update the information
   const handleSaveOrUpdate = async () => {
+    if (formData.cashbank === "" || formData.cashbank === 0) {
+      alert("Please select Cash/Bank");
+      return;
+    }
     if (users.length === 0 || users.every(user => user.rowaction === "DNU" || user.rowaction === "delete")) {
       alert("Please add at least one entry in the detail grid.");
       return;
@@ -448,7 +453,12 @@ const RecieptPayment = () => {
         const isLockedNew = data.receipt_payment_head.LockedRecord;
         const isLockedByUserNew = data.receipt_payment_head.LockedUser;
         if (isLockedNew) {
-          window.alert(`This record is locked by ${isLockedByUserNew}`);
+          Swal.fire({
+            icon: "warning",
+            title: "Record Locked",
+            text: `This record is locked by ${isLockedByUserNew}`,
+            confirmButtonColor: "#d33",
+          });
           return;
         } else {
           lockRecord();
@@ -506,15 +516,30 @@ const RecieptPayment = () => {
       const isLockedByUserNew = data.receipt_payment_head.LockedUser;
 
       if (isLockedNew) {
-        window.alert(`This record is locked by ${isLockedByUserNew}`);
+        Swal.fire({
+          icon: "warning",
+          title: "Record Locked",
+          text: `This record is locked by ${isLockedByUserNew}`,
+          confirmButtonColor: "#d33",
+        });
         return;
       }
 
-      const isConfirmed = window.confirm(
-        `Are you sure you want to delete ${formData.doc_no}?`
-      );
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: `You won't be able to revert this Doc No : ${formData.doc_no}`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        cancelButtonText: "Cancel",
+        confirmButtonText: "Delete",
+        reverseButtons: true,
+        focusCancel: true,
+      });
 
-      if (isConfirmed) {
+
+      if (result.isConfirmed) {
         setIsEditMode(false);
         setAddOneButtonEnabled(true);
         setEditButtonEnabled(true);
@@ -544,7 +569,11 @@ const RecieptPayment = () => {
           setIsLoading(false);
         }
       } else {
-        console.log("Deletion cancelled.");
+        Swal.fire({
+          title: "Cancelled",
+          text: "Your record is safe 🙂",
+          icon: "info",
+        });
       }
     } catch (error) {
       toast.error("Error fetching data.");
@@ -568,24 +597,9 @@ const RecieptPayment = () => {
     }
   }, [selectedRecord, navigatedRecord]);
 
-
-
-  //   const handleKeyDownCalculations = (e) => {
-  //     if (e.key === "Tab") {
-  //         const { amount = 0, Adjusted_Amount = 0, TDS_Rate = 0 } = formDataDetail;
-  //         const TDSApplicableAmount = amount + Adjusted_Amount;
-  //         const NewTDSAmount = (TDSApplicableAmount * TDS_Rate) / 100;
-  //         setFormDataDetail((prevData) => ({
-  //             ...prevData,
-  //             TDS_Amt: parseFloat(NewTDSAmount),
-  //         }));
-  //     }
-  // };
-
-
+  //Handle Calculations
   const handleKeyDownCalculations = (e) => {
     if (e.key === "Tab") {
-      debugger;
       const { amount = 0, Adjusted_Amount = 0, TDS_Rate = 0 } = formDataDetail;
 
       const adjustedValue = parseFloat(Adjusted_Amount) || 0;
@@ -1194,7 +1208,7 @@ const RecieptPayment = () => {
                   name="tran_type"
                   value={formData.tran_type}
                   onChange={handleDropdownChange}
-                  // disabled={!addOneButtonEnabled}
+                  disabled={!addOneButtonEnabled}
                   size="small"
                   InputLabelProps={{
                     style: { fontWeight: 'bold' },
@@ -1248,7 +1262,7 @@ const RecieptPayment = () => {
                   onAcCodeClick={handleCashBank}
                   CategoryName={lblbankname}
                   CategoryCode={newcashbank}
-                  Ac_type={["B", "C"]}
+                  Ac_type={"B"}
                   disabledFeild={!isEditing && addOneButtonEnabled}
                   size="small"
                 />

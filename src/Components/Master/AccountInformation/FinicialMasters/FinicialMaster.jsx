@@ -22,6 +22,7 @@ import {
   Container,
 } from "@mui/material";
 import UserAuditInfo from "../../../../Common/UserAuditInfo/UserAuditInfo";
+import Swal from "sweetalert2";
 
 const API_URL = process.env.REACT_APP_API;
 
@@ -108,18 +109,18 @@ const FinicialMaster = ({ isPopup = false }, ref) => {
   };
 
   const handleSaveOrUpdate = () => {
-    
+
     const { group_Code, group_Name_E, group_Summary, group_Type, group_Order } = formData;
 
-  if (isEditMode) {
-    const form_data = {
-      group_Code,
-      group_Name_E,
-      group_Summary,
-      group_Type,
-      group_Order,
-      Modified_By: username, 
-    };
+    if (isEditMode) {
+      const form_data = {
+        group_Code,
+        group_Name_E,
+        group_Summary,
+        group_Type,
+        group_Order,
+        Modified_By: username,
+      };
 
       axios
         .put(
@@ -149,7 +150,7 @@ const FinicialMaster = ({ isPopup = false }, ref) => {
         group_Summary,
         group_Type,
         group_Order,
-        Created_By: username, 
+        Created_By: username,
       };
       axios
         .post(
@@ -212,10 +213,20 @@ const FinicialMaster = ({ isPopup = false }, ref) => {
   };
 
   const handleDelete = async () => {
-    const isConfirmed = window.confirm(
-      `Are you sure you want to delete this Accounting ${formData.group_Code}?`
-    );
-    if (isConfirmed) {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `You won't be able to revert this Group Code : ${formData.group_Code}`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      cancelButtonText: "Cancel",
+      confirmButtonText: "Delete",
+      reverseButtons: true,
+      focusCancel: true,
+    });
+
+    if (result.isConfirmed) {
       setIsEditMode(false);
       setAddOneButtonEnabled(true);
       setEditButtonEnabled(true);
@@ -233,7 +244,11 @@ const FinicialMaster = ({ isPopup = false }, ref) => {
         console.error("Error during API call:", error);
       }
     } else {
-      console.log("Deletion cancelled");
+      Swal.fire({
+        title: "Cancelled",
+        text: "Your record is safe 🙂",
+        icon: "info",
+      });
     }
   };
 
@@ -387,7 +402,7 @@ const FinicialMaster = ({ isPopup = false }, ref) => {
 
   return (
     <>
-    <UserAuditInfo
+      <UserAuditInfo
         createdBy={formData.Created_By}
         modifiedBy={formData.Modified_By}
       />

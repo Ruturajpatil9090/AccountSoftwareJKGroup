@@ -21,6 +21,7 @@ import OpenButton from "../../../Common/Buttons/OpenButton";
 import { formatReadableAmount } from "../../../Common/FormatFunctions/FormatAmount";
 import GroupMasterHelp from "../../../Helper/SystemmasterHelp";
 import ServiceBillReport from '../ServiceBill/ServiceBillReport'
+import Swal from "sweetalert2";
 
 //Global Variables
 var newSaleid = "";
@@ -155,6 +156,9 @@ const ServiceBill = () => {
   const [GstRate, setGstRate] = useState(0.0);
   const [matchStatus, setMatchStatus] = useState(null);
 
+  const searchParams = new URLSearchParams(location.search);
+  const navigatedRecord = searchParams.get('navigatedRecord');
+
   //Using the useRecordLocking to manage the multiple user cannot edit the same record at a time.
   const { isRecordLockedByUser, lockRecord, unlockRecord } = useRecordLocking(
     formData.Doc_No,
@@ -282,8 +286,12 @@ const ServiceBill = () => {
         const isLockedByUserNew = data.service_bill_head.LockedUser;
 
         if (isLockedNew) {
-          window.alert(`This record is locked by ${isLockedByUserNew}`);
-          return;
+          Swal.fire({
+            icon: "warning",
+            title: "Record Locked",
+            text: `This record is locked by ${isLockedByUserNew}`,
+            confirmButtonColor: "#d33",
+          });
         } else {
           lockRecord();
         }
@@ -398,13 +406,29 @@ const ServiceBill = () => {
       const isLockedByUserNew = data.service_bill_head.LockedUser;
 
       if (isLockedNew) {
-        window.alert(`This record is locked by ${isLockedByUserNew}`);
+        Swal.fire({
+          icon: "warning",
+          title: "Record Locked",
+          text: `This record is locked by ${isLockedByUserNew}`,
+          confirmButtonColor: "#d33",
+        });
         return;
       }
-      const isConfirmed = window.confirm(
-        `Are you sure you want to delete this Task No ${formData.Doc_No}?`
-      );
-      if (isConfirmed) {
+
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: `You won't be able to revert this Doc No : ${formData.doc_no}`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        cancelButtonText: "Cancel",
+        confirmButtonText: "Delete",
+        reverseButtons: true,
+        focusCancel: true,
+      });
+
+      if (result.isConfirmed) {
         setIsEditMode(false);
         setAddOneButtonEnabled(true);
         setEditButtonEnabled(true);
@@ -427,7 +451,11 @@ const ServiceBill = () => {
           );
         }
       } else {
-        console.log("Deletion cancelled");
+        Swal.fire({
+          title: "Cancelled",
+          text: "Your record is safe 🙂",
+          icon: "info",
+        });
       }
 
     }
@@ -497,6 +525,65 @@ const ServiceBill = () => {
       }
     } catch (error) {
       console.error("Error during API call:", error);
+    }
+  };
+
+  //Gledger oncliked set records 
+  const handleNavigateRecord = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/getservicebillByid?doc_no=${navigatedRecord}&Company_Code=${companyCode}&Year_Code=${Year_Code}`
+      );
+      const { service_bill_head, service_bill_details, service_labels } = response.data;
+      const detailsArray = Array.isArray(service_bill_details) ? service_bill_details : [];
+      newSaleid = service_bill_head.rbid;
+      partyName = service_labels[0].partyname;
+      partyCode = service_bill_head.Customer_Code;
+      billToName = service_labels[0].millname;
+      billToCode = service_bill_head.TDS_Ac;
+      gstRateCode = service_bill_head.GstRateCode;
+      gstName = service_labels[0].GST_Name;
+      itemName = service_labels[0].itemname;
+      item_Code = service_bill_details[0].Item_Code;
+      GroupName = service_labels[0].System_Name_E;
+      GroupCode = service_bill_details[0].Group_Code;
+      gstStateCode = service_labels[0].GSTStateCode
+      const itemNameMap = service_labels.reduce((map, label) => {
+        if (label.Item_Code !== undefined && label.itemname) {
+          map[label.Item_Code] = label.itemname;
+        }
+        return map;
+      }, {});
+
+      const groupNameMap = service_labels.reduce((map, label) => {
+        if (label.Group_Code !== undefined && label.System_Name_E) {
+          map[label.Group_Code] = label.System_Name_E;
+        }
+        return map;
+      }, {});
+
+
+      const enrichedDetails = detailsArray.map((detail) => ({
+        ...detail,
+        itemname: itemNameMap[detail.Item_Code] || "Unknown Item",
+        System_Name_E: groupNameMap[detail.Group_Code] || "",
+      }));
+      setFormData((prevData) => ({
+        ...prevData,
+        ...service_bill_head,
+      }));
+      setLastTenderData(service_bill_head || {});
+      setLastTenderDetails(enrichedDetails);
+      setIsEditing(false);
+      setAddOneButtonEnabled(true);
+      setEditButtonEnabled(true);
+      setDeleteButtonEnabled(true);
+      setBackButtonEnabled(true);
+      setSaveButtonEnabled(false);
+      setCancelButtonEnabled(false);
+      setCancelButtonClicked(true);
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -694,11 +781,17 @@ const ServiceBill = () => {
   useEffect(() => {
     if (selectedRecord) {
       handlerecordDoubleClicked();
+    } else if (navigatedRecord) {
+      handleNavigateRecord();
     } else {
       handleAddOne();
     }
-    document.getElementById("Customer_Code").focus();
-  }, [selectedRecord]);
+    const customerCodeElement = document.getElementById("Customer_Code");
+    if (customerCodeElement) {
+      customerCodeElement.focus();
+    }
+  }, [selectedRecord, navigatedRecord]);
+
 
   const handlerecordDoubleClicked = async () => {
     setIsEditing(false);
@@ -1364,7 +1457,6 @@ const ServiceBill = () => {
           />
         </div>
 
-        {/* <ServiceBillReport doc_no = {formData.doc_no}/> */}
         <Grid container spacing={2} mt={2} className="ServiceBill-row">
           <Grid item xs={12} sm={1}>
             <TextField
@@ -1424,20 +1516,19 @@ const ServiceBill = () => {
               />
             </div>
           </div>
-          <Grid item xs={1} ml={2}>
+          <Grid item xs={1} ml={1}>
             <TextField
               label="State Code"
               name="state"
+              autoComplete="off"
               variant="outlined"
               fullWidth
               value={gstStateCode}
               disabled={!isEditing && addOneButtonEnabled}
-              autoComplete="off"
               size="small"
             />
           </Grid>
         </div>
-
         <div className="ServiceBill-row">
           <Grid container spacing={2} className="ServiceBill-row">
 
@@ -1598,12 +1689,11 @@ const ServiceBill = () => {
             </div>
           )}
 
-
           <div style={{ marginTop: "10px" }}>
             <AddButton openPopup={openPopup} isEditing={isEditing} ref={addButtonRef} setFocusToFirstField={setFocusToFirstField} />
           </div>
           <div style={{ display: "flex" }}>
-            <div style={{ width: "60%", paddingRight: "10px" }}>
+            <div style={{ width: "80%", paddingRight: "10px" }}>
               <TableContainer component={Paper} style={{ marginTop: '16px', width: '100%', marginBottom: "20px" }}>
                 <Table sx={{ minWidth: 650 }}>
                   <TableHead>
@@ -1620,7 +1710,7 @@ const ServiceBill = () => {
                   <TableBody>
                     {users.map((user) => (
                       <TableRow key={user.id} sx={{ height: '30px' }}>
-                        <TableCell sx={{ padding: '4px 8px',display:"flex"}}>
+                        <TableCell sx={{ padding: '4px 8px', display: "flex" }}>
                           {user.rowaction === 'add' || user.rowaction === 'update' || user.rowaction === 'Normal' ? (
                             <>
                               <EditButton editUser={editUser} user={user} isEditing={isEditing} />
@@ -1657,55 +1747,143 @@ const ServiceBill = () => {
                       <option value="N">No</option>
                     </select>
                   </div>
+                  <label htmlFor="TDS_Ac" className="ServiceBill-form-otherlabels">TDS A/C:</label>
+                  <div className="ServiceBill-form-group">
+                    <AccountMasterHelp
+                      onAcCodeClick={handleTDSAc}
+                      CategoryName={billToName}
+                      CategoryCode={billToCode}
+                      name="TDS_Ac"
+                      disabledFeild={!isEditing && addOneButtonEnabled}
+                    />
+                  </div>
                 </div>
               </div>
               <br></br>
               <div className="ServiceBill-row">
-                <label htmlFor="TDS_Ac" className="ServiceBill-form-otherlabels">TDS A/C:</label>
-                <div className="ServiceBill-form-group">
-                  <AccountMasterHelp
-                    onAcCodeClick={handleTDSAc}
-                    CategoryName={billToName}
-                    CategoryCode={billToCode}
-                    name="TDS_Ac"
-                    disabledFeild={!isEditing && addOneButtonEnabled}
-                  />
-                </div>
-              </div>
-              <div className="ServiceBill-row">
-                <label className="ServiceBill-form-otherlabels">EInvoice :</label>
-                <div className="ServiceBill-form-group">
-                  <input
-                    type="text"
-                    name="einvoiceno"
-                    autoComplete="off"
-                    value={formData.einvoiceno}
-                    onChange={handleChange}
-                    disabled={!isEditing && addOneButtonEnabled}
-                  />
-                </div>
+                <Grid container spacing={1} alignItems="center" style={{ marginTop: '5px', marginBottom: "10px" }} >
+                  <Grid item xs={12} sm={2}>
+                    <TextField
+                      variant="outlined"
+                      name="TDS_Per"
+                      label="TDS %"
+                      autoComplete="off"
+                      value={formData.TDS_Per}
+                      onChange={handleChange}
+                      onKeyDown={handleKeyDownCalculations}
+                      disabled={!isEditing && addOneButtonEnabled}
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      error={!!formErrors.TDS_Per}
+                      helperText={formErrors.TDS_Per}
+                      size="small"
+                      inputProps={{
+                        sx: { textAlign: 'right' },
+                        inputMode: 'decimal',
+                        pattern: '[0-9]*[.,]?[0-9]+',
+                        onInput: validateNumericInput,
+                      }}
+                    />
+                  </Grid>
 
-                <label className="ServiceBill-form-otherlabels ">ACK No :</label>
-                <div className="ServiceBill-form-group">
-                  <input
-                    type="text"
-                    name="ackno"
-                    autoComplete="off"
-                    value={formData.ackno}
-                    onChange={handleChange}
-                    disabled={!isEditing && addOneButtonEnabled}
-                  />
-                </div>
+                  <Grid item xs={12} sm={2}>
+                    <TextField
+                      variant="outlined"
+                      name="TDS"
+                      label="TDS Amount"
+                      autoComplete="off"
+                      value={formData.TDS}
+                      onChange={handleChange}
+                      onKeyDown={handleKeyDownCalculations}
+                      disabled={!isEditing && addOneButtonEnabled}
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      error={!!formErrors.TDS}
+                      helperText={formErrors.TDS}
+                      size="small"
+                      inputProps={{
+                        sx: { textAlign: 'right' },
+                        inputMode: 'decimal',
+                        pattern: '[0-9]*[.,]?[0-9]+',
+                        onInput: validateNumericInput,
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={2}>
+                    <TextField
+                      variant="outlined"
+                      name="TDSAmount"
+                      label="TDS Applicable Amount"
+                      autoComplete="off"
+                      value={formData.TDSAmount}
+                      onChange={handleChange}
+                      onKeyDown={handleKeyDownCalculations}
+                      disabled={!isEditing && addOneButtonEnabled}
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      error={!!formErrors.TDSAmount}
+                      helperText={formErrors.TDSAmount}
+                      size="small"
+                      inputProps={{
+                        sx: { textAlign: 'right' },
+                        inputMode: 'decimal',
+                        pattern: '[0-9]*[.,]?[0-9]+',
+                        onInput: validateNumericInput,
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid container spacing={2} alignItems="center">
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      label="EInvoice"
+                      variant="outlined"
+                      name="einvoiceno"
+                      autoComplete="off"
+                      value={formData.einvoiceno}
+                      onChange={handleChange}
+                      disabled={!isEditing && addOneButtonEnabled}
+                      fullWidth
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      error={!!formErrors.einvoiceno}
+                      helperText={formErrors.einvoiceno}
+                      size="small"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={2}>
+                    <TextField
+                      label="ACK No"
+                      variant="outlined"
+                      name="ackno"
+                      autoComplete="off"
+                      value={formData.ackno}
+                      onChange={handleChange}
+                      disabled={!isEditing && addOneButtonEnabled}
+                      fullWidth
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      error={!!formErrors.ackno}
+                      helperText={formErrors.ackno}
+                      size="small"
+                    />
+                  </Grid>
+                </Grid>
+
               </div>
             </div>
-
-            <div style={{ width: "50%", paddingLeft: "10px" }}>
-              <div >
-                <Grid container spacing={1} justifyContent="flex-end" alignItems="center" mt={-10}  >
-                  <Grid item xs={1}>
+            <div style={{ width: "20%", paddingLeft: "10px" }}>
+              <div>
+                <Grid container spacing={0.5} alignItems="center">
+                  {/* Subtotal Row */}
+                  <Grid item xs={12} sm={4}>
                     <label className="ServiceBill-form-label">Subtotal:</label>
                   </Grid>
-                  <Grid item xs={12} sm={4}>
+                  <Grid item xs={12} sm={8}>
                     <TextField
                       variant="outlined"
                       name="Subtotal"
@@ -1726,389 +1904,299 @@ const ServiceBill = () => {
                     />
                   </Grid>
 
-                  <Grid container spacing={1} justifyContent="flex-end" alignItems="center" style={{ marginTop: '-6px' }} >
-                    <Grid item >
-                      <label className="ServiceBill-form-label">CGST:</label>
-                    </Grid>
-                    <Grid item xs={12} sm={2}>
-                      <TextField
-                        variant="outlined"
-                        name="CGSTRate"
-                        autoComplete="off"
-                        value={formData.CGSTRate}
-                        onChange={handleChange}
-                        onKeyDown={handleKeyDownCalculations}
-                        disabled={!isEditing && addOneButtonEnabled}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        error={!!formErrors.CGSTRate}
-                        helperText={formErrors.CGSTRate}
-                        size="small"
-                        inputProps={{
-                          sx: { textAlign: 'right' },
-                          inputMode: 'decimal',
-                          pattern: '[0-9]*[.,]?[0-9]+',
-                          onInput: validateNumericInput,
-                        }}
-                      />
-
-                    </Grid>
-                    <Grid item xs={12} sm={2}>
-                      <TextField
-                        variant="outlined"
-                        name="CGSTAmount"
-                        autoComplete="off"
-                        value={formData.CGSTAmount}
-                        onChange={handleChange}
-                        onKeyDown={handleKeyDownCalculations}
-                        disabled={!isEditing && addOneButtonEnabled}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        error={!!formErrors.CGSTAmount}
-                        helperText={formErrors.CGSTAmount}
-                        size="small"
-                        inputProps={{
-                          sx: { textAlign: 'right' },
-                          inputMode: 'decimal',
-                          pattern: '[0-9]*[.,]?[0-9]+',
-                          onInput: validateNumericInput,
-                        }}
-                      />
-                    </Grid>
+                  {/* CGST Row */}
+                  <Grid item xs={12} sm={4}>
+                    <label className="ServiceBill-form-label">CGST:</label>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      variant="outlined"
+                      name="CGSTRate"
+                      autoComplete="off"
+                      value={formData.CGSTRate}
+                      onChange={handleChange}
+                      onKeyDown={handleKeyDownCalculations}
+                      disabled={!isEditing && addOneButtonEnabled}
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      error={!!formErrors.CGSTRate}
+                      helperText={formErrors.CGSTRate}
+                      size="small"
+                      inputProps={{
+                        sx: { textAlign: 'right' },
+                        inputMode: 'decimal',
+                        pattern: '[0-9]*[.,]?[0-9]+',
+                        onInput: validateNumericInput,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      variant="outlined"
+                      name="CGSTAmount"
+                      autoComplete="off"
+                      value={formData.CGSTAmount}
+                      onChange={handleChange}
+                      onKeyDown={handleKeyDownCalculations}
+                      disabled={!isEditing && addOneButtonEnabled}
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      error={!!formErrors.CGSTAmount}
+                      helperText={formErrors.CGSTAmount}
+                      size="small"
+                      inputProps={{
+                        sx: { textAlign: 'right' },
+                        inputMode: 'decimal',
+                        pattern: '[0-9]*[.,]?[0-9]+',
+                        onInput: validateNumericInput,
+                      }}
+                    />
                   </Grid>
 
-                  <Grid container spacing={1} justifyContent="flex-end" alignItems="center" style={{ marginTop: '-6px' }} >
-                    <Grid item xs={1}>
-                      <label className="ServiceBill-form-label">SGST:</label>
-                    </Grid>
-                    <Grid item xs={12} sm={2}>
-                      <TextField
-                        variant="outlined"
-                        name="SGSTRate"
-                        autoComplete="off"
-                        value={formData.SGSTRate}
-                        onChange={handleChange}
-                        onKeyDown={handleKeyDownCalculations}
-                        disabled={!isEditing && addOneButtonEnabled}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        error={!!formErrors.SGSTRate}
-                        helperText={formErrors.SGSTRate}
-                        size="small"
-                        inputProps={{
-                          sx: { textAlign: 'right' },
-                          inputMode: 'decimal',
-                          pattern: '[0-9]*[.,]?[0-9]+',
-                          onInput: validateNumericInput,
-                        }}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={2}>
-                      <TextField
-                        variant="outlined"
-                        name="SGSTAmount"
-                        autoComplete="off"
-                        value={formData.SGSTAmount}
-                        onChange={handleChange}
-                        onKeyDown={handleKeyDownCalculations}
-                        disabled={!isEditing && addOneButtonEnabled}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        error={!!formErrors.SGSTAmount}
-                        helperText={formErrors.SGSTAmount}
-                        size="small"
-                        inputProps={{
-                          sx: { textAlign: 'right' },
-                          inputMode: 'decimal',
-                          pattern: '[0-9]*[.,]?[0-9]+',
-                          onInput: validateNumericInput,
-                        }}
-                      />
-                    </Grid>
+                  {/* SGST Row */}
+                  <Grid item xs={12} sm={4}>
+                    <label className="ServiceBill-form-label">SGST:</label>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      variant="outlined"
+                      name="SGSTRate"
+                      autoComplete="off"
+                      value={formData.SGSTRate}
+                      onChange={handleChange}
+                      onKeyDown={handleKeyDownCalculations}
+                      disabled={!isEditing && addOneButtonEnabled}
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      error={!!formErrors.SGSTRate}
+                      helperText={formErrors.SGSTRate}
+                      size="small"
+                      inputProps={{
+                        sx: { textAlign: 'right' },
+                        inputMode: 'decimal',
+                        pattern: '[0-9]*[.,]?[0-9]+',
+                        onInput: validateNumericInput,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      variant="outlined"
+                      name="SGSTAmount"
+                      autoComplete="off"
+                      value={formData.SGSTAmount}
+                      onChange={handleChange}
+                      onKeyDown={handleKeyDownCalculations}
+                      disabled={!isEditing && addOneButtonEnabled}
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      error={!!formErrors.SGSTAmount}
+                      helperText={formErrors.SGSTAmount}
+                      size="small"
+                      inputProps={{
+                        sx: { textAlign: 'right' },
+                        inputMode: 'decimal',
+                        pattern: '[0-9]*[.,]?[0-9]+',
+                        onInput: validateNumericInput,
+                      }}
+                    />
                   </Grid>
 
-                  <Grid container spacing={1} justifyContent="flex-end" alignItems="center" style={{ marginTop: '-6px' }} >
-                    <Grid item xs={1}>
-                      <label className="ServiceBill-form-label">IGST:</label>
-                    </Grid>
-                    <Grid item xs={12} sm={2}>
-                      <TextField
-                        variant="outlined"
-                        name="IGSTRate"
-                        autoComplete="off"
-                        value={formData.IGSTRate}
-                        onChange={handleChange}
-                        disabled={!isEditing && addOneButtonEnabled}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        error={!!formErrors.IGSTRate}
-                        helperText={formErrors.IGSTRate}
-                        size="small"
-                        inputProps={{
-                          sx: { textAlign: 'right' },
-                          inputMode: 'decimal',
-                          pattern: '[0-9]*[.,]?[0-9]+',
-                          onInput: validateNumericInput,
-                        }}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={2}>
-                      <TextField
-                        variant="outlined"
-                        name="IGSTAmount"
-                        autoComplete="off"
-                        value={formData.IGSTAmount}
-                        onChange={handleChange}
-                        disabled={!isEditing && addOneButtonEnabled}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        error={!!formErrors.IGSTAmount}
-                        helperText={formErrors.IGSTAmount}
-                        size="small"
-                        inputProps={{
-                          sx: { textAlign: 'right' },
-                          inputMode: 'decimal',
-                          pattern: '[0-9]*[.,]?[0-9]+',
-                          onInput: validateNumericInput,
-                        }}
-                      />
-                    </Grid>
+                  {/* IGST Row */}
+                  <Grid item xs={12} sm={4}>
+                    <label className="ServiceBill-form-label">IGST:</label>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      variant="outlined"
+                      name="IGSTRate"
+                      autoComplete="off"
+                      value={formData.IGSTRate}
+                      onChange={handleChange}
+                      disabled={!isEditing && addOneButtonEnabled}
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      error={!!formErrors.IGSTRate}
+                      helperText={formErrors.IGSTRate}
+                      size="small"
+                      inputProps={{
+                        sx: { textAlign: 'right' },
+                        inputMode: 'decimal',
+                        pattern: '[0-9]*[.,]?[0-9]+',
+                        onInput: validateNumericInput,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      variant="outlined"
+                      name="IGSTAmount"
+                      autoComplete="off"
+                      value={formData.IGSTAmount}
+                      onChange={handleChange}
+                      disabled={!isEditing && addOneButtonEnabled}
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      error={!!formErrors.IGSTAmount}
+                      helperText={formErrors.IGSTAmount}
+                      size="small"
+                      inputProps={{
+                        sx: { textAlign: 'right' },
+                        inputMode: 'decimal',
+                        pattern: '[0-9]*[.,]?[0-9]+',
+                        onInput: validateNumericInput,
+                      }}
+                    />
                   </Grid>
 
-                  <Grid container spacing={1} justifyContent="flex-end" alignItems="center" style={{ marginTop: '-6px' }} >
-                    <Grid item xs={1}>
-                      <label className="ServiceBill-form-label">Total:</label>
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <TextField
-                        variant="outlined"
-                        name="Total"
-                        autoComplete="off"
-                        value={formData.Total}
-                        onChange={handleChange}
-                        disabled={!isEditing && addOneButtonEnabled}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        error={!!formErrors.Total}
-                        helperText={formErrors.Total}
-                        size="small"
-                        inputProps={{
-                          sx: { textAlign: 'right' },
-                          inputMode: 'decimal',
-                          pattern: '[0-9]*[.,]?[0-9]+',
-                          onInput: validateNumericInput,
-                        }}
-                      />
-                    </Grid>
+                  {/* Total Row */}
+                  <Grid item xs={12} sm={4}>
+                    <label className="ServiceBill-form-label">Total:</label>
+                  </Grid>
+                  <Grid item xs={12} sm={8}>
+                    <TextField
+                      variant="outlined"
+                      name="Total"
+                      autoComplete="off"
+                      value={formData.Total}
+                      onChange={handleChange}
+                      disabled={!isEditing && addOneButtonEnabled}
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      error={!!formErrors.Total}
+                      helperText={formErrors.Total}
+                      size="small"
+                      inputProps={{
+                        sx: { textAlign: 'right' },
+                        inputMode: 'decimal',
+                        pattern: '[0-9]*[.,]?[0-9]+',
+                        onInput: validateNumericInput,
+                      }}
+                    />
                   </Grid>
 
-                  <Grid container spacing={1} justifyContent="flex-end" alignItems="center" style={{ marginTop: '-6px' }} >
-                    <Grid item xs={1}>
-                      <label className="ServiceBill-form-label">Round Off:</label>
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <TextField
-                        variant="outlined"
-                        name="Round_Off"
-                        autoComplete="off"
-                        value={formData.Round_Off}
-                        onChange={handleChange}
-                        onKeyDown={handleKeyDownCalculations}
-                        disabled={!isEditing && addOneButtonEnabled}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        error={!!formErrors.Round_Off}
-                        helperText={formErrors.Round_Off}
-                        size="small"
-                        inputProps={{
-                          sx: { textAlign: 'right' },
-                        }}
-                      />
-                    </Grid>
+                  {/* Round Off Row */}
+                  <Grid item xs={12} sm={4}>
+                    <label className="ServiceBill-form-label">Round Off:</label>
+                  </Grid>
+                  <Grid item xs={12} sm={8}>
+                    <TextField
+                      variant="outlined"
+                      name="Round_Off"
+                      autoComplete="off"
+                      value={formData.Round_Off}
+                      onChange={handleChange}
+                      onKeyDown={handleKeyDownCalculations}
+                      disabled={!isEditing && addOneButtonEnabled}
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      error={!!formErrors.Round_Off}
+                      helperText={formErrors.Round_Off}
+                      size="small"
+                      inputProps={{
+                        sx: { textAlign: 'right' },
+                      }}
+                    />
                   </Grid>
 
-                  <Grid container spacing={1} justifyContent="flex-end" alignItems="center" style={{ marginTop: '-6px' }} >
-                    <Grid item xs={1}>
-                      <label className="ServiceBill-form-label">Final Amount:</label>
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <TextField
-                        variant="outlined"
-                        name="Final_Amount"
-                        autoComplete="off"
-                        value={formData.Final_Amount}
-                        onChange={handleChange}
-                        onKeyDown={handleKeyDownCalculations}
-                        disabled={!isEditing && addOneButtonEnabled}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        error={!!formErrors.Final_Amount}
-                        helperText={formErrors.Final_Amount}
-                        size="small"
-                        inputProps={{
-                          sx: { textAlign: 'right' },
-                          inputMode: 'decimal',
-                          pattern: '[0-9]*[.,]?[0-9]+',
-                          onInput: validateNumericInput,
-                        }}
-                      />
-                    </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <label className="ServiceBill-form-label">Final Amount:</label>
+                  </Grid>
+                  <Grid item xs={12} sm={8}>
+                    <TextField
+                      variant="outlined"
+                      name="Final_Amount"
+                      autoComplete="off"
+                      value={formData.Final_Amount}
+                      onChange={handleChange}
+                      onKeyDown={handleKeyDownCalculations}
+                      disabled={!isEditing && addOneButtonEnabled}
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      error={!!formErrors.Final_Amount}
+                      helperText={formErrors.Final_Amount}
+                      size="small"
+                      inputProps={{
+                        sx: { textAlign: 'right' },
+                        inputMode: 'decimal',
+                        pattern: '[0-9]*[.,]?[0-9]+',
+                        onInput: validateNumericInput,
+                      }}
+                    />
                   </Grid>
 
-                  <Grid container spacing={1} justifyContent="flex-end" alignItems="center" style={{ marginTop: '-6px' }} >
-                    <Grid item xs={1}>
-                      <label className="ServiceBill-form-label">TCS %:</label>
-                    </Grid>
-                    <Grid item xs={12} sm={2}>
-                      <TextField
-                        variant="outlined"
-                        name="TCS_Rate"
-                        autoComplete="off"
-                        value={formData.TCS_Rate}
-                        onChange={handleChange}
-                        onKeyDown={handleKeyDownCalculations}
-                        disabled={!isEditing && addOneButtonEnabled}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        error={!!formErrors.TCS_Rate}
-                        helperText={formErrors.TCS_Rate}
-                        size="small"
-                        inputProps={{
-                          sx: { textAlign: 'right' },
-                          inputMode: 'decimal',
-                          pattern: '[0-9]*[.,]?[0-9]+',
-                          onInput: validateNumericInput,
-                        }}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={2}>
-                      <TextField
-                        variant="outlined"
-                        name="TCS_Amt"
-                        autoComplete="off"
-                        value={formData.TCS_Amt}
-                        onChange={handleChange}
-                        onKeyDown={handleKeyDownCalculations}
-                        disabled={!isEditing && addOneButtonEnabled}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        error={!!formErrors.TCS_Amt}
-                        helperText={formErrors.TCS_Amt}
-                        size="small"
-                        inputProps={{
-                          sx: { textAlign: 'right' },
-                          inputMode: 'decimal',
-                          pattern: '[0-9]*[.,]?[0-9]+',
-                          onInput: validateNumericInput,
-                        }}
-                      />
-                    </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <label className="ServiceBill-form-label">TCS %:</label>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      variant="outlined"
+                      name="TCS_Rate"
+                      autoComplete="off"
+                      value={formData.TCS_Rate}
+                      onChange={handleChange}
+                      onKeyDown={handleKeyDownCalculations}
+                      disabled={!isEditing && addOneButtonEnabled}
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      error={!!formErrors.TCS_Rate}
+                      helperText={formErrors.TCS_Rate}
+                      size="small"
+                      inputProps={{
+                        sx: { textAlign: 'right' },
+                        inputMode: 'decimal',
+                        pattern: '[0-9]*[.,]?[0-9]+',
+                        onInput: validateNumericInput,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      variant="outlined"
+                      name="TCS_Amt"
+                      autoComplete="off"
+                      value={formData.TCS_Amt}
+                      onChange={handleChange}
+                      onKeyDown={handleKeyDownCalculations}
+                      disabled={!isEditing && addOneButtonEnabled}
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      error={!!formErrors.TCS_Amt}
+                      helperText={formErrors.TCS_Amt}
+                      size="small"
+                      inputProps={{
+                        sx: { textAlign: 'right' },
+                        inputMode: 'decimal',
+                        pattern: '[0-9]*[.,]?[0-9]+',
+                        onInput: validateNumericInput,
+                      }}
+                    />
                   </Grid>
 
-                  <Grid container spacing={1} justifyContent="flex-end" alignItems="center" style={{ marginTop: '-6px' }} >
-                    <Grid item xs={1}>
-                      <label className="ServiceBill-form-label">Net Payable:</label>
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <TextField
-                        variant="outlined"
-                        name="TCS_Net_Payable"
-                        autoComplete="off"
-                        value={formData.TCS_Net_Payable}
-                        onChange={handleChange}
-                        onKeyDown={handleKeyDownCalculations}
-                        disabled={!isEditing && addOneButtonEnabled}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        error={!!formErrors.TCS_Net_Payable}
-                        helperText={formErrors.TCS_Net_Payable}
-                        size="small"
-                        inputProps={{
-                          sx: { textAlign: 'right' },
-                          inputMode: 'decimal',
-                          pattern: '[0-9]*[.,]?[0-9]+',
-                          onInput: validateNumericInput,
-                        }}
-                      />
-                    </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <label className="ServiceBill-form-label">Net Payable:</label>
                   </Grid>
-
-                  <Grid container spacing={1} justifyContent="flex-end" alignItems="center" style={{ marginTop: '-6px' }} >
-                    <Grid item xs={1}>
-                      <label className="ServiceBill-form-label">TDS Amount:</label>
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <TextField
-                        variant="outlined"
-                        name="TDSAmount"
-                        autoComplete="off"
-                        value={formData.TDSAmount}
-                        onChange={handleChange}
-                        onKeyDown={handleKeyDownCalculations}
-                        disabled={!isEditing && addOneButtonEnabled}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        error={!!formErrors.TDSAmount}
-                        helperText={formErrors.TDSAmount}
-                        size="small"
-                        inputProps={{
-                          sx: { textAlign: 'right' },
-                          inputMode: 'decimal',
-                          pattern: '[0-9]*[.,]?[0-9]+',
-                          onInput: validateNumericInput,
-                        }}
-                      />
-                    </Grid>
-                  </Grid>
-
-                  <Grid container spacing={1} justifyContent="flex-end" alignItems="center" style={{ marginTop: '-6px', marginBottom: "40px" }} >
-                    <Grid item xs={1}>
-                      <label className="ServiceBill-form-label">TDS %:</label>
-                    </Grid>
-                    <Grid item xs={12} sm={2}>
-                      <TextField
-                        variant="outlined"
-                        name="TDS_Per"
-                        autoComplete="off"
-                        value={formData.TDS_Per}
-                        onChange={handleChange}
-                        onKeyDown={handleKeyDownCalculations}
-                        disabled={!isEditing && addOneButtonEnabled}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        error={!!formErrors.TDS_Per}
-                        helperText={formErrors.TDS_Per}
-                        size="small"
-                        inputProps={{
-                          sx: { textAlign: 'right' },
-                          inputMode: 'decimal',
-                          pattern: '[0-9]*[.,]?[0-9]+',
-                          onInput: validateNumericInput,
-                        }}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={2}>
-                      <TextField
-                        variant="outlined"
-                        name="TDS"
-                        autoComplete="off"
-                        value={formData.TDS}
-                        onChange={handleChange}
-                        onKeyDown={handleKeyDownCalculations}
-                        disabled={!isEditing && addOneButtonEnabled}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        error={!!formErrors.TDS}
-                        helperText={formErrors.TDS}
-                        size="small"
-                        inputProps={{
-                          sx: { textAlign: 'right' },
-                          inputMode: 'decimal',
-                          pattern: '[0-9]*[.,]?[0-9]+',
-                          onInput: validateNumericInput,
-                        }}
-                      />
-                    </Grid>
+                  <Grid item xs={12} sm={8}>
+                    <TextField
+                      variant="outlined"
+                      name="TCS_Net_Payable"
+                      autoComplete="off"
+                      value={formData.TCS_Net_Payable}
+                      onChange={handleChange}
+                      onKeyDown={handleKeyDownCalculations}
+                      disabled={!isEditing && addOneButtonEnabled}
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      error={!!formErrors.TCS_Net_Payable}
+                      helperText={formErrors.TCS_Net_Payable}
+                      size="small"
+                      inputProps={{
+                        sx: { textAlign: 'right' },
+                        inputMode: 'decimal',
+                        pattern: '[0-9]*[.,]?[0-9]+',
+                        onInput: validateNumericInput,
+                      }}
+                    />
                   </Grid>
                 </Grid>
               </div>

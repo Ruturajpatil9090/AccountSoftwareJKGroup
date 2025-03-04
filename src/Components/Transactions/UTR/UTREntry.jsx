@@ -19,6 +19,8 @@ import EditButton from "../../../Common/Buttons/EditButton";
 import DeleteButton from "../../../Common/Buttons/DeleteButton";
 import OpenButton from "../../../Common/Buttons/OpenButton";
 import "./Utr.css"
+import { formatReadableAmount } from "../../../Common/FormatFunctions/FormatAmount"
+import Swal from "sweetalert2";
 
 var lblBankname;
 var newbank_ac;
@@ -326,7 +328,12 @@ const UTREntry = () => {
         const isLockedByUserNew = data.utr_head.LockedUser;
 
         if (isLockedNew) {
-          window.alert(`This record is locked by ${isLockedByUserNew}`);
+          Swal.fire({
+            icon: "warning",
+            title: "Record Locked",
+            text: `This record is locked by ${isLockedByUserNew}`,
+            confirmButtonColor: "#d33",
+          });
           return;
         } else {
           lockRecord()
@@ -409,13 +416,30 @@ const UTREntry = () => {
         const isLockedByUserNew = data.utr_head.LockedUser;
 
         if (isLockedNew) {
-          window.alert(`This record is locked by ${isLockedByUserNew}`);
+          Swal.fire({
+            icon: "warning",
+            title: "Record Locked",
+            text: `This record is locked by ${isLockedByUserNew}`,
+            confirmButtonColor: "#d33",
+          });
           return;
         }
 
-        const isConfirmed = window.confirm(`Are you sure you want to delete ${formData.doc_no}?`);
+        const result = await Swal.fire({
+          title: "Are you sure?",
+          text: `You won't be able to revert this Doc No : ${formData.doc_no}`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          cancelButtonText: "Cancel",
+          confirmButtonText: "Delete",
+          reverseButtons: true,
+          focusCancel: true,
+        });
 
-        if (isConfirmed) {
+
+        if (result.isConfirmed) {
           setIsLoading(true)
           setIsEditMode(false);
           setAddOneButtonEnabled(true);
@@ -436,7 +460,11 @@ const UTREntry = () => {
             console.error("Error during API call:", error);
           }
         } else {
-          console.log("Deletion cancelled");
+          Swal.fire({
+            title: "Cancelled",
+            text: "Your record is safe 🙂",
+            icon: "info",
+          });
         }
       })
       .catch((error) => {
@@ -717,17 +745,16 @@ const UTREntry = () => {
   useEffect(() => {
     if (selectedRecord) {
       handlerecordDoubleClicked();
-    } 
-    else if (navigatedRecord)
-    {
+    }
+    else if (navigatedRecord) {
       handleNavigateRecord()
     }
-    else  {
+    else {
       handleAddOne();
     }
   }, [selectedRecord, navigatedRecord]);
 
-  
+
 
   useEffect(() => {
     if (selectedRecord) {
@@ -858,43 +885,43 @@ const UTREntry = () => {
   //Navigation Buttons
 
   const handleNavigateRecord = async () => {
-      try {
-        const response = await axios.get(
-          `${API_URL}/getutrByid?Company_Code=${companyCode}&doc_no=${navigatedRecord}&Year_Code=${Year_Code}`
-        );
-        const data = response.data;
-        lblBankname = data.labels.bankAcName;
-        lblmillname = data.labels.millName;
-        newbank_ac = data.utr_head.bank_ac;
-        newmill_code = data.utr_head.mill_code;
+    try {
+      const response = await axios.get(
+        `${API_URL}/getutrByid?Company_Code=${companyCode}&doc_no=${navigatedRecord}&Year_Code=${Year_Code}`
+      );
+      const data = response.data;
+      lblBankname = data.labels.bankAcName;
+      lblmillname = data.labels.millName;
+      newbank_ac = data.utr_head.bank_ac;
+      newmill_code = data.utr_head.mill_code;
 
-        setFormData((prevData) => ({
-          ...prevData,
-          ...data.utr_head,
-        }));
-        setLastTenderData(data.utr_head || {});
-        setLastTenderDetails(data.utr_details || []);
+      setFormData((prevData) => ({
+        ...prevData,
+        ...data.utr_head,
+      }));
+      setLastTenderData(data.utr_head || {});
+      setLastTenderDetails(data.utr_details || []);
 
-        const totalItemAmount = data.utr_details.reduce(
-          (total, user) => total + parseFloat(user.amount),
-          0
-        );
-        setGlobalTotalAmount(totalItemAmount.toFixed(2));
-        const totalDiff =
-          (parseFloat(data.utr_head.amount) || 0) - totalItemAmount;
-        setDiff(totalDiff.toFixed(2));
-        setIsEditing(false);
-    setIsEditMode(false);
-    setAddOneButtonEnabled(true);
-    setEditButtonEnabled(true);
-    setDeleteButtonEnabled(true);
-    setBackButtonEnabled(true);
-    setSaveButtonEnabled(false);
-    setCancelButtonEnabled(false);
-    setCancelButtonClicked(true);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+      const totalItemAmount = data.utr_details.reduce(
+        (total, user) => total + parseFloat(user.amount),
+        0
+      );
+      setGlobalTotalAmount(totalItemAmount.toFixed(2));
+      const totalDiff =
+        (parseFloat(data.utr_head.amount) || 0) - totalItemAmount;
+      setDiff(totalDiff.toFixed(2));
+      setIsEditing(false);
+      setIsEditMode(false);
+      setAddOneButtonEnabled(true);
+      setEditButtonEnabled(true);
+      setDeleteButtonEnabled(true);
+      setBackButtonEnabled(true);
+      setSaveButtonEnabled(false);
+      setCancelButtonEnabled(false);
+      setCancelButtonClicked(true);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   };
 
   const handleFirstButtonClick = async () => {
@@ -1132,7 +1159,7 @@ const UTREntry = () => {
                     style={{ width: "150px" }}
                     InputLabelProps={{
                       shrink: true,
-                      style: { fontWeight: 'bold' }, 
+                      style: { fontWeight: 'bold' },
                     }}
                   />
                 </Grid>
@@ -1148,7 +1175,7 @@ const UTREntry = () => {
                     size="small"
                     InputLabelProps={{
                       shrink: true,
-                      style: { fontWeight: 'bold' }, 
+                      style: { fontWeight: 'bold' },
                     }}
                   />
                 </Grid>
@@ -1167,7 +1194,7 @@ const UTREntry = () => {
                     size="small"
                     InputLabelProps={{
                       shrink: true,
-                      style: { fontWeight: 'bold' }, 
+                      style: { fontWeight: 'bold' },
                     }}
                   />
                 </Grid>
@@ -1207,7 +1234,7 @@ const UTREntry = () => {
                   />
                 </Grid>
               </Grid>
-              
+
               <Grid container spacing={2} alignItems="center" mt={1}>
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
@@ -1311,16 +1338,16 @@ const UTREntry = () => {
       <div >
         {showPopup && (
           <div className="UtrEntrymodal" style={{ display: "block" }}>
-            <div className="UtrEntry-dialog"  style={{
-                display: "block",
-                position: "fixed",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                zIndex: "1050",
-                width: "100%",
-                maxWidth: "1200px"
-              }}>
+            <div className="UtrEntry-dialog" style={{
+              display: "block",
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: "1050",
+              width: "100%",
+              maxWidth: "1200px"
+            }}>
               <div >
                 <div className="UtrEntry-header">
                   <h5 className="UtrEntry-title">
@@ -1336,8 +1363,8 @@ const UTREntry = () => {
                       height: "40px",
                       border: "none",
                       height: "50px",
-                      backgroundColor:"#b2babb",
-                      borderRadius:"100px"
+                      backgroundColor: "#b2babb",
+                      borderRadius: "100px"
                     }}
                   >
                     <span aria-hidden="true">&times;</span>
@@ -1346,7 +1373,7 @@ const UTREntry = () => {
                 <div >
                   <form>
                     <div className="form-row">
-                      <div className="form-group col-md-6" style={{marginTop:"10px"}}>
+                      <div className="form-group col-md-6" style={{ marginTop: "10px" }}>
                         <label>Lot No:</label>
                         <UTRLotnoHelp
                           onAcCodeClick={handlePurcno}
@@ -1361,7 +1388,7 @@ const UTREntry = () => {
                     </div>
 
                     <div className="form-row">
-                      <div className="form-group col-md-6" style={{marginTop:"-20px"}}>
+                      <div className="form-group col-md-6" style={{ marginTop: "-20px" }}>
                         <label>Lot Company Code:</label>
                         <input
                           type="text"
@@ -1372,7 +1399,7 @@ const UTREntry = () => {
                           className="form-control"
                         />
                       </div>
-                      <div className="form-group col-md-6" style={{marginTop:"-20px"}}>
+                      <div className="form-group col-md-6" style={{ marginTop: "-20px" }}>
                         <label>Lot Year Code:</label>
                         <input
                           type="text"
@@ -1386,7 +1413,7 @@ const UTREntry = () => {
                     </div>
 
                     <div className="form-row">
-                      <div className="form-group col-md-6" style={{marginTop:"-20px"}}>
+                      <div className="form-group col-md-6" style={{ marginTop: "-20px" }}>
                         <label>Grade:</label>
                         <input
                           type="text"
@@ -1400,7 +1427,7 @@ const UTREntry = () => {
                     </div>
 
                     <div className="form-row">
-                      <div className="form-group col-md-6" style={{marginTop:"-20px"}}>
+                      <div className="form-group col-md-6" style={{ marginTop: "-20px" }}>
                         <label>Amount:</label>
                         <input
                           type="text"
@@ -1522,7 +1549,7 @@ const UTREntry = () => {
             variant="outlined"
             fullWidth
             size="small"
-            value={globalTotalAmount}
+            value={formatReadableAmount(globalTotalAmount)}
             onChange={handleChangeDetail}
             InputProps={{
               readOnly: true,
@@ -1540,7 +1567,7 @@ const UTREntry = () => {
             variant="outlined"
             fullWidth
             size="small"
-            value={diff}
+            value={formatReadableAmount(diff)}
             onChange={handleChangeDetail}
             InputProps={{
               readOnly: true,

@@ -8,6 +8,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SystemHelpMaster from "../../../../Helper/SystemmasterHelp";
 import UserAuditInfo from "../../../../Common/UserAuditInfo/UserAuditInfo";
+import Swal from "sweetalert2";
 
 const API_URL = process.env.REACT_APP_API;
 
@@ -200,11 +201,20 @@ const BrandMaster = () => {
   };
 
   const handleDelete = async () => {
-    const isConfirmed = window.confirm(
-      `Are you sure you want to delete ${formData.Code}?`
-    );
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `You won't be able to revert this Code : ${formData.Code}`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      cancelButtonText: "Cancel",
+      confirmButtonText: "Delete",
+      reverseButtons: true,
+      focusCancel: true,
+    });
 
-    if (isConfirmed) {
+    if (result.isConfirmed) {
       setIsEditMode(false);
       setAddOneButtonEnabled(true);
       setEditButtonEnabled(true);
@@ -223,7 +233,11 @@ const BrandMaster = () => {
         console.error("Error during API call:", error);
       }
     } else {
-      console.log("Deletion cancelled");
+      Swal.fire({
+        title: "Cancelled",
+        text: "Your record is safe 🙂",
+        icon: "info",
+      });
     }
   };
 

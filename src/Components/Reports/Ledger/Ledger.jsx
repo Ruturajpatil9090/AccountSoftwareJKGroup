@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import AccountMasterHelp from "../../../Helper/AccountMasterHelp";
 import "./Ledger.css";
 import { Typography } from '@mui/material';
+import { fetchAccountBalance } from "../../../Common/GetAccountBalance/GetAccountBalance";
+import { formatReadableAmount } from "../../../Common/FormatFunctions/FormatAmount";
 
 const Ledger = () => {
   const [acCode, setAcCode] = useState("");
@@ -10,8 +12,11 @@ const Ledger = () => {
   const [toDate, setToDate] = useState("");
   const [accoid, setAccoid] = useState("");
   const [acname, setacname] = useState("");
-  const [balance, setBalance] = useState("");
   const [loading, setLoading] = useState(false)
+  const [balance, setBalance] = useState(0);
+  const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
 
   const AccountYear = sessionStorage.getItem("Accounting_Year");
   const Compay_Code = sessionStorage.getItem("Company_Code");
@@ -27,22 +32,29 @@ const Ledger = () => {
     }
   }, [AccountYear]);
 
-  const navigate = useNavigate();
-
-  const handleAc_Code = (code, accoid, name,Mobile_No,gstNumber,TDSApplicable,GSTStateCode,balance) => {
+  useEffect(() => {
+    if (acCode === "") {
+      setBalance(0); 
+    }
+  }, [acCode]);
+  
+  const handleAc_Code = async (code, accoid, name) => {
+    if (!code) {
+      setAcCode(""); 
+      setAccoid("");
+      setacname("");
+      setBalance(0);  
+      return;
+    }
     setAcCode(code);
     setAccoid(accoid);
     setacname(name);
-    setBalance(balance);
 
+    const fetchedBalance = await fetchAccountBalance(code);
+    if (fetchedBalance !== null) {
+      setBalance(fetchedBalance);
+    }
   };
-
-  // const handleGetReportClick = (e) => {
-  //   e.preventDefault();
-  //   navigate(`/ledger-report`, {
-  //     state: {acCode,fromDate, toDate, acname },
-  //   });
-  // };
 
   const handleGetReportClick = (e) => {
     e.preventDefault();
@@ -52,6 +64,17 @@ const Ledger = () => {
         window.open(url, '_blank', 'toolbar=yes,location=yes,status=yes,menubar=yes,scrollbars=yes,resizable=yes,width=800,height=600');
         setLoading(false);
     }, 500);
+};
+
+//Day Report onCliked
+const handleGetDayBook = (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setTimeout(() => {
+      const url = `/daybook-report?fromDate=${encodeURIComponent(fromDate)}&toDate=${encodeURIComponent(toDate)}`;
+      window.open(url, '_blank', 'toolbar=yes,location=yes,status=yes,menubar=yes,scrollbars=yes,resizable=yes,width=800,height=600');
+      setLoading(false);
+  }, 500);
 };
 
   return (
@@ -98,11 +121,14 @@ const Ledger = () => {
               onChange={(e) => setToDate(e.target.value)}
             />
           </div>
-          <h1>balance:{balance}</h1>
           </div>
+          <h4> Balance ₹ {formatReadableAmount(balance)}</h4>
           <button type="submit" className="submit-button">
             Get Report
           </button>
+          {/* <button className="submit-button" onClick={handleGetDayBook}>
+            DAY BOOK
+          </button> */}
         </form>
       </div>
     </div>

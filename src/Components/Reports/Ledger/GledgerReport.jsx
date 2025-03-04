@@ -215,7 +215,7 @@ const GledgerReport = () => {
       startY: accountStatementY + lineSpacing + 10,
       styles: {
         fontSize: 5,
-        cellPadding: 0.8,
+        cellPadding: 0.6,
         halign: 'left',
         valign: 'middle',
         lineWidth: 0.1,
@@ -243,9 +243,9 @@ const GledgerReport = () => {
         lineWidth: 0.5,
       },
     });
-     doc.autoPrint();
-     const printWindow = window.open(doc.output('bloburl'), '_blank');
-     printWindow.print();
+    doc.autoPrint();
+    const printWindow = window.open(doc.output('bloburl'), '_blank');
+    printWindow.print();
   };
 
 
@@ -337,6 +337,37 @@ const GledgerReport = () => {
       });
       window.open(`${url}?${params.toString()}`, '_blank');
     }
+
+    if (
+      tran_type === "DN" ||
+      tran_type === "DS" ||
+      tran_type === "CN" ||
+      tran_type === "CS"
+    ) {
+      const url = `${window.location.origin}/debitcreditnote`;
+      const params = new URLSearchParams({
+        navigatedRecord: doc_no,
+        navigatedTranType: tran_type,
+      });
+      window.open(`${url}?${params.toString()}`, "_blank");
+    }
+
+    if (tran_type === "XP") {
+      const url = `${window.location.origin}/other-purchase`;
+      const params = new URLSearchParams({
+        navigatedRecord: doc_no,
+        navigatedTranType: tran_type,
+      });
+      window.open(`${url}?${params.toString()}`, "_blank");
+    }
+
+    if (tran_type === "RB") {
+      const url = `${window.location.origin}/service-bill`;
+      const params = new URLSearchParams({
+        navigatedRecord: doc_no,
+      });
+      window.open(`${url}?${params.toString()}`, "_blank");
+    }
   };
 
   //Genrate PDf with send email
@@ -409,7 +440,7 @@ const GledgerReport = () => {
       startY: currentY + 1,
       styles: {
         fontSize: 5,
-        cellPadding: 0.8,
+        cellPadding: 0.6,
         halign: 'left',
         valign: 'middle',
         lineWidth: 0.1,
@@ -445,10 +476,8 @@ const GledgerReport = () => {
 
     const pdfBlob = doc.output('blob');
     const url = URL.createObjectURL(pdfBlob);
-
     setPdfPreview(url);
   };
-
 
 
   return (

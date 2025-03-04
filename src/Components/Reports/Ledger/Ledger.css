@@ -26,8 +26,8 @@
 .ledger-form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  width: 60%;
+  gap: 5px;
+  width: 40%;
 }
 
 .form-group {

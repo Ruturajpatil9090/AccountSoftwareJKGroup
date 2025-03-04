@@ -1,16 +1,16 @@
 body {
-  padding-top: 80px; 
+  padding-top: 85px; 
   margin-bottom: 20px; 
 }
 
 .navbar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: center;
+  align-items: center; 
   width: 100%;
   padding: 10px 20px;
   background-color: #b3e0cb;
-  z-index: 10;
+  z-index: 40;
   border-radius: 0px 0px 25px 25px;
   cursor: pointer;
   position: fixed;
@@ -19,6 +19,12 @@ body {
   right: 0; 
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: -50px; 
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.navbar:hover {
+  background-color: #a2d4c0;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .navbarlabel {
@@ -34,6 +40,13 @@ body {
   font-weight: bold;
   border-radius: 0px 0px 25px 25px;
   height: 8vh;
+  transition: color 0.3s ease, transform 0.3s ease;
+  margin: 0 10px; /* Add some spacing between nav items */
+}
+
+.nav-item:hover {
+  color: #075f1a;
+  transform: translateY(-3px);
 }
 
 .submenu {
@@ -82,10 +95,12 @@ body {
   text-decoration: none;
   display: block;
   transform: translateX(0) translateY(10px);
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .submenu-item:hover, .submenu-item1:hover {
   background-color: #555;
+  transform: translateY(-2px);
 }
 
 .nav-item:hover > .submenu,
@@ -131,7 +146,7 @@ body {
   width: 60px;
   height: auto;
   cursor: pointer;
-  border-radius: "50px";
+  border-radius: 50px;
   height: "50vh";
   margin-left: 25px;
   transition: transform 0.3s ease;
@@ -148,16 +163,13 @@ body {
   font-size: 16px;
   cursor: pointer;
   border-radius: 5px;
+  padding: 8px 16px;
   transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .logout-btn:hover {
   background-color: #d32f2f;
   transform: scale(1.05);
-}
-
-.nav-item:hover .logout-btn {
-  background-color: #e57373;
 }
 
 .logout-icon {
@@ -174,13 +186,18 @@ body {
   cursor: pointer;
   background-color: #65ddbf;
   border-radius: 50px;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.icon-container:hover {
+  background-color: #55ccaa;
+  transform: scale(1.05);
 }
 
 .businessman-icon {
   font-size: 40px;
   color: #333;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, color 0.3s ease;
 }
 
 .username-display {
@@ -209,27 +226,55 @@ body {
   color: #f39c12;
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
   .navbar {
-    grid-template-columns: repeat(3, 1fr);
+    flex-direction: column;
+    align-items: center; /* Center items vertically in mobile view */
+    padding: 10px;
   }
 
-  .nav-item, .submenu, .submenu1 {
+  .nav-item {
     width: 100%;
+    text-align: center;
+    padding: 10px 0;
   }
 
   .submenu, .submenu1 {
-    display: block;
+    position: static;
+    transform: none;
+    width: 100%;
     padding-left: 20px;
+    box-shadow: none;
+    background-color: transparent;
+    color: #333;
+  }
+
+  .submenu-item, .submenu-item1 {
+    color: #333;
+  }
+
+  .submenu-item:hover, .submenu-item1:hover {
+    background-color: #ddd;
+  }
+
+  .logo {
+    margin-left: 0;
+    margin-bottom: 10px;
+  }
+
+  .icon-container {
+    width: 100%;
+    justify-content: center;
   }
 }
 
 @media (min-width: 1200px) {
   .navbar {
-    grid-template-columns: repeat(12, 1fr);
+    padding: 10px 50px;
   }
 
   .nav-item {
-    padding: 10px 15px;
+    padding: 10px 20px;
   }
 }

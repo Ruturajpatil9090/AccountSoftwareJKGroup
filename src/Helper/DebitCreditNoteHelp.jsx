@@ -22,7 +22,6 @@ const DebitCreditNoteHelp = ({ onAcCodeClick, name, ac_code, billNo, billId, OnF
     const [selectedRowIndex, setSelectedRowIndex] = useState(-1);
     const [apiDataFetched, setApiDataFetched] = useState(false);
 
-    // Fetch data based on acType
     const fetchAndOpenPopup = async () => {
 
         try {
@@ -64,26 +63,22 @@ const DebitCreditNoteHelp = ({ onAcCodeClick, name, ac_code, billNo, billId, OnF
 
     }, [apiDataFetched, ac_code]);
 
-    // Handle Mill Code button click
     const handleMillCodeButtonClick = () => {
         lActiveInputFeild = name
         fetchAndOpenPopup();
         if (onAcCodeClick) {
-            onAcCodeClick({ enteredAcCode, enteredBillId });
+            onAcCodeClick();
         }
     };
 
-    //popup functionality show and hide
     const handleCloseModal = () => {
         setShowModal(false);
     };
 
-    //handle onChange event for Mill Code,Broker Code and Bp Account
     const handleAcCodeChange = async (event) => {
         const { value } = event.target;
         setEnteredAcCode(value);
         try {
-            // Assuming `apiURL` is defined somewhere in your code
             const response = await axios.get(`${API_URL}/debit_credit_help?company_code=${CompanyCode}&ac_code=${ac_code}&tran_type=${tran_type}`);
             const data = response.data;
             setPopupContent(data);
@@ -92,35 +87,50 @@ const DebitCreditNoteHelp = ({ onAcCodeClick, name, ac_code, billNo, billId, OnF
             const matchingItem = data.find((item) => item.doc_no === parseInt(value, 10));
 
             if (matchingItem) {
-
+              
                 setEnteredAcCode(matchingItem.doc_no);
-                setEnteredBillId(matchingItem.Billid);
-                OnFetchedData(matchingItem)
+
+                if (['CN', 'DN'].includes(tran_type)) {
+                    setEnteredBillId(matchingItem.Billid);
+                    if (onAcCodeClick) {
+                        onAcCodeClick(matchingItem.doc_no, matchingItem.Billid, matchingItem.docdate);
+                    }
+                } else {
+                    setEnteredBillId(matchingItem.purchaseid);  
+                    if (onAcCodeClick) {
+                        onAcCodeClick(matchingItem.doc_no, matchingItem.purchaseid, matchingItem.docdate);
+                    }
+                }
+                OnFetchedData(matchingItem) 
             }
         } catch (error) {
             console.error("Error fetching data:", error);
         }
     };
 
-    //After open popup onDoubleClick event that record display on the feilds
     const handleRecordDoubleClick = (item) => {
         if (lActiveInputFeild === name) {
             setEnteredAcCode(item.doc_no);
-            setEnteredBillId(item.Billid)
-            if (onAcCodeClick) {
-                onAcCodeClick(item.doc_no, item.Billid, item.docdate);
-                OnFetchedData(item)
+            if (['CN', 'DN'].includes(tran_type)) {
+                setEnteredBillId(item.Billid);
+                if (onAcCodeClick) {
+                    onAcCodeClick(item.doc_no, item.Billid, item.docdate);
+                }
+            } else {
+                setEnteredBillId(item.purchaseid); 
+                if (onAcCodeClick) {
+                    onAcCodeClick(item.doc_no, item.purchaseid, item.docdate);
+                }
             }
+            OnFetchedData(item);
         }
         setShowModal(false);
     };
 
-    //handle pagination number
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage);
     };
 
-    //handle search functionality
     const handleSearch = (searchValue) => {
         setSearchTerm(searchValue);
     };
@@ -129,7 +139,8 @@ const DebitCreditNoteHelp = ({ onAcCodeClick, name, ac_code, billNo, billId, OnF
         item.Party_Name && item.Party_Name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.MillName && item.MillName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.ShipToName && item.ShipToName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.BillToName && item.BillToName.toLowerCase().includes(searchTerm.toLowerCase())
+        item.BillToName && item.BillToName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.doc_no && item.doc_no.toLowerCase().includes(searchTerm.toLowerCase())
     );
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -195,7 +206,6 @@ const DebitCreditNoteHelp = ({ onAcCodeClick, name, ac_code, billNo, billId, OnF
             <div className="d-flex ">
                 <div className="d-flex">
                     <input
-
                         type="text"
                         className="form-control ms-2"
                         id={name}

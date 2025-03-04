@@ -129,14 +129,14 @@ function RecieptPaymentUtility() {
     };
 
     const handleClick = () => {
-        navigate("/receipt-payment", { state: { tranType,permissionsData } });
+        navigate("/receipt-payment", { state: { tranType, permissionsData } });
     };
 
     const handleRowClick = (tranid) => {
         const selectedRecord = fetchedData.find(
             (record) => record.tranid === tranid
         );
-        navigate("/receipt-payment", { state: { selectedRecord,permissionsData } });
+        navigate("/receipt-payment", { state: { selectedRecord, permissionsData } });
     };
 
     const handleBack = () => {

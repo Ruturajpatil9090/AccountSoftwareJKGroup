@@ -3,7 +3,7 @@ import axios from "axios";
 
 const AccountMasterContext = createContext();
 
-export const AccountMasterProvider = ({ children,hideNavbarPaths  }) => {
+export const AccountMasterProvider = ({ children,hideNavbarPaths }) => {
     const [accountData, setAccountData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);

@@ -24,6 +24,7 @@ import {
 } from "@mui/material";
 import "./CityMaster.css"
 import UserAuditInfo from "../../../../Common/UserAuditInfo/UserAuditInfo";
+import Swal from "sweetalert2";
 
 const API_URL = process.env.REACT_APP_API;
 var gstStateName;
@@ -123,7 +124,7 @@ const CityMaster = ({ isPopup = false }, ref) => {
     fetchLastCityCode();
     setFormData(initialFormData);
     gstStateName = ""
-    setTimeout(()=>{
+    setTimeout(() => {
       inputRef.current.focus();
     })
   };
@@ -221,11 +222,20 @@ const CityMaster = ({ isPopup = false }, ref) => {
   };
 
   const handleDelete = async () => {
-    const isConfirmed = window.confirm(
-      `Are you sure you want to delete this City ${formData.city_code}?`
-    );
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `You won't be able to revert this City Code : ${formData.city_code}`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      cancelButtonText: "Cancel",
+      confirmButtonText: "Delete",
+      reverseButtons: true,
+      focusCancel: true,
+    });
 
-    if (isConfirmed) {
+    if (result.isConfirmed) {
       setIsEditMode(false);
       setAddOneButtonEnabled(true);
       setEditButtonEnabled(true);
@@ -243,7 +253,11 @@ const CityMaster = ({ isPopup = false }, ref) => {
         console.error("Error during API call:", error);
       }
     } else {
-      console.log("Deletion cancelled");
+      Swal.fire({
+        title: "Cancelled",
+        text: "Your record is safe 🙂",
+        icon: "info",
+      });
     }
   };
 
@@ -383,12 +397,12 @@ const CityMaster = ({ isPopup = false }, ref) => {
   useEffect(() => {
     if (selectedRecord && !isPopup) {
       handlerecordDoubleClicked();
-    } 
+    }
     else {
       handleAddOne();
     }
   }, [selectedRecord]);
-  
+
   const handleKeyDown = async (event) => {
     if (event.key === "Tab") {
       const changeNoValue = event.target.value;
@@ -419,7 +433,7 @@ const CityMaster = ({ isPopup = false }, ref) => {
   };
   return (
     <>
-    <UserAuditInfo
+      <UserAuditInfo
         createdBy={formData.Created_By}
         modifiedBy={formData.Modified_By}
       />
@@ -497,7 +511,7 @@ const CityMaster = ({ isPopup = false }, ref) => {
 
           <FormGroup>
             <TextField
-            tabIndex={1}
+              tabIndex={1}
               label="City Name"
               variant="outlined"
               name="city_name_e"
@@ -514,7 +528,7 @@ const CityMaster = ({ isPopup = false }, ref) => {
 
           <FormGroup>
             <TextField
-             tabIndex={2}
+              tabIndex={2}
               label="City Name Regional"
               variant="outlined"
               name="city_name_r"
@@ -530,7 +544,7 @@ const CityMaster = ({ isPopup = false }, ref) => {
 
           <FormGroup>
             <TextField
-             tabIndex={3}
+              tabIndex={3}
               label="PinCode"
               variant="outlined"
               name="pincode"
@@ -546,7 +560,7 @@ const CityMaster = ({ isPopup = false }, ref) => {
 
           <FormGroup>
             <TextField
-             tabIndex={4}
+              tabIndex={4}
               label="SubArea"
               variant="outlined"
               name="Sub_Area"
@@ -564,7 +578,7 @@ const CityMaster = ({ isPopup = false }, ref) => {
             <FormControl fullWidth margin="normal">
               <InputLabel>State</InputLabel>
               <Select
-               tabIndex={5}
+                tabIndex={5}
                 label="State"
                 name="state"
                 size="small"
@@ -583,7 +597,7 @@ const CityMaster = ({ isPopup = false }, ref) => {
 
           <FormGroup>
             <TextField
-             tabIndex={6}
+              tabIndex={6}
               label="Distance"
               variant="outlined"
               name="Distance"

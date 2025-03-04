@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
-import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Dialog from '@mui/material/Dialog';
@@ -10,7 +9,13 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from "react-router-dom";
+import Slide from '@mui/material/Slide';
+import { Box, IconButton } from '@mui/material';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
     '& .MuiBadge-badge': {
@@ -28,22 +33,19 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
         },
     },
     '@keyframes ripple': {
-        '0%': {
-            transform: 'scale(.8)',
-            opacity: 1,
-        },
-        '100%': {
-            transform: 'scale(2.4)',
-            opacity: 0,
-        },
+        '0%': { transform: 'scale(.8)', opacity: 1 },
+        '100%': { transform: 'scale(2.4)', opacity: 0 },
     },
 }));
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 function AvatarIcon() {
     const storedUsername = sessionStorage.getItem('username');
     const [anchorEl, setAnchorEl] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
-
     const navigate = useNavigate();
 
     const handleClick = (event) => {
@@ -69,22 +71,21 @@ function AvatarIcon() {
 
     return (
         <>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-            </div>
-            <StyledBadge
-                overlap="circular"
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                variant="dot"
-                sx={{ fontSize: 30 }}
-            >
-                <Avatar
-                    alt="User Avatar"
-                    src=""
-                    onClick={handleClick}
-                    sx={{ cursor: 'pointer' }}
-                />
-                
-            </StyledBadge>
+            <Tooltip title={storedUsername} arrow>
+                <StyledBadge
+                    overlap="circular"
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    variant="dot"
+                    sx={{ fontSize: 30 }}
+                >
+                    <Avatar
+                        alt="User Avatar"
+                        src=""
+                        onClick={handleClick}
+                        sx={{ cursor: 'pointer' }}
+                    />
+                </StyledBadge>
+            </Tooltip>
 
             <Menu
                 anchorEl={anchorEl}
@@ -94,22 +95,53 @@ function AvatarIcon() {
                 <MenuItem onClick={handleClose}>Edit Profile</MenuItem>
                 <MenuItem onClick={handleSignOutClick}>Sign Out</MenuItem>
             </Menu>
-            <h4 style={{marginLeft:"-40px"}}>{storedUsername}</h4>
 
             <Dialog
                 open={openDialog}
                 onClose={handleDialogClose}
-
+                TransitionComponent={Transition}
+                sx={{
+                    '& .MuiDialog-paper': {
+                        width: '400px',
+                        height: '300px',
+                        padding: '20px',
+                        borderRadius: '12px',
+                        textAlign: 'center',
+                        position: 'relative'
+                    }
+                }}
             >
-                <DialogTitle>Confirm Sign Out</DialogTitle>
+                <IconButton
+                    onClick={handleDialogClose}
+                    sx={{
+                        position: 'absolute',
+                        right: 8,
+                        top: 8,
+                        color: 'gray',
+                    }}
+                >
+                    <CloseIcon />
+                </IconButton>
+
+                <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+                    <WarningAmberIcon sx={{ fontSize: 50, color: 'orange' }} />
+                </Box>
+
+                <DialogTitle>
+                    <Typography variant="h6" fontWeight="bold">
+                        Confirm Sign Out
+                    </Typography>
+                </DialogTitle>
                 <DialogContent>
-                    Are you sure you want to Sign out ?
+                    <Typography variant="body1">
+                        Are you sure you want to sign out ?
+                    </Typography>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleDialogClose} >
+                <DialogActions sx={{ justifyContent: 'center', gap: 2, pb: 2 }}>
+                    <Button onClick={handleDialogClose} variant="outlined" autoFocus>
                         Cancel
                     </Button>
-                    <Button onClick={handleSignOut}>
+                    <Button onClick={handleSignOut} variant="contained" color="error">
                         Sign Out
                     </Button>
                 </DialogActions>

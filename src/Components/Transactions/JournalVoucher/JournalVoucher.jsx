@@ -26,6 +26,9 @@ import EditButton from "../../../Common/Buttons/EditButton";
 import DeleteButton from "../../../Common/Buttons/DeleteButton";
 import OpenButton from "../../../Common/Buttons/OpenButton";
 import "./JournalVoucher.css"
+import { formatReadableAmount } from "../../../Common/FormatFunctions/FormatAmount"
+import { fetchAccountBalance } from "../../../Common/GetAccountBalance/GetAccountBalance";
+import Swal from "sweetalert2";
 
 var newDebit_ac;
 var lblacname;
@@ -81,6 +84,10 @@ const JournalVoucher = () => {
   const [debitTotal, setDebitTotal] = useState(0);
   const [diff, setDiff] = useState(0);
   const [alertOpen, setAlertOpen] = useState(false);
+
+  const [loading, setLoading] = useState(false)
+  const [accountbalance, setAccountsetBalance] = useState(0);
+  const [error, setError] = useState(null);
 
   //SET Focus to the first feild of modal dialog
   const addButtonRef = useRef(null);
@@ -308,8 +315,12 @@ const JournalVoucher = () => {
         const isLockedNew = data.receipt_payment_head.LockedRecord;
         const isLockedByUserNew = data.receipt_payment_head.LockedUser;
         if (isLockedNew) {
-          window.alert(`This record is locked by ${isLockedByUserNew}`);
-          return;
+          Swal.fire({
+            icon: "warning",
+            title: "Record Locked",
+            text: `This record is locked by ${isLockedByUserNew}`,
+            confirmButtonColor: "#d33",
+          });
         } else {
           lockRecord();
         }
@@ -419,15 +430,28 @@ const JournalVoucher = () => {
       const isLockedByUserNew = data.receipt_payment_head.LockedUser;
 
       if (isLockedNew) {
-        window.alert(`This record is locked by ${isLockedByUserNew}`);
+        Swal.fire({
+          icon: "warning",
+          title: "Record Locked",
+          text: `This record is locked by ${isLockedByUserNew}`,
+          confirmButtonColor: "#d33",
+        });
         return;
       }
 
-      const isConfirmed = window.confirm(
-        `Are you sure you want to delete ${formData.doc_no}?`
-      );
-
-      if (isConfirmed) {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: `You won't be able to revert this Doc No : ${formData.doc_no}`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        cancelButtonText: "Cancel",
+        confirmButtonText: "Delete",
+        reverseButtons: true,
+        focusCancel: true,
+      });
+      if (result.isConfirmed) {
         setIsEditMode(false);
         setAddOneButtonEnabled(true);
         setEditButtonEnabled(true);
@@ -442,7 +466,11 @@ const JournalVoucher = () => {
         toast.success("Record deleted successfully!");
         handleCancel();
       } else {
-        console.log("Deletion cancelled");
+        Swal.fire({
+          title: "Cancelled",
+          text: "Your record is safe 🙂",
+          icon: "info",
+        });
       }
     } catch (error) {
       toast.error("Deletion cancelled");
@@ -499,7 +527,15 @@ const JournalVoucher = () => {
     );
   }, [lastTenderDetails]);
 
-  const handleAccode = (code, accoid, name) => {
+
+  const handleAccode = async (code, accoid, name) => {
+    if (!code) {
+      setDebitcode("");
+      setDebitcodeid("");
+      setCreditcodecodename("");
+      setAccountsetBalance(0);
+      return;
+    }
     setDebitcode(code);
     setDebitcodeid(accoid);
     setCreditcodecodename(name);
@@ -508,9 +544,13 @@ const JournalVoucher = () => {
       ...formDataDetail,
       debit_ac: code,
       da: accoid,
-
       lblacname: name,
     });
+
+    const fetchedBalance = await fetchAccountBalance(code);
+    if (fetchedBalance !== null) {
+      setAccountsetBalance(fetchedBalance);
+    }
   };
 
   //calculation For Handling Total, CreditTotal, DebitTotal
@@ -1139,39 +1179,51 @@ const JournalVoucher = () => {
                           marginBottom: "15px",
                           display: "flex",
                           alignItems: "center",
+                          justifyContent: "space-between",
                         }}
                       >
-                        <label
-                          htmlFor="debit_ac"
+                        <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
+                          <label
+                            htmlFor="debit_ac"
+                            style={{
+                              fontWeight: "600",
+                              marginRight: "10px",
+                              display: "inline-block",
+                              fontSize: "20px",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            Account Code:
+                          </label>
+                          <AccountMasterHelp
+                            name="debit_ac"
+                            onAcCodeClick={handleAccode}
+                            CategoryName={lblacname ? lblacname : Debitcodename}
+                            CategoryCode={newDebit_ac || formDataDetail.debit_ac}
+                            Ac_type={""}
+                            tabIndex={4}
+                            disabledFeild={!isEditing && addOneButtonEnabled}
+                            firstInputRef={firstInputRef}
+                            style={{
+                              width: "50%",
+
+                              fontSize: "14px",
+                              borderRadius: "4px",
+                              border: "1px solid #ccc",
+                              backgroundColor: "#fff",
+                              boxSizing: "border-box",
+                            }}
+                          />
+                        </div>
+
+                        <h4
                           style={{
-                            fontWeight: "600",
-                            marginRight: "10px",
-                            display: "inline-block",
-                            fontSize: "20px",
-                            fontWeight: "bold",
+                            marginLeft: "20px",
+                            alignSelf: "center",
                           }}
                         >
-                          Account Code:
-                        </label>
-                        <AccountMasterHelp
-                          name="debit_ac"
-                          onAcCodeClick={handleAccode}
-                          CategoryName={lblacname ? lblacname : Debitcodename}
-                          CategoryCode={newDebit_ac || formDataDetail.debit_ac}
-                          Ac_type={""}
-                          tabIndex={4}
-                          disabledFeild={!isEditing && addOneButtonEnabled}
-                          firstInputRef={firstInputRef}
-                          style={{
-                            width: "50%",
-                            padding: "8px 12px",
-                            fontSize: "14px",
-                            borderRadius: "4px",
-                            border: "1px solid #ccc",
-                            backgroundColor: "#fff",
-                            boxSizing: "border-box",
-                          }}
-                        />
+                          ₹ {formatReadableAmount(accountbalance)}
+                        </h4>
                       </div>
 
                       <div
@@ -1388,7 +1440,7 @@ const JournalVoucher = () => {
             label="Total"
             id="total"
             name="total"
-            value={formData.total}
+            value={formatReadableAmount(formData.total)}
             onChange={handleChange}
             disabled
             variant="outlined"
@@ -1404,7 +1456,7 @@ const JournalVoucher = () => {
             label="Credit Total"
             id="creditTotal"
             name="creditTotal"
-            value={creditTotal}
+            value={formatReadableAmount(creditTotal)}
             onChange={handleChange}
             disabled
             variant="outlined"
@@ -1420,7 +1472,7 @@ const JournalVoucher = () => {
             label="Debit Total"
             id="debitTotal"
             name="debitTotal"
-            value={debitTotal}
+            value={formatReadableAmount(debitTotal)}
             onChange={handleChange}
             disabled
             variant="outlined"
@@ -1436,7 +1488,7 @@ const JournalVoucher = () => {
             label="Difference"
             id="diff"
             name="diff"
-            value={diff}
+            value={formatReadableAmount(diff)}
             disabled
             variant="outlined"
             size="small"

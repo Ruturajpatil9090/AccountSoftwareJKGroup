@@ -22,6 +22,7 @@ function DataTableSearch({ data, onSearch }) {
           type="text"
           className="form-control form-control-sm"
           placeholder="Search..."
+          autoComplete="off"
           style={inputStyle} 
           value={searchTerm}
           onChange={handleSearch}

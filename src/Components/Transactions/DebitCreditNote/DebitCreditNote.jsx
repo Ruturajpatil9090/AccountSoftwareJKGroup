@@ -13,8 +13,9 @@ import "./DebitCreditNote.css";
 import { HashLoader } from "react-spinners";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField,
-  Grid, Typography
+  Grid, Typography, Dialog, DialogTitle, DialogContent, IconButton
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { useRecordLocking } from '../../../hooks/useRecordLocking';
 import DebitCreditNoteHelp from "../../../Helper/DebitCreditNoteHelp";
 import UserAuditInfo from "../../../Common/UserAuditInfo/UserAuditInfo";
@@ -24,6 +25,8 @@ import DeleteButton from "../../../Common/Buttons/DeleteButton";
 import OpenButton from "../../../Common/Buttons/OpenButton";
 import { formatReadableAmount } from "../../../Common/FormatFunctions/FormatAmount";
 import DebitCreditNoteReport from "./DebitCreditNoteReport"
+import EInvoiceGeneration from "../../../Common/EInvoiceGenerationProcess/EInvoiceGeneration";
+import Swal from "sweetalert2";
 
 // Global Variables
 var newDcid = "";
@@ -86,7 +89,7 @@ const DebitCreditNote = () => {
   const [bill_ID, setBillId] = useState("");
   const [formDataDetail, setFormDataDetail] = useState({
     value: 0.0,
-    Quantal: "",
+    Quantal: 0,
   });
 
   // Head Section State Managements
@@ -105,12 +108,17 @@ const DebitCreditNote = () => {
   const [formErrors, setFormErrors] = useState({});
   const [label, setlabel] = useState("")
   const [qty, setQty] = useState("")
+  const [isOpen, setIsOpen] = useState(false);
 
   // In utility page record doubleClicked that record show for edit functionality
   const location = useLocation();
   const navigate = useNavigate();
 
   const resizableRef = useRef(null);
+
+  const searchParams = new URLSearchParams(location.search);
+  const navigatedRecord = searchParams.get('navigatedRecord');
+  const navigatedTranType = searchParams.get('navigatedTranType');
 
   // Resizer object at the time of resize the modal.
   useEffect(() => {
@@ -194,7 +202,7 @@ const DebitCreditNote = () => {
   const [matchStatus, setMatchStatus] = useState(null);
 
   //Lock-Unlock record functionality
-  const { isRecordLockedByUser, lockRecord, unlockRecord } = useRecordLocking(formData.doc_no, undefined, companyCode, Year_Code, "DebitCredit_Note");
+  const { isRecordLockedByUser, lockRecord, unlockRecord } = useRecordLocking(formData.doc_no, formData.tran_type, companyCode, Year_Code, "DebitCredit_Note");
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -217,7 +225,7 @@ const DebitCreditNote = () => {
             updateFormData(response.data);
             HSN = response.data.last_details_data[0].HSN;
           } else {
-            console.error("Failed to fetch first tender data:", response.status, response.statusText);
+            console.error("Failed to get Data:", response.status, response.statusText);
           }
         } catch (error) {
           console.error("Error during API call:", error);
@@ -343,7 +351,12 @@ const DebitCreditNote = () => {
         const isLockedByUserNew = data.last_head_data.LockedUser;
 
         if (isLockedNew) {
-          window.alert(`This record is locked by ${isLockedByUserNew}`);
+          Swal.fire({
+            icon: "warning",
+            title: "Record Locked",
+            text: `This record is locked by ${isLockedByUserNew}`,
+            confirmButtonColor: "#d33",
+          });
           return;
         } else {
           lockRecord()
@@ -362,12 +375,25 @@ const DebitCreditNote = () => {
         setIsEditing(true);
       })
       .catch((error) => {
-        window.alert("This record is already deleted! Showing the previous record.");
+        window.alert("Error fetching data");
       });
   };
 
   // Handle New record insert in database and update the record Functionality
   const handleSaveOrUpdate = async () => {
+
+    if (["CN", "CS",].includes(formData.tran_type || tranType)) {
+      if (users.length === 0 || users.some(user => !user.Item_Code || user.Item_Code === 0 || !user.expac_code || user.expac_code === "0")) {
+        alert("Please select Item and Expense Account in detail section.");
+        return;
+      }
+    }
+
+    if (users.length === 0 || users.every(user => user.rowaction === "DNU" || user.rowaction === "delete")) {
+      alert("Please add at least one entry in the detail section.");
+      return;
+    }
+
     setIsEditing(true);
     setIsLoading(true);
     let headData = {
@@ -423,6 +449,7 @@ const DebitCreditNote = () => {
         setTimeout(() => {
           window.location.reload();
         }, 1000);
+
       } else {
         const response = await axios.post(
           `${API_URL}/insert-debitcreditnote`,
@@ -441,6 +468,7 @@ const DebitCreditNote = () => {
         setTimeout(() => {
           window.location.reload();
         }, 1000);
+
       }
     } catch (error) {
       toast.error("Error occurred while saving data");
@@ -461,17 +489,29 @@ const DebitCreditNote = () => {
       const isLockedByUserNew = data.last_head_data.LockedUser;
 
       if (isLockedNew) {
-        window.alert(`This record is locked by ${isLockedByUserNew}`);
+        Swal.fire({
+          icon: "warning",
+          title: "Record Locked",
+          text: `This record is locked by ${isLockedByUserNew}`,
+          confirmButtonColor: "#d33",
+        });
         return;
-      } else {
-        await lockRecord();
       }
 
-      const isConfirmed = window.confirm(
-        `Are you sure you want to delete this record ${formData.doc_no}?`
-      );
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: `You won't be able to revert this Doc No : ${formData.doc_no}`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        cancelButtonText: "Cancel",
+        confirmButtonText: "Delete",
+        reverseButtons: true,
+        focusCancel: true,
+      });
 
-      if (isConfirmed) {
+      if (result.isConfirmed) {
         setIsEditMode(false);
         setAddOneButtonEnabled(true);
         setEditButtonEnabled(true);
@@ -495,7 +535,11 @@ const DebitCreditNote = () => {
           toast.error(`Failed to delete record: ${deleteResponse.statusText}`);
         }
       } else {
-        console.log("Deletion cancelled");
+        Swal.fire({
+          title: "Cancelled",
+          text: "Your record is safe 🙂",
+          icon: "info",
+        });
       }
     } catch (error) {
       toast.error("Error during API call: " + error.message);
@@ -557,7 +601,7 @@ const DebitCreditNote = () => {
         updateFormData(response.data);
       } else {
         console.error(
-          "Failed to fetch first tender data:",
+          "Failed to fetch data!",
           response.status,
           response.statusText
         );
@@ -584,7 +628,7 @@ const DebitCreditNote = () => {
         updateFormData(response.data);
       } else {
         console.error(
-          "Failed to fetch first tender data:",
+          "Failed to fetch data:",
           response.status,
           response.statusText
         );
@@ -603,7 +647,7 @@ const DebitCreditNote = () => {
         updateFormData(response.data);
       } else {
         console.error(
-          "Failed to fetch last tender data:",
+          "Failed to fetch data",
           response.status,
           response.statusText
         );
@@ -622,7 +666,7 @@ const DebitCreditNote = () => {
         updateFormData(response.data);
       } else {
         console.error(
-          "Failed to fetch next tender data:",
+          "Failed to fetch data",
           response.status,
           response.statusText
         );
@@ -641,13 +685,34 @@ const DebitCreditNote = () => {
         updateFormData(response.data);
       } else {
         console.error(
-          "Failed to fetch previous tender data:",
+          "Failed to fetch data",
           response.status,
           response.statusText
         );
       }
     } catch (error) {
       console.error("Error during API call:", error);
+    }
+  };
+
+  //Gledger onCliked show record
+  const handleNavigateRecord = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/getdebitcreditByid?Company_Code=${companyCode}&doc_no=${navigatedRecord}&tran_type=${navigatedTranType}&Year_Code=${Year_Code}`
+      );
+      updateFormData(response.data);
+      setIsEditing(false);
+      setIsEditMode(false);
+      setAddOneButtonEnabled(true);
+      setEditButtonEnabled(true);
+      setDeleteButtonEnabled(true);
+      setBackButtonEnabled(true);
+      setSaveButtonEnabled(false);
+      setCancelButtonEnabled(false);
+      setCancelButtonClicked(true);
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -660,10 +725,14 @@ const DebitCreditNote = () => {
   useEffect(() => {
     if (selectedRecord) {
       handlerecordDoubleClicked();
-    } else {
+    }
+    else if (navigatedRecord && !isNaN(navigatedRecord) && parseInt(navigatedRecord) > 0) {
+      handleNavigateRecord();
+    }
+    else {
       handleAddOne();
     }
-  }, [selectedRecord]);
+  }, [selectedRecord, navigatedRecord]);
 
   // After Record DoubleClicked on utility page show that record on User Creation for Edit Mode
   const handlerecordDoubleClicked = async () => {
@@ -685,7 +754,7 @@ const DebitCreditNote = () => {
         setTranType(selectedRecord.tran_type);
       } else {
         console.error(
-          "Failed to fetch last tender data:",
+          "Failed to fetch data",
           response.status,
           response.statusText
         );
@@ -787,8 +856,8 @@ const DebitCreditNote = () => {
 
   const clearForm = () => {
     setFormDataDetail({
-      value: "",
-      Quantal: "",
+      value: 0.0,
+      Quantal: 0,
     });
     setExpacCode("");
     setExpacName("");
@@ -806,9 +875,9 @@ const DebitCreditNote = () => {
     setItemCode(user.Item_Code);
     setItemName(user.itemName);
     setFormDataDetail({
-      value: user.value || "",
+      value: user.value || 0.0,
       HSN: user.HSN || hsnNo,
-      Quantal: user.Quantal || "",
+      Quantal: user.Quantal || 0,
     });
     openPopup("edit");
   };
@@ -884,7 +953,7 @@ const DebitCreditNote = () => {
           expacName: expacName,
           value: parseFloat(formDataDetail.value) || 0,
           HSN: hsnNo || formDataDetail.HSN,
-          Quantal: formDataDetail.Quantal,
+          Quantal: formDataDetail.Quantal || 0,
           rowaction: updatedRowaction,
           ic: itemCodeAccoid
         };
@@ -1248,111 +1317,114 @@ const DebitCreditNote = () => {
 
   const fetchedData = async (data) => {
     if (!data) {
-      console.error("No data provided to fetchedData function");
+      console.error("No data provided");
       return;
     }
 
-    // Assign global variables
     BillFromName = data.Party_Name || "";
     BillFormCode = data.Ac_Code || "";
-    BillToName = data.BillToName || "";
-    BillToCode = data.Bill_To || "";
+    BillToCode = data.Bill_To !== 0 ? data.Bill_To : BillFormCode;
+    BillToName = data.BillToName !== "" ? data.BillToName : BillFromName;
     MillName = data.MillName || "";
     MillCode = data.MillCode || "";
-    ShipToName = data.ShipToName || "";
-    ShipToCode = data.ShipTo || "";
+    ShipToCode = data.ShipTo !== 0 ? data.ShipTo : BillFormCode;
+    ShipToName = data.ShipToName !== "" ? data.ShipToName : BillFromName;
 
     const dateParts = data.docdate.split("/");
     const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
 
-    // Update the form data state
     setFormData((prevData) => ({
       ...prevData,
       Shit_To: data.Bill_To || "",
       Mill_Code: data.MillCode || "",
       Unit_Code: data.ShipTo || "",
-      texable_amount: data.Amount || 0,
+      texable_amount: (tranType === "CN" || tranType === "CS") ? (data.subTotal || 0) : prevData.texable_amount,
       // Qty: data.Qty || "",
       bill_date: formattedDate,
       TCS_Net_Payable: data.TCS_Net_Payable || 0,
       mc: data.mc,
-      uc: data.uc,
-      st: data.bt,
+      uc: data.uc !== 0 ? data.uc : data.ac,
+      st: data.bt !== 0 ? data.bt : data.ac,
       Narration: `As per bill no ${data.doc_no} and bill date ${data.docdate}`
 
     }));
-
     setLastTenderData(data || {});
 
-    const existingDetailIds = users
-      .map((user) => user.detail_Id)
-      .filter((id) => id != null);
+    if (tranType === "CN" || tranType === "CS") {
+      const existingDetailIds = users
+        .map((user) => user.detail_Id)
+        .filter((id) => id != null);
 
-    // Check if data.detail_Id already exists in users array
-    const isExisting = users.some((user) => user.detail_Id === data.detail_Id);
+      const isExisting = users.some((user) => user.detail_Id === data.detail_Id);
 
-    // Generate a new detail_Id if it's a new item, or keep the existing one if it's an update
-    const newDetailId = isExisting
-      ? data.detail_Id
-      : existingDetailIds.length > 0
-        ? Math.max(...existingDetailIds) + 1
-        : 1;
+      const newDetailId = isExisting
+        ? data.detail_Id
+        : existingDetailIds.length > 0
+          ? Math.max(...existingDetailIds) + 1
+          : 1;
 
-    // Generate a new ID for the UI if needed
-    const newId =
-      users.length > 0 ? Math.max(...users.map((user) => user.id)) + 1 : 1;
+      const newId =
+        users.length > 0 ? Math.max(...users.map((user) => user.id)) + 1 : 1;
 
+      const newDetailData = {
+        id: newId,
+        value: parseFloat(data.subTotal) || 0,
+        Quantal: data.Qty,
+        detail_Id: newDetailId,
+        rowaction: isExisting ? "update" : "add",
+        dcdetailid: isExisting ? data.dcdetailid : undefined,
+        ...(isExisting && data.dcdetailid ? { dcdetailid: data.dcdetailid } : {}),
+      };
 
-    const newDetailData = {
-      id: newId, // UI-specific id
-      value: parseFloat(data.Amount) || 0, // Assuming Amount is the value
-      Quantal: data.Qty, // Assuming Qty is the quantity
-      detail_Id: newDetailId, // Correct detail_Id based on existing or new
-      rowaction: isExisting ? "update" : "add", // Set rowaction accordingly
-      dcdetailid: isExisting ? data.dcdetailid : undefined, // Only set prdid if it's an existing row
-      ...(isExisting && data.dcdetailid ? { dcdetailid: data.dcdetailid } : {}),
-    };
+      const updatedUsers = isExisting
+        ? users.map((user) =>
+          user.detail_Id === data.detail_Id ? { ...user, ...newDetailData } : user
+        )
+        : [...users, newDetailData];
 
-    const updatedUsers = isExisting
-      ? users.map((user) =>
-        user.detail_Id === data.detail_Id ? { ...user, ...newDetailData } : user
-      )
-      : [...users, newDetailData];
+      setUsers(updatedUsers);
 
-    setUsers(updatedUsers);  // This updates the users state with the new or updated data.
+      setLastTenderDetails(updatedUsers || []);
 
-    setLastTenderDetails(updatedUsers || []);
+      const totalTaxableAmount = calculateTotalTaxableAmount(updatedUsers);
+      let updatedFormData = { ...formData, texable_amount: totalTaxableAmount };
 
+      const matchStatus = await checkMatchStatus(
+        updatedFormData.Shit_To,
+        companyCode,
+        Year_Code
+      );
 
-    const totalTaxableAmount = calculateTotalTaxableAmount(updatedUsers);
-    let updatedFormData = { ...formData, texable_amount: totalTaxableAmount };
+      // Calculate GST rate from existing rates if GstRate is not set
+      let gstRate = GstRate;
+      if (!gstRate || gstRate === 0) {
+        const cgstRate = parseFloat(formData.cgst_rate) || 0;
+        const sgstRate = parseFloat(formData.sgst_rate) || 0;
+        const igstRate = parseFloat(formData.igst_rate) || 0;
+        gstRate = igstRate > 0 ? igstRate : cgstRate + sgstRate;
+      }
 
-    const matchStatus = await checkMatchStatus(
-      updatedFormData.Shit_To,
-      companyCode,
-      Year_Code
-    );
-
-    // Calculate GST rate from existing rates if GstRate is not set
-    let gstRate = GstRate;
-    if (!gstRate || gstRate === 0) {
-      const cgstRate = parseFloat(formData.cgst_rate) || 0;
-      const sgstRate = parseFloat(formData.sgst_rate) || 0;
-      const igstRate = parseFloat(formData.igst_rate) || 0;
-      gstRate = igstRate > 0 ? igstRate : cgstRate + sgstRate;
+      updatedFormData = await calculateDependentValues(
+        "gst_code",
+        gstRate,
+        updatedFormData,
+        matchStatus,
+        gstRate
+      );
     }
-
-    updatedFormData = await calculateDependentValues(
-      "gst_code",
-      gstRate,
-      updatedFormData,
-      matchStatus,
-      gstRate
-    );
-
-    setlabel("Qty");
+    setlabel("Net Qty");
     setQty(data.Qty);
   };
+
+  const handleGenerate = () => {
+    setIsOpen(true);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
+
   return (
     <>
       <UserAuditInfo
@@ -1360,7 +1432,48 @@ const DebitCreditNote = () => {
         modifiedBy={formData.Modified_By}
       />
       <ToastContainer autoClose={500} />
-      <DebitCreditNoteReport doc_no={formData.doc_no} tran_type={formData.tran_type} disabledFeild={isEditing && cancelButtonEnabled} />
+
+      <div style={{ display: 'flex', marginLeft: '45%' }} >
+        <DebitCreditNoteReport doc_no={formData.doc_no} tran_type={formData.tran_type} disabledFeild={isEditing && cancelButtonEnabled} />
+        <div style={{ marginRight: '100%' }}>
+          <Button
+            variant="contained"
+            color="success"
+            onClick={() => handleGenerate()}
+            disabled={isEditing && cancelButtonEnabled}
+            style={{ whiteSpace: 'nowrap' }}
+          >
+            Generate eInvoice
+          </Button>
+        </div>
+        <Dialog open={isOpen} onClose={handleClose} maxWidth={650} >
+          <DialogTitle >E-Invoice Generation</DialogTitle>
+          <IconButton
+            edge="end"
+            color="inherit"
+            onClick={handleClose}
+            aria-label="close"
+            style={{
+              position: 'absolute',
+              right: 30,
+              top: 8,
+              backgroundColor: '#555',
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          <DialogContent>
+            <EInvoiceGeneration
+              doc_no={formData.doc_no}
+              tran_type={formData.tran_type}
+              handleClose={handleClose}
+              Company_Code={companyCode}
+              Year_Code={Year_Code}
+            />
+          </DialogContent>
+        </Dialog>
+      </div>
+
       <Typography variant="h6" style={{ textAlign: 'center', fontSize: "24px", fontWeight: "bold" }}> Debit Credit Note</Typography>
       <div ref={resizableRef} >
         <ActionButtonGroup
@@ -1390,7 +1503,6 @@ const DebitCreditNote = () => {
           />
         </div>
       </div>
-
       <br />
 
       <form onSubmit={handleSubmit}>
@@ -1407,7 +1519,6 @@ const DebitCreditNote = () => {
                 size="small"
               />
             </Grid>
-
 
             <Grid item xs={12} sm={1}>
               <TextField
@@ -1440,7 +1551,6 @@ const DebitCreditNote = () => {
                 <option value="CS">Credit Note To Supplier</option>
               </select>
             </Grid>
-
 
             <Grid item xs={12} sm={1}>
               <TextField
@@ -1478,7 +1588,6 @@ const DebitCreditNote = () => {
             </div>
           </Grid>
         </div>
-
         <br></br>
 
         <div className="debitCreditNote-row">
@@ -1656,9 +1765,8 @@ const DebitCreditNote = () => {
                         </div>
                       </div>
 
-
                       <div className="debitCreditNote-row" style={{ marginBottom: "10px" }}>
-                        <label className="label">
+                        <label className="label" style={{ marginLeft: "10px" }}>
                           Value :
                         </label>
                         <div >
@@ -1667,7 +1775,7 @@ const DebitCreditNote = () => {
                               type="text"
                               name="value"
                               autoComplete="off"
-                              value={formDataDetail.value}
+                              value={formDataDetail.value || 0.0}
                               onChange={handleChangeDetail}
                             />
                           </div>
@@ -1675,7 +1783,7 @@ const DebitCreditNote = () => {
                       </div>
 
                       <div className="debitCreditNote-row">
-                        <label className="label">HSN :</label>
+                        <label className="label" style={{ marginLeft: "10px" }}>HSN :</label>
                         <div>
                           <div>
                             <input
@@ -1691,7 +1799,7 @@ const DebitCreditNote = () => {
 
                       <div style={{ marginTop: "20px" }}></div>
                       <div className="debitCreditNote-row">
-                        <label className="label">
+                        <label className="label" style={{ marginLeft: "10px" }}>
                           Quantal :
                         </label>
                         <div >
@@ -1700,7 +1808,7 @@ const DebitCreditNote = () => {
                               type="text"
                               name="Quantal"
                               autoComplete="off"
-                              value={formDataDetail.Quantal}
+                              value={formDataDetail.Quantal || 0}
                               onChange={handleChangeDetail}
                             />
                           </div>
@@ -1812,11 +1920,7 @@ const DebitCreditNote = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12} sm={1} ml={-6}>
-                  <label style={{ fontWeight: 'bold' }}>{`${label}: ${qty}`}</label>
-                </Grid>
-
-                <Grid item xs={12} sm={2} ml={-8}>
+                <Grid item xs={12} sm={2} >
                   <TextField
                     label="EInvoice No"
                     name="Ewaybillno"
@@ -1842,6 +1946,10 @@ const DebitCreditNote = () => {
                     size="small"
                   />
                 </Grid>
+                <Grid item xs={12} sm={1} ml={-1}>
+                  <label style={{ fontWeight: 'bold' }}>{`${label}: ${qty}`}</label>
+                </Grid>
+
                 <Grid item xs={12} sm={6}>
                   <TextField
                     label="Narration"

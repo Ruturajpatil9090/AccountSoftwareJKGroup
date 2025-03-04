@@ -394,10 +394,10 @@ const CompanyParameters = () => {
       <Box
         sx={{
           flexGrow: 1,
-          maxWidth: 1250, // Adjusted maximum width
+          maxWidth: 1500, 
           margin: "auto",
-          padding: { xs: 2, sm: 3 }, // Responsive padding
-          mt: 4, // Top margin for spacing
+          padding: { xs: 2, sm: 3 },
+          mt: 4,
           mb: 4,
         }}
       >

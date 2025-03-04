@@ -168,7 +168,7 @@ function TableUtility({
                 <Grid item>
                     <PerPageSelect value={perPage} onChange={handlePerPageChange} />
                 </Grid>
-                <Grid item xs={6} sm={6}>
+                <Grid item xs={12} sm={6}>
                     <SearchBar value={searchTerm} onChange={handleSearchTermChange} />
                 </Grid>
                 {dropdownOptions && (

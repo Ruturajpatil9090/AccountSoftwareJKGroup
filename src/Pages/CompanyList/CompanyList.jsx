@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
-import { Modal, Button, Form } from 'react-bootstrap';
-import ForgotPasswordModal from './Modal/ForgotPassword';
-import ChangePasswordModal from './Modal/ChangePassword';
+import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, IconButton, Typography } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import './CompanyList.css';
 
 const CompanyList = () => {
@@ -24,7 +23,7 @@ const CompanyList = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const companyRefs = useRef([]);
   const firstCompanyRef = useRef(null);
-  const usernameRef = useRef(null); // Ref for the username input
+  const usernameRef = useRef(null);
 
   const navigate = useNavigate();
   const API_URL = process.env.REACT_APP_API;
@@ -39,9 +38,8 @@ const CompanyList = () => {
           if (firstCompanyRef.current) {
             firstCompanyRef.current.focus();
           }
-        }
-        else {
-          navigate('/create-company')
+        } else {
+          navigate('/create-company');
         }
       } catch (error) {
         console.error('Failed to fetch companies', error);
@@ -66,9 +64,8 @@ const CompanyList = () => {
       setAccountingYears(years);
       if (years.length > 0) {
         setSelectedAccountingYear(years[0]);
-      }
-      else {
-        navigate("/create-accounting-year");
+      } else {
+        navigate('/create-accounting-year');
       }
     } catch (error) {
       console.error('Failed to fetch accounting years', error);
@@ -94,14 +91,14 @@ const CompanyList = () => {
 
   const handleLogin = async () => {
     if (!username || !password) {
-      toast.error("Both Login Name and Password are required!");
+      toast.error('Both Login Name and Password are required!');
       return;
     }
     try {
       const response = await axios.post(`${API_URL}/userlogin`, {
         User_Name: username,
         User_Password: password,
-        Company_Code: selectedCompany.Company_Code
+        Company_Code: selectedCompany.Company_Code,
       });
       if (selectedAccountingYear) {
         sessionStorage.setItem('Year_Code', selectedAccountingYear.yearCode);
@@ -126,12 +123,11 @@ const CompanyList = () => {
       sessionStorage.setItem('Company_Name', selectedCompany.Company_Name_E);
 
       setIsLoggedIn(true);
-      toast.success("Logged in successfully!");
+      toast.success('Logged in successfully!');
       setTimeout(() => {
         navigate('/dashboard');
         window.location.reload();
       }, 1000);
-
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.error || 'Invalid login credentials');
@@ -171,17 +167,19 @@ const CompanyList = () => {
     }
   };
 
-  // Focus on the username input when the modal is shown
   useEffect(() => {
-    if (showModal && usernameRef.current) {
-      usernameRef.current.focus();
+    if (showModal) {
+      setTimeout(() => {
+        if (usernameRef.current) {
+          usernameRef.current.focus();
+        }
+      }, 100);
     }
   }, [showModal]);
 
-  // Handle "Enter" key press inside the modal
   const handleKeyDownModal = (e) => {
     if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent form submission
+      e.preventDefault();
       handleLogin();
     }
   };
@@ -206,79 +204,96 @@ const CompanyList = () => {
           ))}
         </div>
 
-        <Modal
-          show={showModal}
-          onHide={handleClose}
-          onKeyDown={handleKeyDownModal}
-          className="custom-modal"
+        <Dialog open={showModal} onClose={handleClose} style={{ marginTop: "-80px" }} >
+          <DialogTitle>
+            <Typography style={{ textAlign: 'center' }} variant="h5">
+              Company Login
+            </Typography>
+            <IconButton
+              aria-label="close"
+              onClick={handleClose}
+              sx={{
+                position: 'absolute',
+                right: 8,
+                top: 8,
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            {loginError && <p className="text-danger">{loginError}</p>}
 
-        >
-          <Modal.Header closeButton>
-            <Modal.Title >Company Login</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form onSubmit={(e) => e.preventDefault()}>
-              {loginError && <p className="text-danger">{loginError}</p>}
+            <form onSubmit={(e) => e.preventDefault()}>
+              <TextField
+                label="User Name"
+                variant="outlined"
+                autoComplete='off'
+                fullWidth
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                inputRef={usernameRef}
+                margin="normal"
+                onKeyDown={handleKeyDownModal}
+              />
 
-              <Form.Group controlId="formBasicEmail">
-                <Form.Label>User Name <span className="required-star">*</span></Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter User Name"
-                  autoComplete='off'
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  ref={usernameRef}
-
-                />
-              </Form.Group>
-              <Form.Group controlId="formBasicPassword">
-                <Form.Label>User Password <span className="required-star">*</span> </Form.Label>
-                <Form.Control
-                  type="password"
-                  placeholder="Password"
-                  autoComplete='off'
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="accountYearSelect">
-                <Form.Label>Account Year <span className="required-star">*</span></Form.Label>
-                <Form.Control
-                  as="select"
-                  value={selectedAccountingYear ? selectedAccountingYear.yearCode : ''}
-                  onChange={(e) => {
-                    const newSelectedYear = accountingYears.find(year => year.yearCode.toString() === e.target.value);
-                    setSelectedAccountingYear(newSelectedYear);
-                    sessionStorage.setItem('Year_Code', newSelectedYear.yearCode);
-                  }}
-                >
-                  {accountingYears.map((year) => (
-                    <option key={year.yearCode} value={year.yearCode}>{year.year}</option>
-                  ))}
-                </Form.Control>
-              </Form.Group>
-
-              <Form.Group controlId="currentBranchSelect">
-                <Form.Label>Current Branch</Form.Label>
-                <Form.Control as="select">
-                </Form.Control>
-              </Form.Group>
-            </Form>
-          </Modal.Body>
-          <Modal.Footer>
-            <ForgotPasswordModal show={showForgotPassword} handleClose={() => setShowForgotPassword(false)} />
-            <ChangePasswordModal show={showChangePassword} handleClose={() => setShowChangePassword(false)} />
-            <Link onClick={() => setShowForgotPassword(true)}>Forgot Password?</Link>
-            <Button variant="primary" style={{ width: "80px" }} onClick={handleLogin} type="submit">Login</Button>
-            <Button variant="secondary" onClick={handleClose}>Cancel</Button>
-            <Link onClick={() => setShowChangePassword(true)}>Change Password</Link>
-          </Modal.Footer>
-        </Modal>
-
+              <TextField
+                label="User Password"
+                variant="outlined"
+                type="password"
+                autoComplete='off'
+                fullWidth
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                margin="normal"
+                onKeyDown={handleKeyDownModal}
+              />
+              <TextField
+                select
+                label="Account Year"
+                value={selectedAccountingYear ? selectedAccountingYear.yearCode : ''}
+                fullWidth
+                required
+                onChange={(e) => {
+                  const newSelectedYear = accountingYears.find((year) => year.yearCode.toString() === e.target.value);
+                  setSelectedAccountingYear(newSelectedYear);
+                  sessionStorage.setItem('Year_Code', newSelectedYear.yearCode);
+                }}
+                margin="normal"
+                SelectProps={{
+                  native: true,
+                }}
+              >
+                {accountingYears.map((year) => (
+                  <option key={year.yearCode} value={year.yearCode}>
+                    {year.year}
+                  </option>
+                ))}
+              </TextField>
+              <TextField
+                select
+                label="Current Branch"
+                fullWidth
+                autoComplete='off'
+                margin="normal"
+                SelectProps={{
+                  native: true,
+                }}
+              ></TextField>
+            </form>
+          </DialogContent>
+          <DialogActions sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <Button onClick={handleClose} color="secondary" variant="outlined">
+              Cancel
+            </Button>
+            <Button variant="contained" color="primary" onClick={handleLogin}>
+              Login
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     </>
   );

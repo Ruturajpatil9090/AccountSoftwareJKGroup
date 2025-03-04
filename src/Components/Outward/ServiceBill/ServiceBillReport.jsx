@@ -266,9 +266,9 @@ const ServiceBill = ({ companyCode, yearCode, docNo, disabledFeild }) => {
         pdf.setTextColor(100);
         pdf.setFontSize(8);
         pdf.text(
-            `Amount Chargeable (in words): ${numberToWords(
+            `Total Amount (in words): Rs.${numberToWords(
                 data.TCS_Net_Payable
-            )} Only`,
+            )}`,
             10,
             finalY
         );

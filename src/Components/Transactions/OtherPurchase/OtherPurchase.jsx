@@ -13,6 +13,8 @@ import { useRecordLocking } from '../../../hooks/useRecordLocking';
 import UserAuditInfo from "../../../Common/UserAuditInfo/UserAuditInfo";
 import { Typography } from "@mui/material";
 import { HashLoader } from "react-spinners";
+import { TextField, Grid, FormControl, InputLabel, FormHelperText } from '@mui/material';
+import Swal from "sweetalert2";
 
 //API Credentials
 const API_URL = process.env.REACT_APP_API;
@@ -70,6 +72,9 @@ const OtherPurchase = () => {
   const location = useLocation();
   const selectedRecord = location.state?.selectedRecord;
   const inputRef = useRef(null)
+
+  const searchParams = new URLSearchParams(location.search);
+  const navigatedRecord = searchParams.get('navigatedRecord');
 
   const initialFormData = {
     Doc_Date: new Date().toISOString().slice(0, 10),
@@ -137,7 +142,7 @@ const OtherPurchase = () => {
         }));
       })
       .catch((error) => {
-        console.error("Error fetching last record:", error);
+        console.error("Error fetching record:", error);
       });
   };
 
@@ -283,10 +288,13 @@ const OtherPurchase = () => {
   const handleSaveOrUpdate = () => {
     if (formData.TDS_Amt != 0) {
       if (formData.TDS_AcCode === 0) {
-        alert("Enter the TDSAcCode !")
+        alert("Please Enter the TDS Account Code !")
         return;
       }
-
+    };
+    if (formData.GST_RateCode === 0 || formData.GST_RateCode === "") {
+      alert("Please select GST Code!")
+      return;
     };
     setIsLoading(true);
     let headData = {
@@ -367,7 +375,12 @@ const OtherPurchase = () => {
         const isLockedByUserNew = data.selected_Record_data.LockedUser;
 
         if (isLockedNew) {
-          window.alert(`This record is locked by ${isLockedByUserNew}`);
+          Swal.fire({
+            icon: "warning",
+            title: "Record Locked",
+            text: `This record is locked by ${isLockedByUserNew}`,
+            confirmButtonColor: "#d33",
+          });
           return;
         } else {
           lockRecord()
@@ -386,7 +399,7 @@ const OtherPurchase = () => {
         setIsEditing(true);
       })
       .catch((error) => {
-        window.alert("This record is already deleted! Showing the previous record.");
+        console.error("Error fetching data", error);
       });
   };
 
@@ -422,7 +435,7 @@ const OtherPurchase = () => {
       })
 
       .catch((error) => {
-        console.error("Error fetching latest data for edit:", error);
+        console.error("Error fetching edit:", error);
       });
     unlockRecord();
     // Reset other state variables
@@ -444,14 +457,31 @@ const OtherPurchase = () => {
       const data = response.data;
       const isLockedNew = data.selected_Record_data.LockedRecord;
       const isLockedByUserNew = data.selected_Record_data.LockedUser;
-
+  
       if (isLockedNew) {
-        window.alert(`This record is locked by ${isLockedByUserNew}`);
+        Swal.fire({
+          icon: "warning",
+          title: "Record Locked",
+          text: `This record is locked by ${isLockedByUserNew}`,
+          confirmButtonColor: "#d33",
+        });
         return;
       }
-
-      const isConfirmed = window.confirm(`Are you sure you want to delete this Doc_No ${formData.Doc_No}?`);
-      if (isConfirmed) {
+  
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: `You won't be able to revert this Doc No: ${formData.Doc_No}`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33", 
+        cancelButtonColor: "#3085d6", 
+        cancelButtonText: "Cancel",
+        confirmButtonText: "Delete",
+        reverseButtons: true,  
+        focusCancel: true,  
+      });
+      
+      if (result.isConfirmed) {
         setIsEditMode(false);
         setAddOneButtonEnabled(true);
         setEditButtonEnabled(true);
@@ -460,20 +490,65 @@ const OtherPurchase = () => {
         setSaveButtonEnabled(false);
         setCancelButtonEnabled(false);
         setIsLoading(true);
-
+  
         const deleteApiUrl = `${API_URL}/delete-OtherPurchase?Doc_No=${formData.Doc_No}&Company_Code=${companyCode}&Year_Code=${Year_Code}`;
         await axios.delete(deleteApiUrl);
+  
         toast.success("Record deleted successfully!");
         setIsLoading(false);
         handleCancel();
       } else {
-        console.log("Deletion cancelled");
+        Swal.fire({
+          title: "Cancelled",
+          text: "Your record is safe 🙂",
+          icon: "info",
+        });
       }
     } catch (error) {
       toast.error("Deletion cancelled. Error occurred during the operation.");
       console.error("Error during API call:", error);
     }
   };
+
+  //Gledger onCliked set record
+  const handleNavigateRecord = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/get-OtherPurchaseSelectedRecord?Company_Code=${companyCode}&Year_Code=${Year_Code}&Doc_No=${navigatedRecord}`
+      );
+      const data = response.data;
+      SupplierName = data.labels.SupplierName;
+      SupplierCode = data.selected_Record_data.Supplier_Code;
+      Exp_Ac_Name = data.labels.ExpAcName;
+      Exp_Ac_Code = data.selected_Record_data.Exp_Ac;
+      TDSCutAcName = data.labels.TDSCutAcName;
+      TDSCutAcCode = data.selected_Record_data.TDS_Cutt_AcCode;
+      TDSAcName = data.labels.tdsacname;
+      TDSAcCodeNew = data.selected_Record_data.TDS_AcCode;
+      GStrateName = data.labels.GST_Name;
+      GStrateCode = data.selected_Record_data.GST_RateCode;
+      Provision_Ac_Code = data.selected_Record_data.Provision_Ac;
+      Provision_Ac_Name = data.labels.provisionAcName;
+      GroupCode = data.selected_Record_data.Group_Code;
+      GroupName = data.labels.groupName;
+
+      setFormData({
+        ...formData,
+        ...data.selected_Record_data,
+      });
+      setIsEditing(false);
+      setAddOneButtonEnabled(true);
+      setEditButtonEnabled(true);
+      setDeleteButtonEnabled(true);
+      setBackButtonEnabled(true);
+      setSaveButtonEnabled(false);
+      setCancelButtonEnabled(false);
+      setCancelButtonClicked(true);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
 
   const handleBack = () => {
     navigate("/other-purchaseutility");
@@ -522,10 +597,12 @@ const OtherPurchase = () => {
   useEffect(() => {
     if (selectedRecord) {
       handlerecordDoubleClicked();
+    } else if (navigatedRecord) {
+      handleNavigateRecord()
     } else {
       handleAddOne();
     }
-  }, [selectedRecord]);
+  }, [selectedRecord, navigatedRecord]);
 
   //change No functionality to get that particular record
   const handleKeyDown = async (event) => {
@@ -588,7 +665,7 @@ const OtherPurchase = () => {
         });
       } else {
         console.error(
-          "Failed to fetch first record:",
+          "Failed to fetch record:",
           response.status,
           response.statusText
         );
@@ -625,7 +702,7 @@ const OtherPurchase = () => {
         });
       } else {
         console.error(
-          "Failed to fetch previous record:",
+          "Failed to fetch record:",
           response.status,
           response.statusText
         );
@@ -663,7 +740,7 @@ const OtherPurchase = () => {
         });
       } else {
         console.error(
-          "Failed to fetch next record:",
+          "Failed to fetch  record:",
           response.status,
           response.statusText
         );
@@ -698,7 +775,7 @@ const OtherPurchase = () => {
         });
       } else {
         console.error(
-          "Failed to fetch last record:",
+          "Failed to fetch record:",
           response.status,
           response.statusText
         );
@@ -882,45 +959,64 @@ const OtherPurchase = () => {
       <br></br>
       <div >
         <form >
-          <div class="otherpurchaseform-container">
-            <label htmlFor="changeNo">Change No:</label>
-            <div>
-              <input
-                type="text"
-                id="changeNo"
-                Name="changeNo"
-                autoComplete="off"
-                onKeyDown={handleKeyDown}
-                disabled={!addOneButtonEnabled}
-              />
-            </div>
+          <Grid container spacing={2}>
+            <Grid item xs={1}>
+              <FormControl fullWidth disabled={!addOneButtonEnabled}>
+                <TextField
+                  type="text"
+                  id="changeNo"
+                  label="Change No"
+                  name="changeNo"
+                  autoComplete="off"
+                  onKeyDown={handleKeyDown}
+                  variant="outlined"
+                  size="small"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </FormControl>
+            </Grid>
 
-            <label htmlFor="Doc_No">Entry No:</label>
-            <div>
-              <input
-                type="text"
-                id="Doc_No"
-                Name="Doc_No"
-                value={formData.Doc_No}
-                onChange={handleChange}
-                disabled
-              />
-            </div>
+            <Grid item xs={1}>
+              <FormControl fullWidth disabled>
+                <TextField
+                  type="text"
+                  id="Doc_No"
+                  label="Entry No"
+                  name="Doc_No"
+                  value={formData.Doc_No}
+                  onChange={handleChange}
+                  variant="outlined"
+                  size="small"
+                  disabled
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={1}>
+              <FormControl fullWidth >
+                <TextField
+                  type="date"
+                  id="Doc_Date"
+                  label="Date"
+                  name="Doc_Date"
+                  value={formData.Doc_Date}
+                  onChange={handleChange}
+                  inputRef={inputRef}
+                  variant="outlined"
+                  size="small"
+                  disabled={!isEditing && addOneButtonEnabled}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </FormControl>
+            </Grid>
+          </Grid>
 
-            <label htmlFor="Doc_Date">Date:</label>
-            <div>
-              <input
-                type="date"
-                id="Doc_Date"
-                Name="Doc_Date"
-                ref={inputRef}
-                value={formData.Doc_Date}
-                onChange={handleChange}
-                disabled={!isEditing && addOneButtonEnabled}
-                tabIndex={1}
-              />
-            </div>
-          </div>
           <div className="otherpurchase-row">
             <label htmlFor="Supplier_Code">Supplier :</label>
             <div className="otherpurchase-formgroup-item">
@@ -930,14 +1026,13 @@ const OtherPurchase = () => {
                 CategoryCode={SupplierCode}
                 name="Supplier_Code"
                 Ac_type={""}
-                tabIndexHelp={2}
                 disabledFeild={!isEditing && addOneButtonEnabled}
               />
             </div>
           </div>
 
           <div className="otherpurchase-row">
-            <label htmlFor="Exp_Ac">Exp A/C :</label>
+            <label htmlFor="Exp_Ac">Expense A/C :</label>
             <div className="otherpurchase-formgroup-item">
               <AccountMasterHelp
                 onAcCodeClick={handleExpAc}
@@ -945,7 +1040,6 @@ const OtherPurchase = () => {
                 CategoryCode={Exp_Ac_Code}
                 name="Exp_Ac"
                 Ac_type={""}
-                tabIndexHelp={4}
                 disabledFeild={!isEditing && addOneButtonEnabled}
               />
             </div>
@@ -960,7 +1054,6 @@ const OtherPurchase = () => {
                 CategoryCode={Provision_Ac_Code}
                 name="Provision_Ac"
                 Ac_type={""}
-                tabIndexHelp={5}
                 disabledFeild={!isEditing && addOneButtonEnabled}
               />
             </div>
@@ -975,231 +1068,283 @@ const OtherPurchase = () => {
                 CategoryCode={GroupCode}
                 SystemType="C"
                 name="Group_Code"
-                tabIndexHelp={6}
                 disabledField={!isEditing && addOneButtonEnabled}
               />
             </div>
 
           </div>
           <div className="otherpurchase-row">
-            <label htmlFor="GST_RateCode">GSTCode :</label>
+            <label htmlFor="GST_RateCode">GST Code :</label>
             <div className="otherpurchase-formgroup-item">
               <GSTRateMasterHelp
                 onAcCodeClick={handleGstRateCode}
                 GstRateName={GStrateName}
                 GstRateCode={GStrateCode}
                 name="GST_RateCode"
-                tabIndexHelp={7}
                 disabledFeild={!isEditing && addOneButtonEnabled}
               />
             </div>
           </div>
-          <div className="otherpurchaseform-container">
-            <div>
-              <label htmlFor="ProvisionAmt">Provision Amount:</label>
-              <input
-                type="number"
-                id="ProvisionAmt"
-                Name="ProvisionAmt"
-                autoComplete="off"
-                value={formData.ProvisionAmt !== null ? formData.ProvisionAmt : 0.00}
-                onChange={handleChange}
-                onKeyDown={handleKeyDownCalculations}
-                disabled={!isEditing && addOneButtonEnabled}
-                tabIndex={8}
-              />
-            </div>
-            <div>
-              <label htmlFor="ExpensisAmt">Exp Amount:</label>
-              <input
-                type="number"
-                id="ExpensisAmt"
-                Name="ExpensisAmt"
-                autoComplete="off"
-                value={formData.ExpensisAmt !== null ? formData.ExpensisAmt : 0.00}
-                onChange={handleChange}
-                onKeyDown={handleKeyDownCalculations}
-                disabled={!isEditing && addOneButtonEnabled}
-                tabIndex={9}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="Taxable_Amount">Taxable Amount:</label>
-              <input
-                type="number"
-                id="Taxable_Amount"
-                Name="Taxable_Amount"
-                autoComplete="off"
-                value={formData.Taxable_Amount !== null ? formData.Taxable_Amount : 0.00}
-                onChange={handleChange}
-                onKeyDown={handleKeyDownCalculations}
-                disabled={!isEditing && addOneButtonEnabled}
-                tabIndex={10}
-              />
-            </div>
-          </div>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={1}>
+              <FormControl fullWidth>
+                <TextField
+                  type="number"
+                  id="ProvisionAmt"
+                  label="Provision Amount"
+                  name="ProvisionAmt"
+                  autoComplete="off"
+                  value={formData.ProvisionAmt !== null ? formData.ProvisionAmt : 0.00}
+                  onChange={handleChange}
+                  onKeyDown={handleKeyDownCalculations}
+                  disabled={!isEditing && addOneButtonEnabled}
+                  variant="outlined"
+                  size="small"
+                  inputProps={{ step: "0.01" }}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={1}>
+              <FormControl fullWidth>
+                <TextField
+                  type="number"
+                  id="ExpensisAmt"
+                  label="Expense Amount"
+                  name="ExpensisAmt"
+                  autoComplete="off"
+                  value={formData.ExpensisAmt !== null ? formData.ExpensisAmt : 0.00}
+                  onChange={handleChange}
+                  onKeyDown={handleKeyDownCalculations}
+                  disabled={!isEditing && addOneButtonEnabled}
+                  variant="outlined"
+                  size="small"
+                  inputProps={{ step: "0.01" }}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={1}>
+              <FormControl fullWidth>
+                <TextField
+                  type="number"
+                  id="Taxable_Amount"
+                  label="Taxable Amount"
+                  name="Taxable_Amount"
+                  autoComplete="off"
+                  value={formData.Taxable_Amount !== null ? formData.Taxable_Amount : 0.00}
+                  onChange={handleChange}
+                  onKeyDown={handleKeyDownCalculations}
+                  disabled
+                  variant="outlined"
+                  size="small"
+                  inputProps={{ step: "0.01" }}
+                />
+              </FormControl>
+            </Grid>
+          </Grid>
+          <br></br>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6} md={1}>
+              <FormControl fullWidth>
+                <TextField
+                  type="text"
+                  id="CGST_Rate"
+                  label="CGST %"
+                  name="CGST_Rate"
+                  autoComplete="off"
+                  value={formData.CGST_Rate !== null ? formData.CGST_Rate : 0.00}
+                  onChange={handleChange}
+                  onKeyDown={handleKeyDownCalculations}
+                  disabled
+                  size="small"
+                  variant="outlined"
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={1}>
+              <FormControl fullWidth>
+                <TextField
+                  type="text"
+                  id="CGST_Amount"
+                  label="CGST Amount"
+                  name="CGST_Amount"
+                  autoComplete="off"
+                  value={formData.CGST_Amount !== null ? formData.CGST_Amount : 0.00}
+                  onChange={handleChange}
+                  onKeyDown={handleKeyDownCalculations}
+                  disabled
+                  size="small"
+                  variant="outlined"
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={1}>
+              <FormControl fullWidth>
+                <TextField
+                  type="text"
+                  id="SGST_Rate"
+                  label="SGST %"
+                  name="SGST_Rate"
+                  autoComplete="off"
+                  value={formData.SGST_Rate !== null ? formData.SGST_Rate : 0.00}
+                  onChange={handleChange}
+                  onKeyDown={handleKeyDownCalculations}
+                  disabled
+                  size="small"
+                  variant="outlined"
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={1}>
+              <FormControl fullWidth>
+                <TextField
+                  type="text"
+                  id="SGST_Amount"
+                  label="SGST Amount"
+                  name="SGST_Amount"
+                  autoComplete="off"
+                  value={formData.SGST_Amount !== null ? formData.SGST_Amount : ""}
+                  onChange={handleChange}
+                  onKeyDown={handleKeyDownCalculations}
+                  disabled
+                  size="small"
+                  variant="outlined"
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={1}>
+              <FormControl fullWidth>
+                <TextField
+                  type="text"
+                  id="IGST_Rate"
+                  label="IGST %"
+                  name="IGST_Rate"
+                  autoComplete="off"
+                  value={formData.IGST_Rate !== null ? formData.IGST_Rate : 0.00}
+                  onChange={handleChange}
+                  onKeyDown={handleKeyDownCalculations}
+                  disabled
+                  size="small"
+                  variant="outlined"
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={1}>
+              <FormControl fullWidth>
+                <TextField
+                  type="text"
+                  id="IGST_Amount"
+                  label="IGST Amount"
+                  name="IGST_Amount"
+                  autoComplete="off"
+                  value={formData.IGST_Amount !== null ? formData.IGST_Amount : 0.00}
+                  onChange={handleChange}
+                  onKeyDown={handleKeyDownCalculations}
+                  disabled
+                  size="small"
+                  variant="outlined"
+                />
+              </FormControl>
+            </Grid>
+          </Grid>
 
           <br></br>
-          <div className="otherpurchaseform-container">
-            <div style={{ gap: "5px" }} >
-              <label htmlFor="CGST_Rate">CGST % :</label>
-              <input
-                type="text"
-                id="CGST_Rate"
-                Name="CGST_Rate"
-                autoComplete="off"
-                value={formData.CGST_Rate !== null ? formData.CGST_Rate : 0.00}
-                onChange={handleChange}
-                onKeyDown={handleKeyDownCalculations}
-                disabled
-                tabIndex={11}
-              />
-              <input
-                type="text"
-                id="CGST_Amount"
-                Name="CGST_Amount"
-                autoComplete="off"
-                value={formData.CGST_Amount !== null ? formData.CGST_Amount : 0.00}
-                onChange={handleChange}
-                onKeyDown={handleKeyDownCalculations}
-                disabled
-                tabIndex={12}
-              />
-            </div>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6} md={1}>
+              <FormControl fullWidth>
+                <TextField
+                  type="number"
+                  id="Other_Amount"
+                  label="Other Amount"
+                  name="Other_Amount"
+                  autoComplete="off"
+                  size="small"
+                  value={formData.Other_Amount !== null ? formData.Other_Amount : 0.00}
+                  onChange={handleChange}
+                  onKeyDown={handleKeyDownCalculations}
+                  disabled={!isEditing && addOneButtonEnabled}
+                  variant="outlined"
+                  inputProps={{ step: "0.01" }}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={1}>
+              <FormControl fullWidth>
+                <TextField
+                  type="number"
+                  id="Bill_Amount"
+                  label="Bill Amount"
+                  name="Bill_Amount"
+                  autoComplete="off"
+                  size="small"
+                  value={formData.Bill_Amount !== null ? formData.Bill_Amount : 0.00}
+                  onChange={handleChange}
+                  onKeyDown={handleKeyDownCalculations}
+                  disabled={!isEditing && addOneButtonEnabled}
+                  variant="outlined"
+                  inputProps={{ step: "0.01" }}
+                />
+              </FormControl>
+            </Grid>
 
-            <div style={{ gap: "5px" }} >
-              <label htmlFor="SGST_Rate">SGST % :</label>
-              <input
-                type="text"
-                id="SGST_Rate"
-                Name="SGST_Rate"
-                autoComplete="off"
-                value={formData.SGST_Rate !== null ? formData.SGST_Rate : 0.00}
-                onChange={handleChange}
-                onKeyDown={handleKeyDownCalculations}
-                disabled
-                tabIndex={13}
-              />
-              <input
-                type="text"
-                id="SGST_Amount"
-                Name="SGST_Amount"
-                autoComplete="off"
-                value={formData.SGST_Amount !== null ? formData.SGST_Amount : ""}
-                onChange={handleChange}
-                onKeyDown={handleKeyDownCalculations}
-                disabled
-                tabIndex={14}
-              />
-            </div>
+            <Grid item xs={12} sm={6} md={1}>
+              <FormControl fullWidth>
+                <TextField
+                  type="number"
+                  id="TDS_Amt"
+                  label="TDS Amount"
+                  name="TDS_Amt"
+                  autoComplete="off"
+                  value={parseFloat(formData.TDS_Amt) || 0.00}
+                  onChange={handleChange}
+                  onKeyDown={handleKeyDownCalculations}
+                  disabled={!isEditing && addOneButtonEnabled}
+                  variant="outlined"
+                  size="small"
+                  inputProps={{ step: "0.01" }}
+                />
+              </FormControl>
+            </Grid>
 
-            <div style={{ gap: "5px" }}>
-              <label htmlFor="IGST_Rate">IGST % :</label>
-              <input
-                type="text"
-                id="IGST_Rate"
-                Name="IGST_Rate"
-                autoComplete="off"
-                value={formData.IGST_Rate !== null ? formData.IGST_Rate : 0.00}
-                onChange={handleChange}
-                onKeyDown={handleKeyDownCalculations}
-                disabled
-                tabIndex={15}
-              />
-              <input
-                type="text"
-                id="IGST_Amount"
-                Name="IGST_Amount"
-                autoComplete="off"
-                value={formData.IGST_Amount !== null ? formData.IGST_Amount : 0.00}
-                onChange={handleChange}
-                onKeyDown={handleKeyDownCalculations}
-                disabled
-                tabIndex={16}
-              />
-            </div>
-          </div>
-          <br></br>
-          <div className="otherpurchaseform-container">
-            <div >
-              <label htmlFor="Other_Amount">Other Amount :</label>
-              <input
-                type="number"
-                id="Other_Amount"
-                Name="Other_Amount"
-                autoComplete="off"
-                value={formData.Other_Amount !== null ? formData.Other_Amount : 0.00}
-                onChange={handleChange}
-                onKeyDown={handleKeyDownCalculations}
-                disabled={!isEditing && addOneButtonEnabled}
-                tabIndex={17}
-              />
-            </div>
+            <Grid item xs={12} sm={6} md={1}>
+              <FormControl fullWidth>
+                <TextField
+                  type="number"
+                  id="TDS_Per"
+                  label="TDS %"
+                  name="TDS_Per"
+                  autoComplete="off"
+                  value={formData.TDS_Per || 0.00}
+                  onChange={handleChange}
+                  onKeyDown={handleKeyDownCalculations}
+                  disabled={!isEditing && addOneButtonEnabled}
+                  variant="outlined"
+                  size="small"
+                  inputProps={{ step: "0.01" }}
+                />
+              </FormControl>
+            </Grid>
 
-            <div >
-              <label htmlFor="Bill_Amount">Bill Amount :</label>
-              <input
-                type="number"
-                id="Bill_Amount"
-                Name="Bill_Amount"
-                autoComplete="off"
-                value={formData.Bill_Amount !== null ? formData.Bill_Amount : 0.00}
-                onChange={handleChange}
-                onKeyDown={handleKeyDownCalculations}
-                disabled={!isEditing && addOneButtonEnabled}
-                tabIndex={18}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="TDS_Amt">TDS Amount :</label>
-              <input
-                type="number"
-                id="TDS_Amt"
-                Name="TDS_Amt"
-                autoComplete="off"
-                value={parseFloat(formData.TDS_Amt) || 0.00}
-                onChange={handleChange}
-                onKeyDown={handleKeyDownCalculations}
-                disabled={!isEditing && addOneButtonEnabled}
-                tabIndex={19}
-              />
-            </div>
-
-            <div >
-              <label htmlFor="TDS_Per">TDS % :</label>
-              <input
-                type="number"
-                id="TDS_Per"
-                Name="TDS_Per"
-                autoComplete="off"
-                value={formData.TDS_Per || 0.00}
-                onChange={handleChange}
-                onKeyDown={handleKeyDownCalculations}
-                disabled={!isEditing && addOneButtonEnabled}
-                tabIndex={20}
-              />
-            </div>
-
-            <div >
-              <label htmlFor="TDS">TDS :</label>
-              <input
-                type="number"
-                id="TDS"
-                Name="TDS"
-                autoComplete="off"
-                value={formData.TDS}
-                onChange={handleChange}
-                onKeyDown={handleKeyDownCalculations}
-                disabled={!isEditing && addOneButtonEnabled}
-                tabIndex={21}
-              />
-            </div>
-          </div>
-
+            <Grid item xs={12} sm={6} md={1}>
+              <FormControl fullWidth>
+                <TextField
+                  type="number"
+                  id="TDS"
+                  label="TDS"
+                  name="TDS"
+                  autoComplete="off"
+                  value={formData.TDS}
+                  onChange={handleChange}
+                  onKeyDown={handleKeyDownCalculations}
+                  disabled={!isEditing && addOneButtonEnabled}
+                  variant="outlined"
+                  size="small"
+                  inputProps={{ step: "0.01" }}
+                />
+              </FormControl>
+            </Grid>
+          </Grid>
           <div className="otherpurchase-row">
-            <label htmlFor="TDS_Ac_Cutt">TDS Cut Ac :</label>
+            <label htmlFor="TDS_Ac_Cutt">TDS Cut AC :</label>
             <div className="otherpurchase-formgroup-item">
               <AccountMasterHelp
                 onAcCodeClick={handleTDSCutting}
@@ -1207,14 +1352,12 @@ const OtherPurchase = () => {
                 CategoryCode={TDSCutAcCode ? TDSCutAcCode : formData.TDS_Cutt_AcCode}
                 name="TDS_Ac_Cutt"
                 Ac_type={""}
-                tabIndexHelp={22}
                 disabledFeild={!isEditing && addOneButtonEnabled}
               />
             </div>
-
           </div>
           <div className="otherpurchase-row">
-            <label htmlFor="TDS_Ac">TDS Ac :</label>
+            <label htmlFor="TDS_Ac">TDS AC :</label>
             <div className="otherpurchase-formgroup-item">
               <AccountMasterHelp
                 onAcCodeClick={handleTDSAc}
@@ -1222,71 +1365,80 @@ const OtherPurchase = () => {
                 CategoryCode={TDSAcCodeNew}
                 name="TDS_Ac"
                 Ac_type={""}
-                tabIndexHelp={23}
                 disabledFeild={!isEditing && addOneButtonEnabled}
               />
             </div>
           </div>
+          <br></br>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6} md={2}>
+              <FormControl fullWidth>
+                <TextField
+                  type="text"
+                  id="billno"
+                  label="Bill No"
+                  name="billno"
+                  autoComplete="off"
+                  value={formData.billno}
+                  onChange={handleChange}
+                  disabled={!isEditing && addOneButtonEnabled}
+                  variant="outlined"
+                  size="small"
+                />
+              </FormControl>
+            </Grid>
 
-          <div className="otherpurchaseform-container">
-            <div>
-              <label htmlFor="billno">Bill No :</label>
-              <input
-                type="text"
-                id="billno"
-                Name="billno"
-                autoComplete="off"
-                value={formData.billno}
-                onChange={handleChange}
-                disabled={!isEditing && addOneButtonEnabled}
-                tabIndex={24}
-              />
-            </div>
-            <div >
-              <label htmlFor="ASN_No">ASN No :</label>
-              <input
-                type="text"
-                id="ASN_No"
-                Name="ASN_No"
-                autoComplete="off"
-                value={formData.ASN_No}
-                onChange={handleChange}
-                disabled={!isEditing && addOneButtonEnabled}
-                tabIndex={25}
-              />
-            </div>
-            <div >
-              <label htmlFor="einvoiceno">EInvoice No :</label>
-              <input
-                type="text"
-                id="einvoiceno"
-                Name="einvoiceno"
-                autoComplete="off"
-                value={formData.einvoiceno}
-                onChange={handleChange}
-                disabled={!isEditing && addOneButtonEnabled}
-                tabIndex={26}
-              />
-            </div>
+            <Grid item xs={12} sm={6} md={2}>
+              <FormControl fullWidth>
+                <TextField
+                  type="text"
+                  id="ASN_No"
+                  label="ASN No"
+                  name="ASN_No"
+                  autoComplete="off"
+                  value={formData.ASN_No}
+                  onChange={handleChange}
+                  disabled={!isEditing && addOneButtonEnabled}
+                  variant="outlined"
+                  size="small"
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={2}>
+              <FormControl fullWidth>
+                <TextField
+                  type="text"
+                  id="einvoiceno"
+                  label="EInvoice No"
+                  name="einvoiceno"
+                  autoComplete="off"
+                  value={formData.einvoiceno}
+                  onChange={handleChange}
+                  disabled={!isEditing && addOneButtonEnabled}
+                  variant="outlined"
+                  size="small"
+                />
+              </FormControl>
+            </Grid>
 
-            <div >
-              <label htmlFor="Narration">Narration :</label>
-              <textarea
-                id="Narration"
-                name="Narration"
-                autoComplete="off"
-                value={formData.Narration}
-                onChange={handleChange}
-                disabled={!isEditing && addOneButtonEnabled}
-                tabIndex={27}
-                rows="2"
-                cols="100"
-                placeholder=""
-                className="narration-textarea"
-              />
-            </div>
-          </div>
-
+            <Grid item xs={8}>
+              <FormControl fullWidth>
+                <TextField
+                  id="Narration"
+                  name="Narration"
+                  label="Narration"
+                  autoComplete="off"
+                  value={formData.Narration}
+                  onChange={handleChange}
+                  disabled={!isEditing && addOneButtonEnabled}
+                  variant="outlined"
+                  multiline
+                  rows={2}
+                  placeholder="Enter narration here"
+                />
+              </FormControl>
+            </Grid>
+          </Grid>
           {isLoading && (
             <div className="loading-overlay">
               <div className="spinner-container">

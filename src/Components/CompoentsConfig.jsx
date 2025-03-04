@@ -72,9 +72,6 @@ import UTRDetailReport from "./Reports/PendingReports/UTRDetailReport.jsx";
 import UserCreationWithPermissionUtility from './Utilities/UserCreationWithPermission/UserCreationWithPermissionUtility.jsx';
 
 import GSTUtilitiesForm from './GSTUtilities/GstUtilities';
-import EwayBillGeneration from './EwayBillGeneration.jsx';
-import EWayBillNEInvoiceGen from './EWayBillNEInvoiceGen/EWayBillNEInvoiceGen.jsx';
-import EwayBills from './EWayBillNEInvoiceGen/EwayBills.jsx';
 import UserRegistrationForm from './UserRegistration/UserRegistrationForm.jsx';
 import BalanceStockReport from './BusinessRelated/StockReport/BalanceStockReport/BalanceStockReport.jsx';
 import MillWiseLiftingWise from './BusinessRelated/StockReport/BalanceStockReport/MillWiseLiftingWise.jsx';
@@ -106,6 +103,8 @@ import DuePaymentSummary from './Reports/PendingReports/DuePaymentSummary.jsx';
 import SaudaSummary from './Reports/PendingReports/SaudaSummary.jsx'
 import BalancesheetReport from './Reports/ProfitLossBalanceSheet/BalancesheetReport.jsx'
 import MultipleLedger from './Reports/MultipleLedger/MultipleLedger.jsx'
+import DayBookReport from './Reports/Ledger/DayBook/DayBookReport.jsx'
+import DayBook from './Reports/Ledger/DayBook/DayBook.jsx'
 
 const routes = [
   {
@@ -424,6 +423,14 @@ const routes = [
     path: '/multiple-ledger',
     element: MultipleLedger
   },
+  {
+    path:'/daybook',
+    element: DayBook
+  },
+  {
+    path:'/daybook-report',
+    element: DayBookReport
+  },
   //Bank Book
   {
     path: '/bank-book',
@@ -602,12 +609,6 @@ const routes = [
   {
     path: '/dispatch-details',
     element: DispatchDetailsReport
-  },
-
-  //ewayBillGeneration
-  {
-    path: '/multiple-sale-bill-against-single-payment',
-    element: EwayBills
   },
 
   //Common User Registration Form

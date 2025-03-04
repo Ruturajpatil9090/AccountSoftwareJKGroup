@@ -20,7 +20,7 @@ function App() {
   const location = useLocation();
   const { pathname } = location;
 
-  const hideNavbarPaths = ['/', '/company-list', '/create-accounting-year', '/create-company', '/ProfitLoss-Report','/Balancesheet-Report','/ledger-report','/bank-book-report','/JVReport-reports'];
+  const hideNavbarPaths = ['/', '/company-list', '/create-accounting-year', '/create-company', '/ProfitLoss-Report','/Balancesheet-Report','/ledger-report','/bank-book-report','/JVReport-reports','/daybook-report'];
 
   const isAuthenticated = sessionStorage.getItem('username') !== null;
 
