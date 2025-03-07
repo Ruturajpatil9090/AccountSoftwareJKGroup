@@ -11,17 +11,15 @@ import {
 } from '@mui/material';
 import {
   AiOutlineUser,
-  AiFillEye,
-  AiFillEyeInvisible,
   AiFillLock
 } from 'react-icons/ai';
 import { useNavigate } from 'react-router-dom';
 import logo from "../../Assets/jklogo.png";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import Swal from 'sweetalert2';
 import './Login.css';
 
 const API_URL = process.env.REACT_APP_API;
+const COMPANY_NAME = process.env.COMPANY_NAME;
 
 const Login = () => {
   const navigate = useNavigate();
@@ -43,7 +41,11 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!loginData.Login_Name || !loginData.Password) {
-      toast.error("Please fill in both the username and password fields.!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Please fill in both the username and password fields!',
+      });
       return;
     }
     try {
@@ -51,18 +53,46 @@ const Login = () => {
       const { user_data, access_token } = response.data;
       sessionStorage.setItem('user_type', user_data.UserType);
       sessionStorage.setItem('access_token', access_token);
-      toast.success("Logged in successfully!");
+
+      const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.onmouseenter = Swal.stopTimer;
+          toast.onmouseleave = Swal.resumeTimer;
+        }
+      });
+      Toast.fire({
+        icon: "success",
+        title: "Signed in successfully"
+      });
+
       setTimeout(() => {
         navigate("/company-list");
       }, 1000);
+
     } catch (error) {
       if (error.response) {
-        toast.error(error.response.data.error || "Login failed!");
-        console.error('Login error:', error.response.data.error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Login Failed',
+          text: error.response.data.error || "Login failed!",
+        });
       } else if (error.request) {
-        toast.error("The login request was made but no response was received");
+        Swal.fire({
+          icon: 'error',
+          title: 'Network Error',
+          text: 'The login request was made but no response was received.',
+        });
       } else {
-        toast.error("An error occurred: " + error.message);
+        Swal.fire({
+          icon: 'error',
+          title: 'An Error Occurred',
+          text: error.message,
+        });
       }
     }
   };
@@ -77,10 +107,9 @@ const Login = () => {
 
   return (
     <Container className="login-container">
-      <ToastContainer autoClose={500} />
       <Box display="flex" flexDirection="column" alignItems="center" mb={3}>
         <img src={logo} alt='' width={100} />
-        <Typography variant="h5" gutterBottom>JK Sugars & Commodities Pvt Ltd</Typography>
+        <Typography variant="h5" gutterBottom>JK Sugars & Commodities Pvt. Ltd</Typography>
       </Box>
       <form onSubmit={handleSubmit}>
         <Grid container justifyContent="center" alignItems="center" spacing={2}>
@@ -118,18 +147,13 @@ const Login = () => {
                   <IconButton>
                     <AiFillLock />
                   </IconButton>
-                ),
-                endAdornment: (
-                  <IconButton onClick={togglePasswordVisibility}>
-                    {passwordVisible ? <AiFillEyeInvisible /> : <AiFillEye />}
-                  </IconButton>
-                ),
+                )
               }}
             />
           </Grid>
           <Grid item xs={6} style={{ textAlign: 'center' }}>
             <button className="Login-button" type="submit">
-              SignIn
+              Sign In
             </button>
           </Grid>
         </Grid>

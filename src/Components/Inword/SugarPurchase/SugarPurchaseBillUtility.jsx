@@ -1,5 +1,5 @@
 import React from "react";
-import TableUtility from "../../../Common/UtilityCommon/TableUtility"; 
+import TableUtility from "../../../Common/UtilityCommon/TableUtility";
 
 const PurchaseBillUtility = ({ includeYearCode = true }) => {
     const apiUrl = `${process.env.REACT_APP_API}/getdata-sugarpurchase`;

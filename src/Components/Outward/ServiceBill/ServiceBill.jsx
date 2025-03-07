@@ -1709,7 +1709,12 @@ const ServiceBill = () => {
                   </TableHead>
                   <TableBody>
                     {users.map((user) => (
-                      <TableRow key={user.id} sx={{ height: '30px' }}>
+                      <TableRow key={user.id} sx={{
+                        height: '30px', '&:hover': {
+                          backgroundColor: '#f3f388',
+                          cursor: "pointer",
+                        },
+                      }}>
                         <TableCell sx={{ padding: '4px 8px', display: "flex" }}>
                           {user.rowaction === 'add' || user.rowaction === 'update' || user.rowaction === 'Normal' ? (
                             <>

@@ -494,9 +494,6 @@ const GledgerReport = () => {
 
         )}
         <button onClick={generatePdf} className="btn btn-secondary">PDF</button>
-        {/* <button className="btn btn-warning ms-2" onClick={handleBack}>
-          Back
-        </button> */}
       </div>
       <Typography variant="h6" style={{ textAlign: 'center', fontSize: "24px", fontWeight: "bold", marginTop: "10px" }}>{Company_Name}</Typography>
       <div>
@@ -537,7 +534,7 @@ const GledgerReport = () => {
                 <th>DRCR</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody >
               {ledgerData.map((item, index) => (
                 <tr key={index}>
                   <td>{item.TRAN_TYPE}</td>

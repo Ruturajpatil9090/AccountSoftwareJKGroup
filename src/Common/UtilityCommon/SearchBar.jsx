@@ -24,7 +24,6 @@ function SearchBar({ value, onChange, onSearchClick }) {
           ),
           style: {
             borderRadius: "50px",
-         
           },
         }}
         style={{

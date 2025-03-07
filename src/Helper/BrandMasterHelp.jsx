@@ -197,10 +197,9 @@ const BrandMasterHelp = ({ onAcCodeClick, name, brandName, brandCode, disabledFi
             <Modal
                 show={showModal}
                 onHide={handleCloseModal}
-                dialogClassName="modal-dialog"
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>Brand Master Help</Modal.Title>
+                    <Modal.Title>Brand Master</Modal.Title>
                 </Modal.Header>
                 <DataTableSearch data={popupContent} onSearch={handleSearch} />
                 <Modal.Body>

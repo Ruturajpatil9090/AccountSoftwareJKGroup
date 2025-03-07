@@ -29,6 +29,7 @@ import "./JournalVoucher.css"
 import { formatReadableAmount } from "../../../Common/FormatFunctions/FormatAmount"
 import { fetchAccountBalance } from "../../../Common/GetAccountBalance/GetAccountBalance";
 import Swal from "sweetalert2";
+import { ConvertNumberToWord } from "../../../Common/FormatFunctions/ConvertNumberToWord";
 
 var newDebit_ac;
 var lblacname;
@@ -156,6 +157,8 @@ const JournalVoucher = () => {
     "journal_voucher"
   );
 
+  const [amountInWords, setAmountInWords] = useState('');
+
   //handleChange For Input Fields
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -216,7 +219,12 @@ const JournalVoucher = () => {
 
   const handleSaveOrUpdate = async () => {
     if (users.length === 0 || users.every(user => user.rowaction === "DNU" || user.rowaction === "delete")) {
-      alert("Please add at least one entry in the detail grid.");
+      await Swal.fire({
+        title: "Error",
+        text: "Please add at least one entry in the detail grid.",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
       return;
     }
     setIsEditing(true);
@@ -224,7 +232,12 @@ const JournalVoucher = () => {
 
     const Total = parseFloat(creditTotal) - parseFloat(debitTotal);
     if (Total !== 0) {
-      alert("Difference must be zero!!!");
+      Swal.fire({
+        title: "Error",
+        text: "Differnece Must Be Zero.!",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
       setIsLoading(false);
       return;
     }
@@ -338,9 +351,7 @@ const JournalVoucher = () => {
         setIsEditing(true);
       })
       .catch((error) => {
-        window.alert(
-          "This record is already deleted! Showing the previous record."
-        );
+        console.log(error);
       });
   };
 
@@ -417,7 +428,12 @@ const JournalVoucher = () => {
     const Total =
       parseFloat(globalCreditTotalAmount) - parseFloat(globalDebitTotalAmount);
     if (Total !== 0) {
-      alert("Difference must be zero!!!");
+      Swal.fire({
+        title: "Error",
+        text: "Difference must be zero!!!",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
       return;
     }
 
@@ -576,17 +592,52 @@ const JournalVoucher = () => {
     return { creditTotal, debitTotal, total };
   };
 
+  // const handleChangeDetail = (event) => {
+  //   const { name, value } = event.target;
+  //   let updatedFormDataDetail = { ...formDataDetail, [name]: value };
+
+  //   setFormDataDetail(updatedFormDataDetail);
+  // };
+
+
   const handleChangeDetail = (event) => {
     const { name, value } = event.target;
     let updatedFormDataDetail = { ...formDataDetail, [name]: value };
-
+  
+    if (name === 'amount') {
+      const convertedAmountInWords = ConvertNumberToWord(value); 
+      setAmountInWords(convertedAmountInWords); 
+    }
     setFormDataDetail(updatedFormDataDetail);
   };
+  
 
-  const openPopup = () => {
+  const [popupMode, setPopupMode] = useState("add");
+
+  // const openPopup = () => {
+  //   setShowPopup(true);
+  //   const selectedValue = formData.tran_type;
+  //   setAccountsetBalance(0)
+  // };
+
+
+  const openPopup = (mode) => {
+    if (mode === "add") {
+      const initialAmount = users.length === 0 ? 0 : diff;
+      setFormDataDetail(prevDetail => ({
+        ...prevDetail,
+        amount: Math.abs(initialAmount),
+        drcr : diff <= 0 ? "C": "D",
+        narration: prevDetail.narration
+      }));
+    }
+    setAccountsetBalance(0)
+    let amount = ConvertNumberToWord(formDataDetail.amount)
+    setAmountInWords(amount)
+    setPopupMode(mode);
     setShowPopup(true);
-    const selectedValue = formData.tran_type;
   };
+
 
   const clearForm = () => {
     setFormDataDetail({
@@ -594,8 +645,8 @@ const JournalVoucher = () => {
       credit_ac: "",
       Unit_Code: 0,
       amount: 0,
-      narration: "",
-      narration2: "",
+      // narration: "",
+      // narration2: "",
       detail_id: 1,
       Voucher_No: 0,
       Voucher_Type: "",
@@ -620,10 +671,17 @@ const JournalVoucher = () => {
   };
 
   const addUser = () => {
+    setAmountInWords(""); 
     if (formDataDetail.amount === 0 || formDataDetail.amount === "") {
-      alert("Please enter amount");
+      Swal.fire({
+        title: "Error",
+        text: "Please Enter Amount",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
       return;
     }
+
     const maxDetailId =
       users.length > 0
         ? Math.max(...users.map((user) => user.detail_id)) + 1
@@ -666,7 +724,7 @@ const JournalVoucher = () => {
     setTimeout(() => {
       addButtonRef.current.focus();
     }, 500)
-
+   
   };
 
   const editUser = (user) => {
@@ -685,14 +743,21 @@ const JournalVoucher = () => {
       trandetailid: user.trandetailid,
       id: user.trandetailid,
     });
-
-    openPopup();
+   
+    openPopup("edit");
+    let amount = ConvertNumberToWord(user.amount)
+    setAmountInWords(amount)
   };
 
   const updateUser = async () => {
     if (formDataDetail.amount === "0" || formDataDetail.amount === "") {
-      alert("Please enter amount");
-      return
+      Swal.fire({
+        title: "Error",
+        text: "Please Enter Amount",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
+      return;
     }
     setTimeout(() => {
       addButtonRef.current.focus();
@@ -1299,6 +1364,7 @@ const JournalVoucher = () => {
                             boxSizing: "border-box",
                           }}
                         />
+                        {/* <h6 style={{marginLeft:"20px"}}>Difference Amount = {diff}</h6> */}
                       </div>
 
                       <div
@@ -1336,6 +1402,26 @@ const JournalVoucher = () => {
                             height: "100px",
                           }}
                         />
+                      </div>
+                      <div
+                        style={{
+                          marginBottom: "15px",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        <label
+                          htmlFor="narration"
+                          style={{
+                            fontSize: "20px",
+                            fontWeight: "bold",
+                            marginRight: "10px",
+                            display: "inline-block",
+                          }}
+                        >
+                          Amount in Words:
+                        </label>
+                        <p style={{marginLeft:"20px",marginTop:'20px',color:"blue",fontWeight:"bold"}}> {amountInWords}</p>
                       </div>
                     </form>
                   </div>
@@ -1396,7 +1482,12 @@ const JournalVoucher = () => {
               </TableHead>
               <TableBody>
                 {users.map((user) => (
-                  <TableRow key={user.id} sx={{ height: '30px' }}>
+                  <TableRow key={user.id} sx={{
+                    height: '30px', '&:hover': {
+                      backgroundColor: '#f3f388',
+                     cursor : "pointer",
+                    },
+                  }}>
                     <TableCell sx={{ padding: '4px 8px' }}>
                       {user.rowaction === "add" ||
                         user.rowaction === "update" ||

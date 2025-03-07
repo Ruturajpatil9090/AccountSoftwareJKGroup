@@ -176,7 +176,7 @@ const SaleBill = () => {
     TDS_Rate: 0.0,
     SBNarration: "",
     QRCode: "",
-    Insured: "N",
+    // Insured: "N",
     gstid: 0,
   };
 
@@ -1608,7 +1608,7 @@ const SaleBill = () => {
               </div>
             </div>
 
-            <Grid item xs={6} sm={1} ml={1}>
+            {/* <Grid item xs={6} sm={1} ml={1}>
               <FormControl fullWidth variant="outlined">
                 <InputLabel id="insured-label">Insured</InputLabel>
                 <Select
@@ -1623,7 +1623,7 @@ const SaleBill = () => {
                   <MenuItem value="N">No</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
+            </Grid> */}
           </Grid>
         </div>
 

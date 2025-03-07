@@ -214,6 +214,11 @@ function TableUtility({
                                                 key={post[rowKey]}
                                                 style={{ cursor: "pointer" }}
                                                 onDoubleClick={() => handleRowClick(post[rowKey])}
+                                                sx={{
+                                                    '&:hover': {
+                                                      backgroundColor: '#f3f388',
+                                                    },
+                                                  }}
                                             >
                                                 {columns.map((column, index) => (
                                                     <TableCell key={index}>{post[column.key]}</TableCell>

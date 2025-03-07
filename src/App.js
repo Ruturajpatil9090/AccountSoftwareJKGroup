@@ -20,35 +20,35 @@ function App() {
   const location = useLocation();
   const { pathname } = location;
 
-  const hideNavbarPaths = ['/', '/company-list', '/create-accounting-year', '/create-company', '/ProfitLoss-Report','/Balancesheet-Report','/ledger-report','/bank-book-report','/JVReport-reports','/daybook-report'];
+  const hideNavbarPaths = ['/', '/company-list', '/create-accounting-year', '/create-company', '/ProfitLoss-Report', '/Balancesheet-Report', '/ledger-report', '/bank-book-report', '/JVReport-reports', '/daybook-report'];
 
   const isAuthenticated = sessionStorage.getItem('username') !== null;
 
   return (
     <>
-      <AccountMasterProvider hideNavbarPaths={hideNavbarPaths} >  
-      <div >
-        {!hideNavbarPaths.includes(pathname) && <Navbar />}
-      </div>
-      <div className="App">
-    
-        <Routes>
-          <Route path="/" element={<LoginForm />} />
-          {routes.map((route, index) => (
-            <Route key={index} path={route.path} element={<route.element />} />
-          ))}
+      <AccountMasterProvider hideNavbarPaths={hideNavbarPaths} >
+        <div >
+          {!hideNavbarPaths.includes(pathname) && <Navbar />}
+        </div>
+        <div className="App">
 
-          {ComponentUtility.map((route, index) => (
-            <Route
-              key={index}
-              path={route.path}
-              element={isAuthenticated ? <route.element /> : <Navigate to="/" />}
-            />
-          ))}
-        </Routes>
-      
-      </div>
-      {!hideNavbarPaths.includes(pathname) && <Footer />}
+          <Routes>
+            <Route path="/" element={<LoginForm />} />
+            {routes.map((route, index) => (
+              <Route key={index} path={route.path} element={<route.element />} />
+            ))}
+
+            {ComponentUtility.map((route, index) => (
+              <Route
+                key={index}
+                path={route.path}
+                element={isAuthenticated ? <route.element /> : <Navigate to="/" />}
+              />
+            ))}
+          </Routes>
+
+        </div>
+        {!hideNavbarPaths.includes(pathname) && <Footer />}
       </AccountMasterProvider>
     </>
   );

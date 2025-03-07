@@ -19,12 +19,12 @@ export async function fetchAccountBalance(acCode) {
         if (response.data && response.data.Balance !== undefined) {
             return response.data.Balance;
         } else {
-            alert("This Particular Period Balnce is not found!");
+            console.log("Data Not Found!");
         }
     } catch (err) {
         // Handle 404 error specifically
         if (err.response && err.response.status === 404) {
-            alert("Balance Not Found!");
+            return 0;
         } else {
             console.error("Error fetching balance:", err);
             throw new Error("Error fetching balance.");

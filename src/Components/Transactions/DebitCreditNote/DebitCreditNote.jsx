@@ -384,13 +384,23 @@ const DebitCreditNote = () => {
 
     if (["CN", "CS",].includes(formData.tran_type || tranType)) {
       if (users.length === 0 || users.some(user => !user.Item_Code || user.Item_Code === 0 || !user.expac_code || user.expac_code === "0")) {
-        alert("Please select Item and Expense Account in detail section.");
+        Swal.fire({
+          title: "Error",
+          text: "Please select Item and Expense Account in detail section.",
+          icon: "error",
+          confirmButtonText: "OK"
+        });
         return;
       }
     }
 
     if (users.length === 0 || users.every(user => user.rowaction === "DNU" || user.rowaction === "delete")) {
-      alert("Please add at least one entry in the detail section.");
+      Swal.fire({
+        title: "Error",
+        text: "Please add at least one entry in the detail grid.",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
       return;
     }
 
@@ -1874,7 +1884,12 @@ const DebitCreditNote = () => {
               </TableHead>
               <TableBody>
                 {users.map((user) => (
-                  <TableRow key={user.id} sx={{ height: '30px' }}>
+                  <TableRow key={user.id} sx={{
+                    height: '30px', '&:hover': {
+                      backgroundColor: '#f3f388',
+                     cursor : "pointer",
+                    },
+                  }}>
                     <TableCell sx={{ padding: '4px 8px' }}>
                       {user.rowaction === 'add' || user.rowaction === 'update' || user.rowaction === 'Normal' ? (
                         <>

@@ -30,6 +30,7 @@ import OpenButton from "../../../Common/Buttons/OpenButton";
 import { formatReadableAmount } from "../../../Common/FormatFunctions/FormatAmount";
 import RecieptPaymentReport from "./RecieptPaymentReport";
 import Swal from "sweetalert2";
+import { ConvertNumberToWord } from "../../../Common/FormatFunctions/ConvertNumberToWord";
 
 const API_URL = process.env.REACT_APP_API;
 
@@ -113,6 +114,8 @@ const RecieptPayment = () => {
 
   const addButtonRef = useRef(null);
   const firstInputRef = useRef(null);
+
+  const [amountInWords, setAmountInWords] = useState('');
 
   //SET focus to first input feild
   const setFocusToFirstField = () => {
@@ -287,6 +290,7 @@ const RecieptPayment = () => {
       });
   };
 
+
   const handleDetailDropdownChange = (selectedValue) => {
     updateSecondSelect(selectedValue);
   };
@@ -345,11 +349,23 @@ const RecieptPayment = () => {
   //Handle Save Or Update the information
   const handleSaveOrUpdate = async () => {
     if (formData.cashbank === "" || formData.cashbank === 0) {
-      alert("Please select Cash/Bank");
+      await Swal.fire({
+        title: "Error",
+        text: "Please select Cash/Bank",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
       return;
     }
+
+    // Check if there are any valid entries in the detail grid
     if (users.length === 0 || users.every(user => user.rowaction === "DNU" || user.rowaction === "delete")) {
-      alert("Please add at least one entry in the detail grid.");
+      await Swal.fire({
+        title: "Error",
+        text: "Please add at least one entry in the detail grid.",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
       return;
     }
 
@@ -442,6 +458,7 @@ const RecieptPayment = () => {
     }
   };
 
+
   //Handle Edit the information
   const handleEdit = async () => {
     axios
@@ -477,9 +494,7 @@ const RecieptPayment = () => {
         setIsEditing(true);
       })
       .catch((error) => {
-        window.alert(
-          "This record is already deleted! Showing the previous record."
-        );
+        console.error(error);
       });
   };
 
@@ -848,8 +863,14 @@ const RecieptPayment = () => {
     const { name, value } = event.target;
     let updatedFormDataDetail = { ...formDataDetail, [name]: value };
 
+    if (name === 'amount') {
+      const convertedAmountInWords = ConvertNumberToWord(value);
+      setAmountInWords(convertedAmountInWords);
+    }
+
     setFormDataDetail(updatedFormDataDetail);
   };
+
 
   const openPopup = (mode) => {
     setShowPopup(true);
@@ -960,8 +981,13 @@ const RecieptPayment = () => {
   };
   const updateUser = async () => {
     if (formDataDetail.amount === "0" || formDataDetail.amount === "") {
-      alert("Please enter amount");
-      return
+      await Swal.fire({
+        title: "Error",
+        text: "Please Enter Amount.!",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
+      return;
     }
     addButtonRef.current.focus();
 
@@ -1026,8 +1052,13 @@ const RecieptPayment = () => {
 
   const addUser = async () => {
     if (formDataDetail.amount === 0) {
-      alert("Please enter amount");
-      return
+      await Swal.fire({
+        title: "Error",
+        text: "Please Enter Amount",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
+      return;
     }
     const nextUserId =
       users.length > 0 ? Math.max(...users.map((user) => user.id)) + 1 : 1;
@@ -1104,6 +1135,9 @@ const RecieptPayment = () => {
     });
     setVoucherNoState(user.Voucher_No);
     openPopup("edit");
+
+    let amount = ConvertNumberToWord(user.amount)
+    setAmountInWords(amount)
   };
   const openDelete = async (user) => {
     let updatedUsers;
@@ -1449,6 +1483,8 @@ const RecieptPayment = () => {
                             }}
                             onKeyDown={handleKeyDownCalculations}
                           />
+
+                          <p style={{ marginLeft: "20px", marginTop: '20px', color: "blue", fontWeight: "bold" }}> {amountInWords}</p>
                         </div>
                         <div className="form-group col-md-6" style={{ marginBottom: "-10px" }}>
                           <label>Adjusted Amount:</label>
@@ -1611,7 +1647,12 @@ const RecieptPayment = () => {
               </TableHead>
               <TableBody>
                 {users.map((user) => (
-                  <TableRow key={user.id} sx={{ height: '30px' }}>
+                  <TableRow key={user.id} sx={{
+                    height: '30px', '&:hover': {
+                      backgroundColor: '#f3f388',
+                      cursor: "pointer",
+                    },
+                  }} >
                     <TableCell sx={{ padding: '4px 8px' }}>
                       {user.rowaction === 'add' || user.rowaction === 'update' || user.rowaction === 'Normal' ? (
                         <>

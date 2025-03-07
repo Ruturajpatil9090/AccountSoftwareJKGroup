@@ -19,61 +19,76 @@ const SugarPurchaseDetail = ({
   updateUser,
   isEditing,
   addOneButtonEnabled,
+  firstInputRef
 }) => {
   if (!show) return null;
 
   return (
-    <div className="modal" role="dialog" style={{ display: "block" }}>
-      <div className="modal-dialog" role="document">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title">
+    <div className="sugar-purchase-modal" >
+      <div className="sugar-purchase-modal-dialog" >
+        <div className="sugar-purchase-modal-content">
+          <div className="sugar-purchase-modal-header">
+            <h5 className="sugar-purchase-modal-title">
               {selectedUser.id ? "Update Sugar Purchase" : "Add Sugar Purchase"}
             </h5>
             <button
               type="button"
               onClick={onClose}
               aria-label="Close"
-              style={{ marginLeft: "80%", width: "60px", height: "30px" }}
+              style={{
+                width: "45px",
+                height: "45px",
+                backgroundColor: "blue",
+                borderRadius: "4px"
+              }}
             >
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div className="modal-body">
+          <div className="sugar-purchase-body">
             <form>
               <Grid container spacing={2}>
                 <Grid item xs={6}>
-                  <label htmlFor="Item Name">Item Name :</label>
-                  <FormControl fullWidth variant="outlined" size="small">
-                    <SystemHelpMaster
-                      onAcCodeClick={handleItemSelect}
-                      CategoryName={itemNameLabel}
-                      CategoryCode={itemSelect}
-                      name="Item_Select"
-                      SystemType="I"
-                      className="account-master-help"
-                    />
-                  </FormControl>
-                </Grid>
-                <Grid item xs={6}>
-                  <label htmlFor="Brand Code">Brand Code :</label>
-                  <FormControl fullWidth variant="outlined" size="small">
-                    <BrandMasterHelp
-                      onAcCodeClick={handleBrandCode}
-                      CategoryName={brandName}
-                      CategoryCode={brandCode}
-                      name="Brand_Code"
-                      className="account-master-help"
-                    />
-                  </FormControl>
+                  <div className="SugarPurchaseBill-row">
+                    <label htmlFor="Item_Select" className="SugarPurchaseBilllabel" >
+                      Item Name :
+                    </label>
+                    <div >
+                      <div >
+                        <SystemHelpMaster
+                          onAcCodeClick={handleItemSelect}
+                          CategoryName={itemNameLabel}
+                          CategoryCode={itemSelect}
+                          name="Item_Select"
+                          SystemType="I"
+                          firstInputRef={firstInputRef}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="SugarPurchaseBill-row">
+                    <label htmlFor="Brand_Code" className="SugarPurchaseBilllabel" >
+                      Brand Code :
+                    </label>
+                    <div >
+                      <div >
+                        <BrandMasterHelp
+                          onAcCodeClick={handleBrandCode}
+                          CategoryName={brandName}
+                          CategoryCode={brandCode}
+                          name="Brand_Code"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </Grid>
               </Grid>
-              <Grid container spacing={2} style={{ marginTop: "16px" }}>
-                <Grid item xs={4}>
-                  <InputLabel htmlFor="Quantal">Quantal:</InputLabel>
+              <Grid container spacing={2} mt={2}>
+                <Grid item xs={2}>
                   <TextField
                     id="Quantal"
                     type="text"
+                    label="Quantal"
                     fullWidth
                     size="small"
                     name="Quantal"
@@ -82,11 +97,11 @@ const SugarPurchaseDetail = ({
                     onChange={handleChangeDetail}
                   />
                 </Grid>
-                <Grid item xs={4}>
-                  <InputLabel htmlFor="Packing">Packing:</InputLabel>
+                <Grid item xs={2}>
                   <TextField
                     id="Packing"
                     type="text"
+                    label="Packaging"
                     fullWidth
                     size="small"
                     name="packing"
@@ -95,10 +110,10 @@ const SugarPurchaseDetail = ({
                     onChange={handleChangeDetail}
                   />
                 </Grid>
-                <Grid item xs={4}>
-                  <InputLabel htmlFor="Bags">Bags:</InputLabel>
+                <Grid item xs={2}>
                   <TextField
                     id="Bags"
+                    label="Bags"
                     type="text"
                     fullWidth
                     size="small"
@@ -109,12 +124,12 @@ const SugarPurchaseDetail = ({
                   />
                 </Grid>
               </Grid>
-              <Grid container spacing={2} style={{ marginTop: "16px" }}>
-                <Grid item xs={4}>
-                  <InputLabel htmlFor="Rate">Rate:</InputLabel>
+              <Grid container spacing={2} mt={2} >
+                <Grid item xs={2}>
                   <TextField
                     id="Rate"
                     type="text"
+                    label="Rate"
                     fullWidth
                     size="small"
                     name="rate"
@@ -123,11 +138,11 @@ const SugarPurchaseDetail = ({
                     onChange={handleChangeDetail}
                   />
                 </Grid>
-                <Grid item xs={4}>
-                  <InputLabel htmlFor="Item Amount">Item Amount:</InputLabel>
+                <Grid item xs={2}>
                   <TextField
                     id="Item Amount"
                     type="text"
+                    label="Item Amount"
                     fullWidth
                     size="small"
                     name="item_Amount"
@@ -136,19 +151,17 @@ const SugarPurchaseDetail = ({
                     onChange={handleChangeDetail}
                   />
                 </Grid>
-                <Grid item xs={4}>
-                  <InputLabel htmlFor="Narration" style={{ fontWeight: "bold" }}>
-                    Narration:
-                  </InputLabel>
+                <Grid item xs={6}>
                   <TextField
                     id="Narration"
                     name="narration"
+                    label="Narration"
                     value={formDataDetail.narration}
                     onChange={handleChangeDetail}
                     autoComplete="off"
                     fullWidth
                     multiline
-                    rows={3}
+                    rows={2}
                     size="small"
                     disabled={!isEditing && addOneButtonEnabled}
                   />
@@ -156,10 +169,12 @@ const SugarPurchaseDetail = ({
               </Grid>
             </form>
           </div>
-          <div className="modal-footer">
+          <div style={{
+            marginTop: "10px", display: "flex",
+            justifyContent: "flex-end"
+          }}>
             {selectedUser.id ? (
               <button
-                className="btn btn-primary"
                 onClick={updateUser}
                 onKeyDown={(event) => {
                   if (event.key === 13) updateUser();
@@ -169,7 +184,6 @@ const SugarPurchaseDetail = ({
               </button>
             ) : (
               <button
-                className="btn btn-primary"
                 onClick={addUser}
                 onKeyDown={(event) => {
                   if (event.key === 13) addUser();
@@ -180,7 +194,6 @@ const SugarPurchaseDetail = ({
             )}
             <button
               type="button"
-              className="btn btn-secondary"
               onClick={onClose}
               onKeyDown={(event) => {
                 if (event.key === 13) onClose();

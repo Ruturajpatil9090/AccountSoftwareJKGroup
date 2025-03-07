@@ -16,7 +16,7 @@ export function ConvertNumberToWord(num) {
         if (num === 0) return "";
         if (num < 20) return belowTwenty[num];
         if (num < 100) return tens[Math.floor(num / 10)] + (num % 10 !== 0 ? " " + belowTwenty[num % 10] : "");
-        if (num < 1000) return belowTwenty[Math.floor(num / 100)] + " Hundred" + (num % 100 !== 0 ? " and " + words(num % 100) : "");
+        if (num < 1000) return belowTwenty[Math.floor(num / 100)] + " Hundred" + (num % 100 !== 0 ? "  " + words(num % 100) : "");
 
         if (num < 100000) {
             return words(Math.floor(num / 1000)) + " Thousand" + (num % 1000 !== 0 ? " " + words(num % 1000) : "");
@@ -34,11 +34,12 @@ export function ConvertNumberToWord(num) {
     const integerPart = Math.floor(num);
     const fractionPart = Math.round((num - integerPart) * 100);
 
-    let result = words(integerPart);
+    let result = " INR " + words(integerPart);
 
     if (fractionPart > 0) {
-        result += " and " + convertFraction(fractionPart);
-    } else {
+        result += " and " + convertFraction(fractionPart) + " Paise "  + " Only";
+    } 
+    else {
         result += " Only";
     }
 

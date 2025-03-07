@@ -215,6 +215,11 @@ function RecieptPaymentUtility() {
                                                 key={post.trandetailid}
                                                 onDoubleClick={() => handleRowClick(post.tranid)}
                                                 style={{ cursor: "pointer" }}
+                                                sx={{
+                                                    '&:hover': {
+                                                      backgroundColor: '#f3f388',
+                                                    },
+                                                  }}
                                             >
                                                 <TableCell>{post.doc_no || ""}</TableCell>
                                                 <TableCell>{post.tran_type || ""}</TableCell>

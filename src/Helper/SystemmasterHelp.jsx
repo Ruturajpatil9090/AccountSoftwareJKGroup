@@ -5,7 +5,6 @@ import DataTableSearch from "../Common/HelpCommon/DataTableSearch";
 import DataTablePagination from "../Common/HelpCommon/DataTablePagination";
 import "../App.css";
 
-
 var lActiveInputFeild = "";
 const API_URL = process.env.REACT_APP_API;
 
@@ -104,7 +103,6 @@ const SystemHelpMaster = ({ onAcCodeClick, name, CategoryName, CategoryCode, tab
         }
     };
 
-
     const handleKeyDown = async (event) => {
         if (event.key === "Tab" && event.target.id === name) {
 
@@ -185,9 +183,7 @@ const SystemHelpMaster = ({ onAcCodeClick, name, CategoryName, CategoryCode, tab
                 }
             }
         };
-
         window.addEventListener("keydown", handleKeyDown);
-
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
         };

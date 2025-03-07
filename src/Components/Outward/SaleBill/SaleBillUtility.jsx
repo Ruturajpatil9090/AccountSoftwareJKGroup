@@ -1,7 +1,7 @@
 import React from "react";
 import TableUtility from "../../../Common/UtilityCommon/TableUtility"; 
 
-const SaleBillUtility = () => {
+const SaleBillUtility = ({includeYearCode =true}) => {
     const apiUrl = `${process.env.REACT_APP_API}/getdata-SaleBill`;
     const columns = [
         { label: "Doc No", key: "doc_no" },
@@ -28,6 +28,7 @@ const SaleBillUtility = () => {
             addUrl="/sale-bill"
             detailUrl="/sale-bill"
             permissionUrl="/SaleBill-utility"
+            includeYearCode = {includeYearCode}
         />
     );
 };

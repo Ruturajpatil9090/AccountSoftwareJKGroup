@@ -201,6 +201,11 @@ function DebitCreditNoteUtility() {
                                             className="row-item"
                                             style={{ cursor: "pointer" }}
                                             onDoubleClick={() => handleRowClick(post.doc_no)}
+                                            sx={{
+                                                '&:hover': {
+                                                  backgroundColor: '#f3f388',
+                                                },
+                                              }}
                                         >
                                             <TableCell>{post.doc_no}</TableCell>
                                             <TableCell>{post.tran_type}</TableCell>

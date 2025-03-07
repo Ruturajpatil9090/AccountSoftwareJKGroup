@@ -21,6 +21,7 @@ import OpenButton from "../../../Common/Buttons/OpenButton";
 import "./Utr.css"
 import { formatReadableAmount } from "../../../Common/FormatFunctions/FormatAmount"
 import Swal from "sweetalert2";
+import { ConvertNumberToWord } from "../../../Common/FormatFunctions/ConvertNumberToWord";
 
 var lblBankname;
 var newbank_ac;
@@ -76,6 +77,7 @@ const UTREntry = () => {
   const [globalTotalAmount, setGlobalTotalAmount] = useState(0.0);
   const [diff, setDiff] = useState(0.0);
   const [popupMode, setPopupMode] = useState("add");
+  const [amountInWords, setAmountInWords] = useState('');
 
 
   const addButtonRef = useRef(null);
@@ -136,7 +138,11 @@ const UTREntry = () => {
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prevState) => {
-      const updatedFormData = { ...prevState, [name]: value };
+    const updatedFormData = { ...prevState, [name]: value };
+    if (name === 'amount') {
+      const convertedAmountInWords = ConvertNumberToWord(value); 
+      setAmountInWords(convertedAmountInWords); 
+    }
       return updatedFormData;
     });
   };
@@ -226,20 +232,40 @@ const UTREntry = () => {
   const handleSaveOrUpdate = () => {
 
     if (!formData.bank_ac || formData.bank_ac === 0) {
-      alert("Bank code is required.");
+      Swal.fire({
+        title: "Error",
+        text: "Bank code is required.",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
       return;
     }
 
     if (!formData.mill_code || formData.mill_code === 0) {
-      alert("Mill code is required.");
+      Swal.fire({
+        title: "Error",
+        text: "Mill code is required.",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
       return;
     }
     if (!formData.narration_header) {
-      alert("Narration Header Is Required")
+      Swal.fire({
+        title: "Error",
+        text: "Narration Header Is Required.",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
       return;
     }
     if (users.length === 0 || users.every(user => user.rowaction === "DNU" || user.rowaction === "delete")) {
-      alert("Please add at least one entry in the detail grid.");
+      Swal.fire({
+        title: "Error",
+        text: "Please add at least one entry in the detail grid.",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
       return;
     }
     setIsLoading(true);
@@ -277,7 +303,12 @@ const UTREntry = () => {
     const HeadAmount = parseFloat(head_data.amount) || 0;
     if (users.length > 0) {
       if (Math.abs(HeadAmount - globalTotalAmount) > 0.01) {
-        alert("Difference must be zero");
+        Swal.fire({
+          title: "Error",
+          text: "Difference Must Be Zero.!!",
+          icon: "error",
+          confirmButtonText: "OK"
+        });
         setIsLoading(false);
         return;
       }
@@ -352,7 +383,7 @@ const UTREntry = () => {
         setIsEditing(true);
       })
       .catch((error) => {
-        window.alert("This record is already deleted! Showing the previous record.");
+        console.log(error);
       });
   };
 
@@ -552,8 +583,13 @@ const UTREntry = () => {
   //Add Records In Detail
   const addUser = async () => {
     if (formDataDetail.amount === 0 || formDataDetail.amount === "") {
-      alert("Please enter amount");
-      return
+      Swal.fire({
+        title: "Error",
+        text: "Please Enter Amount.",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
+      return;
     }
     setTimeout(() => {
       addButtonRef.current.focus();
@@ -638,7 +674,12 @@ const UTREntry = () => {
   //Update Record In Detail
   const updateUser = async () => {
     if (formDataDetail.amount === "0" || formDataDetail.amount === "") {
-      alert("Please enter amount");
+      Swal.fire({
+        title: "Error",
+        text: "Please Enter Amount.",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
       return;
     }
     setTimeout(() => {
@@ -1266,6 +1307,7 @@ const UTREntry = () => {
                     size="small"
                   />
                 </Grid>
+                <p style={{marginLeft:"20px",marginTop:'20px',color:"blue",fontWeight:"bold"}}> {amountInWords}</p>
               </Grid>
               <Grid container spacing={2} >
                 <Grid item xs={12} sm={6} mt={1}>

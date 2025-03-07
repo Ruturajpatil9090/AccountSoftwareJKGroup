@@ -33,6 +33,8 @@ import AddButton from "../../../Common/Buttons/AddButton";
 import EditButton from "../../../Common/Buttons/EditButton";
 import DeleteButton from "../../../Common/Buttons/DeleteButton";
 import OpenButton from "../../../Common/Buttons/OpenButton";
+import UserAuditInfo from "../../../Common/UserAuditInfo/UserAuditInfo";
+import "./SugarPurchase.css"
 
 //Global Variables
 var purchaseidNew = "";
@@ -65,6 +67,8 @@ const headerCellStyle = {
   fontWeight: "bold",
   backgroundColor: "#3f51b5",
   color: "white",
+  padding: "6px",
+  textAlign:"center",
   "&:hover": {
     backgroundColor: "#303f9f",
     cursor: "pointer",
@@ -75,6 +79,7 @@ const SugarPurchase = () => {
   const API_URL = process.env.REACT_APP_API;
   const companyCode = sessionStorage.getItem("Company_Code");
   const Year_Code = sessionStorage.getItem("Year_Code");
+  const username = sessionStorage.getItem("username");
 
   // ----------------------------------------- Sugar Purchase Head Functionality -----------------------------------------
 
@@ -123,6 +128,14 @@ const SugarPurchase = () => {
   const [brandName, setBrandName] = useState("");
 
   const inputRef = useRef(null);
+
+  const addButtonRef = useRef(null);
+  const firstInputRef = useRef(null);
+  const setFocusToFirstField = () => {
+    if (firstInputRef.current) {
+      firstInputRef.current.focus();
+    }
+  };
 
   const initialFormData = {
     doc_no: "",
@@ -387,7 +400,7 @@ const SugarPurchase = () => {
     setIsEditing(true);
     setIsLoading(true);
 
-    const headData = {
+    let headData = {
       ...formData,
       subTotal: subTotal,
       NETQNTL: globalQuantalTotal,
@@ -395,7 +408,17 @@ const SugarPurchase = () => {
     };
 
     if (isEditMode) {
+      headData = {
+        ...headData,
+        Modified_By: username
+      }
       delete headData.purchaseid;
+    }
+    else {
+      headData = {
+        ...headData,
+        Created_By: username
+      }
     }
     const detailData = users.map((user) => ({
       rowaction: user.rowaction,
@@ -901,7 +924,6 @@ const SugarPurchase = () => {
   };
 
   const handleMatchStatus = (match_status, subTotal) => {
-    debugger;
     const gstRateDivide = parseFloat(gstRate);
 
     // Calculate CGST, SGST, and IGST rates based on the given GST rate
@@ -1025,9 +1047,15 @@ const SugarPurchase = () => {
     }
     setUsers([...users, newUser]);
     closePopup();
+    setTimeout(() => {
+      addButtonRef.current.focus();
+    }, 500)
   };
 
   const updateUser = async () => {
+    setTimeout(() => {
+      addButtonRef.current.focus();
+    }, 500)
     const updatedUsers = users.map((user) => {
       if (user.id === selectedUser.id) {
         const updatedRowaction =
@@ -1050,6 +1078,7 @@ const SugarPurchase = () => {
       } else {
         return user;
       }
+   
     });
 
     const totalItemAmount = updatedUsers.reduce((total, user) => {
@@ -1397,6 +1426,10 @@ const SugarPurchase = () => {
 
   return (
     <>
+      <UserAuditInfo
+        createdBy={formData.Created_By}
+        modifiedBy={formData.Modified_By}
+      />
       <ToastContainer autoClose={500} />
       {/* <button style={{ marginBottom: "-80px" }} className="btn btn-primary">Print</button> */}
       <div className="main-container">
@@ -1409,7 +1442,7 @@ const SugarPurchase = () => {
             marginTop: "10px",
           }}
         >
-          Sugar Purchase For GST
+          Sugar Purchase Bill
         </Typography>
         <ActionButtonGroup
           handleAddOne={handleAddOne}
@@ -1456,10 +1489,10 @@ const SugarPurchase = () => {
                 </FormControl>
               </Grid>
 
-              <Grid item xs={2}>
+              <Grid item xs={1}>
                 <FormControl>
                   <TextField
-                    label="doc no"
+                    label="Doc No"
                     name="doc_no"
                     variant="outlined"
                     autoComplete="off"
@@ -1470,28 +1503,23 @@ const SugarPurchase = () => {
                   />
                 </FormControl>
               </Grid>
-              <label htmlFor="Date" style={{ marginTop: "25px" }}>
-                Do No :
-              </label>
-              <Grid item xs={3}>
-                <FormControl
-                  fullWidth
-                  variant="outlined"
-                  size="small"
-                  disabled={!isEditing && addOneButtonEnabled}
-                >
-                  <AccountMasterHelp
-                    onAcCodeClick={handleDoNo}
-                    CategoryName={""}
-                    CategoryCode={""}
-                    name="DO_No"
-                    Ac_type=""
-                    disabledFeild={!isEditing && addOneButtonEnabled}
+
+              <Grid item xs={1}>
+                <FormControl>
+                  <TextField
+                    label="DO NO."
+                    name="PURCNO"
+                    variant="outlined"
+                    autoComplete="off"
+                    value={formData.PURCNO}
+                    onChange={handleChange}
+                    disabled
+                    size="small"
                   />
                 </FormControl>
               </Grid>
 
-              <Grid item xs={2}>
+              <Grid item xs={1}>
                 <TextField
                   label="Date"
                   type="date"
@@ -1506,11 +1534,10 @@ const SugarPurchase = () => {
                   }}
                   fullWidth
                   size="small"
-                  tabIndex={1}
                 />
               </Grid>
 
-              <Grid item xs={2}>
+              <Grid item xs={1}>
                 <FormControl variant="outlined" fullWidth size="small">
                   <InputLabel id="retail-stock-label">Retail Stock</InputLabel>
                   <Select
@@ -1521,7 +1548,6 @@ const SugarPurchase = () => {
                     onChange={handleChange}
                     disabled={!isEditing && addOneButtonEnabled}
                     label="Retail Stock"
-                    tabIndex={2}
                   >
                     <MenuItem value="Y">Yes</MenuItem>
                     <MenuItem value="N">No</MenuItem>
@@ -1530,17 +1556,12 @@ const SugarPurchase = () => {
               </Grid>
             </Grid>
 
-            <Grid container spacing={1}>
-              <label htmlFor="From" style={{ marginTop: "45px" }}>
+            <div className="SugarPurchaseBill-row">
+              <label htmlFor="Bill_From" className="SugarPurchaseBilllabel" >
                 From :
               </label>
-              <Grid item xs={5} sx={{ mt: 4 }}>
-                <FormControl
-                  fullWidth
-                  variant="outlined"
-                  size="small"
-                  disabled={!isEditing && addOneButtonEnabled}
-                >
+              <div >
+                <div >
                   <AccountMasterHelp
                     onAcCodeClick={handleFrom}
                     CategoryName={FromName}
@@ -1549,20 +1570,16 @@ const SugarPurchase = () => {
                     Ac_type=""
                     disabledFeild={!isEditing && addOneButtonEnabled}
                   />
-                </FormControl>
-              </Grid>
-            </Grid>
-            <Grid container>
-              <label htmlFor="Unit" style={{ marginTop: "25px" }}>
+                </div>
+              </div>
+            </div>
+
+            <div className="SugarPurchaseBill-row">
+              <label htmlFor="Bill_From" className="SugarPurchaseBilllabel" >
                 Unit :
               </label>
-              <Grid item xs={8} sx={{ mt: 2 }}>
-                <FormControl
-                  fullWidth
-                  variant="outlined"
-                  size="small"
-                  disabled={!isEditing && addOneButtonEnabled}
-                >
+              <div >
+                <div >
                   <AccountMasterHelp
                     onAcCodeClick={handleUnit}
                     CategoryName={Unitname}
@@ -1571,35 +1588,31 @@ const SugarPurchase = () => {
                     Ac_type=""
                     disabledFeild={!isEditing && addOneButtonEnabled}
                   />
-                </FormControl>
-              </Grid>
-              <Grid container>
-                <label htmlFor="Mill" style={{ marginTop: "25px" }}>
-                  Mill :
-                </label>
-                <Grid item xs={11} sx={{ mt: 2 }}>
-                  <FormControl
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    disabled={!isEditing && addOneButtonEnabled}
-                  >
-                    <AccountMasterHelp
-                      onAcCodeClick={handleMill}
-                      CategoryName={MillName}
-                      CategoryCode={MillCode}
-                      name="Mill"
-                      Ac_type=""
-                      disabledFeild={!isEditing && addOneButtonEnabled}
-                    />
-                  </FormControl>
-                </Grid>
-              </Grid>
-            </Grid>
+                </div>
+              </div>
+            </div>
 
-            <div className="debitCreditNote-row">
-              <Grid container spacing={2} sx={{ mt: 2 }}>
-                <Grid item xs={2}>
+            <div className="SugarPurchaseBill-row">
+              <label htmlFor="Bill_From" className="SugarPurchaseBilllabel" >
+                Mill :
+              </label>
+              <div >
+                <div >
+                  <AccountMasterHelp
+                    onAcCodeClick={handleMill}
+                    CategoryName={MillName}
+                    CategoryCode={MillCode}
+                    name="Mill"
+                    Ac_type=""
+                    disabledFeild={!isEditing && addOneButtonEnabled}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="SugarPurchaseBill-row">
+              <Grid container spacing={2}>
+                <Grid item xs={1}>
                   <TextField
                     label="From"
                     variant="outlined"
@@ -1613,7 +1626,7 @@ const SugarPurchase = () => {
                   />
                 </Grid>
 
-                <Grid item xs={2}>
+                <Grid item xs={1}>
                   <TextField
                     label="To"
                     variant="outlined"
@@ -1627,7 +1640,7 @@ const SugarPurchase = () => {
                   />
                 </Grid>
 
-                <Grid item xs={2}>
+                <Grid item xs={1}>
                   <TextField
                     label="Grade"
                     variant="outlined"
@@ -1641,7 +1654,7 @@ const SugarPurchase = () => {
                   />
                 </Grid>
 
-                <Grid item xs={2}>
+                <Grid item xs={1}>
                   <TextField
                     label="Lorry No"
                     variant="outlined"
@@ -1655,7 +1668,7 @@ const SugarPurchase = () => {
                   />
                 </Grid>
 
-                <Grid item xs={2}>
+                <Grid item xs={1}>
                   <TextField
                     label="wearhouse"
                     variant="outlined"
@@ -1668,43 +1681,8 @@ const SugarPurchase = () => {
                     size="small"
                   />
                 </Grid>
-              </Grid>
-            </div>
 
-            <div className="debitCreditNote-row">
-              <Grid container>
-                <label htmlFor="Broker" style={{ marginTop: "5px" }}>
-                  Broker :
-                </label>
-                <Grid item xs={3}>
-                  <FormControl fullWidth variant="outlined">
-                    <AccountMasterHelp
-                      onAcCodeClick={handleBroker}
-                      CategoryName={BrokerName}
-                      CategoryCode={BrokerCode}
-                      name="broker"
-                      Ac_type=""
-                      disabledFeild={!isEditing && addOneButtonEnabled}
-                    />
-                  </FormControl>
-                </Grid>
-
-                <label htmlFor="GSTRATECODE" style={{ marginTop: "5px" }}>
-                  GST Rate Code :
-                </label>
-                <Grid item xs={3}>
-                  <FormControl fullWidth variant="outlined">
-                    <GSTRateMasterHelp
-                      onAcCodeClick={handleGstCode}
-                      GstRateName={GstRateName}
-                      GstRateCode={GstRateCode || formData.GstRateCode}
-                      name="gst_code"
-                      disabledFeild={!isEditing && addOneButtonEnabled}
-                    />
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={2}>
+                <Grid item xs={1}>
                   <TextField
                     label="Bill No"
                     variant="outlined"
@@ -1712,14 +1690,13 @@ const SugarPurchase = () => {
                     autoComplete="off"
                     value={formData.Bill_No}
                     onChange={handleChange}
-                    tabIndex="10"
                     disabled={!isEditing && addOneButtonEnabled}
                     fullWidth
                     size="small"
                   />
                 </Grid>
 
-                <Grid item xs={2} ml={2}>
+                <Grid item xs={1}>
                   <TextField
                     label="Mill Invoice Date"
                     type="date"
@@ -1737,6 +1714,41 @@ const SugarPurchase = () => {
                 </Grid>
               </Grid>
             </div>
+
+            <div className="SugarPurchaseBill-row">
+              <label htmlFor="Bill_From" className="SugarPurchaseBilllabel" >
+                Broker :
+              </label>
+              <div >
+                <div >
+                  <AccountMasterHelp
+                    onAcCodeClick={handleBroker}
+                    CategoryName={BrokerName}
+                    CategoryCode={BrokerCode}
+                    name="broker"
+                    Ac_type=""
+                    disabledFeild={!isEditing && addOneButtonEnabled}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="SugarPurchaseBill-row">
+              <label htmlFor="Bill_From" className="SugarPurchaseBilllabel" >
+                GST Code :
+              </label>
+              <div >
+                <div >
+                  <GSTRateMasterHelp
+                    onAcCodeClick={handleGstCode}
+                    GstRateName={GstRateName}
+                    GstRateCode={GstRateCode || formData.GstRateCode}
+                    name="gst_code"
+                    disabledFeild={!isEditing && addOneButtonEnabled}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
           {isLoading && (
@@ -1748,8 +1760,8 @@ const SugarPurchase = () => {
           )}
 
           {/*detail part popup functionality and Validation part Grid view */}
-          <div style={{ marginTop: "10px" }}>
-            <AddButton openPopup={openPopup} isEditing={isEditing} />
+          <div style={{ marginTop: "30px" }}>
+            <AddButton openPopup={openPopup} isEditing={isEditing} ref={addButtonRef} setFocusToFirstField={setFocusToFirstField} />
           </div>
           <div className="mt-4">
             <SugarPurchaseDetail
@@ -1768,6 +1780,7 @@ const SugarPurchase = () => {
               updateUser={updateUser}
               isEditing={true}
               addOneButtonEnabled={false}
+              firstInputRef={firstInputRef}
             />
 
             <TableContainer component={Paper} sx={{ width: "75%" }}>
@@ -1775,7 +1788,7 @@ const SugarPurchase = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell sx={headerCellStyle}>Actions</TableCell>
-                    <TableCell sx={headerCellStyle}>Row Action</TableCell>
+                    {/* <TableCell sx={headerCellStyle}>Row Action</TableCell> */}
                     <TableCell sx={headerCellStyle}>ID</TableCell>
                     <TableCell sx={headerCellStyle}>Item Code</TableCell>
                     <TableCell sx={headerCellStyle}>Item Name</TableCell>
@@ -1792,48 +1805,47 @@ const SugarPurchase = () => {
                 <TableBody>
                   {users.map((user) => (
                     <TableRow key={user.id}>
-                      <TableCell>
+                      <TableCell sx={{ padding: '4px 8px' }}>
                         {(user.rowaction === "add" ||
                           user.rowaction === "update" ||
                           user.rowaction === "Normal") && (
-                          <>
-                            <EditButton
-                              editUser={editUser}
-                              user={user}
-                              isEditing={isEditing}
-                            />
-                            <DeleteButton
-                              deleteModeHandler={deleteModeHandler}
-                              user={user}
-                              isEditing={isEditing}
-                            />
-                          </>
-                        )}
+                            <>
+                              <EditButton
+                                editUser={editUser}
+                                user={user}
+                                isEditing={isEditing}
+                              />
+                              <DeleteButton
+                                deleteModeHandler={deleteModeHandler}
+                                user={user}
+                                isEditing={isEditing}
+                              />
+                            </>
+                          )}
                         {(user.rowaction === "DNU" ||
                           user.rowaction === "delete") && (
-                          <OpenButton openDelete={openDelete} user={user} />
-                        )}
+                            <OpenButton openDelete={openDelete} user={user} />
+                          )}
                       </TableCell>
-                      <TableCell>{user.rowaction}</TableCell>
-                      <TableCell>{user.id}</TableCell>
-                      <TableCell>{user.item_code}</TableCell>
-                      <TableCell>{user.itemNameLabel}</TableCell>
-                      <TableCell>{user.Brand_Code}</TableCell>
-                      <TableCell>{user.brandName}</TableCell>
-                      <TableCell>{user.Quantal}</TableCell>
-                      <TableCell>{user.packing}</TableCell>
-                      <TableCell>{user.rate}</TableCell>
-                      <TableCell>{user.bags}</TableCell>
-                      <TableCell>{user.item_Amount}</TableCell>
-                      <TableCell>{user.narration}</TableCell>
+                      {/* <TableCell>{user.rowaction}</TableCell> */}
+                      <TableCell sx={{ padding: '4px 8px',textAlign:"center" }}>{user.id}</TableCell>
+                      <TableCell sx={{ padding: '4px 8px',textAlign:"center" }}>{user.item_code}</TableCell>
+                      <TableCell sx={{ padding: '4px 8px',textAlign:"center" }}>{user.itemNameLabel}</TableCell>
+                      <TableCell sx={{ padding: '4px 8px',textAlign:"center" }}>{user.Brand_Code}</TableCell>
+                      <TableCell sx={{ padding: '4px 8px',textAlign:"center" }}>{user.brandName}</TableCell>
+                      <TableCell sx={{ padding: '4px 8px',textAlign:"center" }}>{user.Quantal}</TableCell>
+                      <TableCell sx={{ padding: '4px 8px',textAlign:"center" }}>{user.packing}</TableCell>
+                      <TableCell sx={{ padding: '4px 8px',textAlign:"center" }}>{user.rate}</TableCell>
+                      <TableCell sx={{ padding: '4px 8px',textAlign:"center" }}>{user.bags}</TableCell>
+                      <TableCell sx={{ padding: '4px 8px',textAlign:"center" }}>{user.item_Amount}</TableCell>
+                      <TableCell sx={{ padding: '4px 8px',textAlign:"center" }}>{user.narration}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </TableContainer>
           </div>
-          <br></br>
-          <div className="debitCreditNote-row">
+          <div className="SugarPurchaseBill-row">
             <Grid container spacing={2}>
               <Grid item xs={1}>
                 <TextField
@@ -1888,18 +1900,18 @@ const SugarPurchase = () => {
             </Grid>
           </div>
 
-          <div className="debitCreditNote-row">
+          <div className="SugarPurchaseBill-row">
             <Grid
               container
               spacing={1}
               justifyContent="flex-end"
               alignItems="center"
-              style={{ float: "right" }}
+              style={{ float: "right"}}
               mt={-25}
               mb={20}
             >
               <Grid item xs={1}>
-                <label className="debitCreditNote-form-label">Subtotal:</label>
+                <label className="SugarPurchaseBilllabel">Subtotal:</label>
               </Grid>
               <Grid item xs={12} sm={2}>
                 <TextField
@@ -1930,7 +1942,7 @@ const SugarPurchase = () => {
                 style={{ marginTop: "-6px" }}
               >
                 <Grid item xs={1}>
-                  <label className="debitCreditNote-form-label">CGST:</label>
+                  <label className="SugarPurchaseBilllabel">CGST:</label>
                 </Grid>
                 <Grid item xs={12} sm={1}>
                   <TextField
@@ -1984,7 +1996,7 @@ const SugarPurchase = () => {
                 style={{ marginTop: "-6px" }}
               >
                 <Grid item xs={1}>
-                  <label className="debitCreditNote-form-label">SGST:</label>
+                  <label className="SugarPurchaseBilllabel">SGST:</label>
                 </Grid>
                 <Grid item xs={12} sm={1}>
                   <TextField
@@ -2038,7 +2050,7 @@ const SugarPurchase = () => {
                 style={{ marginTop: "-6px" }}
               >
                 <Grid item xs={1}>
-                  <label className="debitCreditNote-form-label">IGST:</label>
+                  <label className="SugarPurchaseBilllabel">IGST:</label>
                 </Grid>
                 <Grid item xs={12} sm={1}>
                   <TextField
@@ -2092,7 +2104,7 @@ const SugarPurchase = () => {
                 style={{ marginTop: "-6px" }}
               >
                 <Grid item xs={1}>
-                  <label className="debitCreditNote-form-label">Freight:</label>
+                  <label className="SugarPurchaseBilllabel">Freight:</label>
                 </Grid>
                 <Grid item xs={12} sm={1}>
                   <TextField
@@ -2148,7 +2160,7 @@ const SugarPurchase = () => {
                 style={{ marginTop: "-6px" }}
               >
                 <Grid item xs={1}>
-                  <label className="debitCreditNote-form-label">
+                  <label className="SugarPurchaseBilllabel">
                     Bank Commission:
                   </label>
                 </Grid>
@@ -2182,7 +2194,7 @@ const SugarPurchase = () => {
                 style={{ marginTop: "-6px" }}
               >
                 <Grid item xs={1}>
-                  <label className="debitCreditNote-form-label">
+                  <label className="SugarPurchaseBilllabel">
                     Other +/-:
                   </label>
                 </Grid>
@@ -2216,7 +2228,7 @@ const SugarPurchase = () => {
                 style={{ marginTop: "-6px" }}
               >
                 <Grid item xs={1}>
-                  <label className="debitCreditNote-form-label">
+                  <label className="SugarPurchaseBilllabel">
                     Cash Advance:
                   </label>
                 </Grid>
@@ -2250,7 +2262,7 @@ const SugarPurchase = () => {
                 style={{ marginTop: "-6px" }}
               >
                 <Grid item xs={1}>
-                  <label className="debitCreditNote-form-label">
+                  <label className="SugarPurchaseBilllabel">
                     Bill Amount:
                   </label>
                 </Grid>
@@ -2283,7 +2295,7 @@ const SugarPurchase = () => {
                 style={{ marginTop: "-6px" }}
               >
                 <Grid item xs={1}>
-                  <label className="debitCreditNote-form-label">TCS:</label>
+                  <label className="SugarPurchaseBilllabel">TCS:</label>
                 </Grid>
                 <Grid item xs={12} sm={1}>
                   <TextField
@@ -2335,7 +2347,7 @@ const SugarPurchase = () => {
                 style={{ marginTop: "-6px" }}
               >
                 <Grid item xs={1}>
-                  <label className="debitCreditNote-form-label">TDS:</label>
+                  <label className="SugarPurchaseBilllabel">TDS:</label>
                 </Grid>
                 <Grid item xs={12} sm={1}>
                   <TextField
@@ -2387,7 +2399,7 @@ const SugarPurchase = () => {
                 style={{ marginTop: "-6px" }}
               >
                 <Grid item xs={1}>
-                  <label className="debitCreditNote-form-label">
+                  <label className="SugarPurchaseBilllabel">
                     Net Payable:
                   </label>
                 </Grid>

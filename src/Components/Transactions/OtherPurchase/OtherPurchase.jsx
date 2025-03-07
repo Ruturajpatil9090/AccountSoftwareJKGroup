@@ -288,12 +288,22 @@ const OtherPurchase = () => {
   const handleSaveOrUpdate = () => {
     if (formData.TDS_Amt != 0) {
       if (formData.TDS_AcCode === 0) {
-        alert("Please Enter the TDS Account Code !")
+        Swal.fire({
+          title: "Error",
+          text: "Please Enter TDS Account Code.!",
+          icon: "error",
+          confirmButtonText: "OK"
+        });
         return;
       }
     };
-    if (formData.GST_RateCode === 0 || formData.GST_RateCode === "") {
-      alert("Please select GST Code!")
+    if (formData.GST_RateCode === "") {
+      Swal.fire({
+        title: "Error",
+        text: "Please Select GST Code.!",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
       return;
     };
     setIsLoading(true);
@@ -457,7 +467,7 @@ const OtherPurchase = () => {
       const data = response.data;
       const isLockedNew = data.selected_Record_data.LockedRecord;
       const isLockedByUserNew = data.selected_Record_data.LockedUser;
-  
+
       if (isLockedNew) {
         Swal.fire({
           icon: "warning",
@@ -467,20 +477,20 @@ const OtherPurchase = () => {
         });
         return;
       }
-  
+
       const result = await Swal.fire({
         title: "Are you sure?",
         text: `You won't be able to revert this Doc No: ${formData.Doc_No}`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#d33", 
-        cancelButtonColor: "#3085d6", 
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
         cancelButtonText: "Cancel",
         confirmButtonText: "Delete",
-        reverseButtons: true,  
-        focusCancel: true,  
+        reverseButtons: true,
+        focusCancel: true,
       });
-      
+
       if (result.isConfirmed) {
         setIsEditMode(false);
         setAddOneButtonEnabled(true);
@@ -490,10 +500,10 @@ const OtherPurchase = () => {
         setSaveButtonEnabled(false);
         setCancelButtonEnabled(false);
         setIsLoading(true);
-  
+
         const deleteApiUrl = `${API_URL}/delete-OtherPurchase?Doc_No=${formData.Doc_No}&Company_Code=${companyCode}&Year_Code=${Year_Code}`;
         await axios.delete(deleteApiUrl);
-  
+
         toast.success("Record deleted successfully!");
         setIsLoading(false);
         handleCancel();

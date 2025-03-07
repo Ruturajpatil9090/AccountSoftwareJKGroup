@@ -237,6 +237,14 @@ const CompanyList = () => {
                 inputRef={usernameRef}
                 margin="normal"
                 onKeyDown={handleKeyDownModal}
+                InputLabelProps={{
+                  style: {
+                    color: 'black',
+                  },
+                }}
+                FormHelperTextProps={{
+                  style: { color: "red" },
+                }}
               />
 
               <TextField
@@ -250,6 +258,14 @@ const CompanyList = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 margin="normal"
                 onKeyDown={handleKeyDownModal}
+                InputLabelProps={{
+                  style: {
+                    color: 'black',
+                  },
+                }}
+                FormHelperTextProps={{
+                  style: { color: "red" },
+                }}
               />
               <TextField
                 select
@@ -265,6 +281,11 @@ const CompanyList = () => {
                 margin="normal"
                 SelectProps={{
                   native: true,
+                }}
+                InputLabelProps={{
+                  style: {
+                    color: 'black',
+                  },
                 }}
               >
                 {accountingYears.map((year) => (
@@ -282,10 +303,15 @@ const CompanyList = () => {
                 SelectProps={{
                   native: true,
                 }}
+                InputLabelProps={{
+                  style: {
+                    color: 'black',
+                  },
+                }}
               ></TextField>
             </form>
           </DialogContent>
-          <DialogActions sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+          <DialogActions sx={{ display: 'flex', justifyContent: 'center' }}>
             <Button onClick={handleClose} color="secondary" variant="outlined">
               Cancel
             </Button>

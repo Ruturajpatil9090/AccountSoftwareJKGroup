@@ -39,7 +39,8 @@
 }
 
 .ledger-report-container tr:hover {
-  background-color: #f1f1f1;
+  background-color: #ecee45;
+  cursor: pointer;
 }
 
 .ledger-report-container p {

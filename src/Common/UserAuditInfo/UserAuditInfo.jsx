@@ -11,15 +11,17 @@ const UserAuditInfo = ({ createdBy, modifiedBy }) => {
         marginTop: '20px',
         maxWidth: '250px',
         width: '80%',
-        borderRadius: '25px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+        borderRadius: '4px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+        
       }}>
         <Typography variant="subtitle2" gutterBottom component="h2" sx={{
           fontSize: '14px',
-          color: '#333333',
+          color: 'blue',
           margin: 0,
           fontWeight: 'bold',
           letterSpacing: '1px'
+          
         }}>
           Created By: {createdBy}
         </Typography>
@@ -31,12 +33,12 @@ const UserAuditInfo = ({ createdBy, modifiedBy }) => {
         maxWidth: '250px',
         width: '80%',
         marginTop: '-43px',
-        borderRadius: '25px',
+        borderRadius: '4px',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
       }}>
         <Typography variant="subtitle2" gutterBottom component="h2" sx={{
           fontSize: '14px',
-          color: '#333333',
+          color: 'blue',
           margin: 0,
           fontWeight: 'bold',
           letterSpacing: '1px'
