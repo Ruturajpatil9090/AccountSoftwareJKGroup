@@ -85,7 +85,6 @@ const Navbar = () => {
     }
   };
   
-
   const handleLogoClick = () => {
     navigate('/dashboard')
   }
@@ -279,10 +278,10 @@ const Navbar = () => {
         <label className="navbarlabel">Business Related</label>
         {activeMenu === "business-related" && (
           <div className="submenu">
-            {/* <div className="submenu-item">
+            <div className="submenu-item">
               <a><Link to="/tender-purchaseutility">Tender Purchase</Link></a>
             </div>
-            <div className="submenu-item">
+            {/* <div className="submenu-item">
               <a><Link to="/sauda-book-utility">Sauda Book Utility</Link></a>
             </div>
             <div className="submenu-item">

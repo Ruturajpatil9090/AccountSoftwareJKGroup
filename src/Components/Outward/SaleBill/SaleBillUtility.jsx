@@ -24,7 +24,7 @@ const SaleBillUtility = ({includeYearCode =true}) => {
             title="Sugar Bill For GST"
             apiUrl={apiUrl}
             columns={columns}
-            rowKey="doc_no"
+            rowKey="saleid"
             addUrl="/sale-bill"
             detailUrl="/sale-bill"
             permissionUrl="/SaleBill-utility"
