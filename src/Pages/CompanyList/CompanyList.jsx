@@ -204,9 +204,20 @@ const CompanyList = () => {
           ))}
         </div>
 
-        <Dialog open={showModal} onClose={handleClose} style={{ marginTop: "-80px" }} >
-          <DialogTitle>
-            <Typography style={{ textAlign: 'center' }} variant="h5">
+        <Dialog
+          open={showModal}
+          onClose={handleClose}
+          sx={{
+            marginTop: "-150px",
+            borderRadius: "10px",
+            '&:hover': {
+              transform: 'scale(1.02)',
+              transition: 'transform 0.3s ease', 
+            },
+          }}
+        >
+          <DialogTitle sx={{ position: 'relative' }}>
+            <Typography variant="h5" sx={{ textAlign: 'center', color: '#333' }}>
               Company Login
             </Typography>
             <IconButton
@@ -216,34 +227,54 @@ const CompanyList = () => {
                 position: 'absolute',
                 right: 8,
                 top: 8,
-                color: (theme) => theme.palette.grey[500],
+                color: 'gray',
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                  transform: 'scale(1.2)',
+                  transition: 'transform 0.2s ease',
+                },
               }}
             >
               <CloseIcon />
             </IconButton>
           </DialogTitle>
           <DialogContent>
-            {loginError && <p className="text-danger">{loginError}</p>}
+            {loginError && <Typography variant="body2" color="error" sx={{ textAlign: 'center', marginBottom: '16px' }}>{loginError}</Typography>}
 
-            <form onSubmit={(e) => e.preventDefault()}>
+            <form onSubmit={(e) => e.preventDefault()} noValidate>
               <TextField
                 label="User Name"
                 variant="outlined"
-                autoComplete='off'
                 fullWidth
                 required
                 value={username}
+                autoComplete='off'
                 onChange={(e) => setUsername(e.target.value)}
                 inputRef={usernameRef}
                 margin="normal"
                 onKeyDown={handleKeyDownModal}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '8px',
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: '#333',
+                  },
+                  '& .MuiFormHelperText-root': {
+                    color: 'red',
+                  },
+                  '& .MuiOutlinedInput-input': {
+                    padding: '12px',
+                  },
+                  transition: 'all 0.3s ease',
+                  '&:hover .MuiOutlinedInput-root': {
+                    borderColor: '#3f51b5',
+                  },
+                }}
                 InputLabelProps={{
                   style: {
                     color: 'black',
                   },
-                }}
-                FormHelperTextProps={{
-                  style: { color: "red" },
                 }}
               />
 
@@ -251,28 +282,45 @@ const CompanyList = () => {
                 label="User Password"
                 variant="outlined"
                 type="password"
-                autoComplete='off'
+                 autoComplete='off'
                 fullWidth
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 margin="normal"
                 onKeyDown={handleKeyDownModal}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '8px',
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: '#333',
+                  },
+                  '& .MuiFormHelperText-root': {
+                    color: 'red',
+                  },
+                  '& .MuiOutlinedInput-input': {
+                    padding: '12px',
+                  },
+                  transition: 'all 0.3s ease',
+                  '&:hover .MuiOutlinedInput-root': {
+                    borderColor: '#3f51b5',
+                  },
+                }}
                 InputLabelProps={{
                   style: {
                     color: 'black',
                   },
                 }}
-                FormHelperTextProps={{
-                  style: { color: "red" },
-                }}
               />
+
               <TextField
                 select
                 label="Account Year"
-                value={selectedAccountingYear ? selectedAccountingYear.yearCode : ''}
                 fullWidth
                 required
+                autoComplete='off'
+                value={selectedAccountingYear ? selectedAccountingYear.yearCode : ''}
                 onChange={(e) => {
                   const newSelectedYear = accountingYears.find((year) => year.yearCode.toString() === e.target.value);
                   setSelectedAccountingYear(newSelectedYear);
@@ -287,6 +335,18 @@ const CompanyList = () => {
                     color: 'black',
                   },
                 }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '8px',
+                  },
+                  '& .MuiOutlinedInput-input': {
+                    padding: '12px',
+                  },
+                  transition: 'all 0.3s ease',
+                  '&:hover .MuiOutlinedInput-root': {
+                    borderColor: '#3f51b5',
+                  },
+                }}
               >
                 {accountingYears.map((year) => (
                   <option key={year.yearCode} value={year.yearCode}>
@@ -294,28 +354,45 @@ const CompanyList = () => {
                   </option>
                 ))}
               </TextField>
-              <TextField
-                select
-                label="Current Branch"
-                fullWidth
-                autoComplete='off'
-                margin="normal"
-                SelectProps={{
-                  native: true,
-                }}
-                InputLabelProps={{
-                  style: {
-                    color: 'black',
-                  },
-                }}
-              ></TextField>
             </form>
           </DialogContent>
-          <DialogActions sx={{ display: 'flex', justifyContent: 'center' }}>
-            <Button onClick={handleClose} color="secondary" variant="outlined">
+          <DialogActions sx={{ display: 'flex', justifyContent: 'center', paddingBottom: '24px' }}>
+            <Button
+              onClick={handleClose}
+              color="secondary"
+              variant="outlined"
+              sx={{
+                borderRadius: '4px',
+                textTransform: 'none',
+                padding: '12px 24px',
+                fontSize: '16px',
+                width: '30%',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  backgroundColor: '#f1f1f1',
+                  transform: 'scale(1.05)',
+                },
+              }}
+            >
               Cancel
             </Button>
-            <Button variant="contained" color="primary" onClick={handleLogin}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleLogin}
+              sx={{
+                borderRadius: '4px',
+                textTransform: 'none',
+                padding: '12px 24px',
+                fontSize: '16px',
+                width: '30%',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  backgroundColor: '#3f51b5',
+                  transform: 'scale(1.05)',
+                },
+              }}
+            >
               Login
             </Button>
           </DialogActions>

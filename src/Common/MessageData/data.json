@@ -98,6 +98,12 @@
         "body": "ServiceBill Report",
         "pdfName": "ServiceBill",
         "whatsappMessage": "Hi, Our DO Report. Please find the details in the attached PDF for your reference."
+      },
+      "PurchaseBill":{
+        "subject": " PurchaseBill Report",
+        "body": "PurchaseBill Report",
+        "pdfName": "PurchaseBill",
+        "whatsappMessage": "Hi, Our DO Report. Please find the details in the attached PDF for your reference."
       }
   }
   

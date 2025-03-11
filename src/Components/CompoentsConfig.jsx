@@ -106,6 +106,26 @@ import MultipleLedger from './Reports/MultipleLedger/MultipleLedger.jsx'
 import DayBookReport from './Reports/Ledger/DayBook/DayBookReport.jsx'
 import DayBook from './Reports/Ledger/DayBook/DayBook.jsx'
 
+//Reports -> Purchase Register Report
+import PurchaseSaleRegister from './Reports/PurchaseSaleRegister/PurchaseSaleRegister.jsx';
+import SaleTDSRegister from './Reports/PurchaseSaleRegister/SaleTDSRegister.jsx';
+import SaleTDSPartWiseRegister from './Reports/PurchaseSaleRegister/SaleTDSpartywiseRegister.jsx';
+import SaleTCSRegister from './Reports/PurchaseSaleRegister/SaleTCSRegister.jsx';
+import SaleTCSPartWiseRegister from './Reports/PurchaseSaleRegister/SaleTCSpartywiseRegister.jsx';
+import PurchaseTCSPartWiseRegister from './Reports/PurchaseSaleRegister/PurchaseTCSPartywiseRegister.jsx';
+import PurchaseTCSRegister from './Reports/PurchaseSaleRegister/PurchaseTCSRegister.jsx';
+import PurchaseTDSRegister from './Reports/PurchaseSaleRegister/PurchaseTDSRegister.jsx';
+import PurchaseTDSPartywiseRegister from './Reports/PurchaseSaleRegister/PurchaseTDSPartyWiseRegiter.jsx';
+import PurchaseRegister from './Reports/PurchaseSaleRegister/PurchaseRegister.jsx';
+import SaleRegister from './Reports/PurchaseSaleRegister/SaleRegister.jsx';
+import PurchaseReturnRegister from './Reports/PurchaseSaleRegister/SugarPurchaseReturnRegister.jsx';
+import SaleReturnSaleRegister from './Reports/PurchaseSaleRegister/SugarSaleReturnSale.jsx';
+import MillSaleReport from './Reports/PurchaseSaleRegister/MillSaleReport.jsx';
+import SaleMonthWise from './Reports/PurchaseSaleRegister/SaleMonthWise.jsx';
+import PurchaseMonthWise from './Reports/PurchaseSaleRegister/PurchaseMonthWise.jsx';
+import RCMRegister from './Reports/PurchaseSaleRegister/RCMRegister.jsx';
+
+
 const routes = [
   {
     path: '/create-utility',
@@ -615,7 +635,78 @@ const routes = [
   {
     path: '/user-register-form',
     element: UserRegistrationForm
-  }
+  },
+
+//Purchase Sale Register Report
+{
+  path:'/purchase-sale-registers',
+  element: PurchaseSaleRegister
+},
+{
+  path:'/SaleTDS-registers',
+  element: SaleTDSRegister
+},
+{
+  path:'/SaleTDSPartyWise-registers',
+  element: SaleTDSPartWiseRegister
+},
+{
+  path:'/SaleTCS-registers',
+  element: SaleTCSRegister
+},
+{
+  path:'/SaleTCSPartyWise-registers',
+  element: SaleTCSPartWiseRegister
+},
+{
+  path:'/PurchaseTCS-registers',
+  element: PurchaseTCSRegister
+},
+{
+  path:'/PurchaseTCSpartywise-registers',
+  element: PurchaseTCSPartWiseRegister
+},
+{
+  path:'/PurchaseTDS-registers',
+  element: PurchaseTDSRegister
+},
+{
+  path:'/PurchaseTDSpartywise-registers',
+  element: PurchaseTDSPartywiseRegister
+},
+{
+  path:'/Purchase-registers',
+  element: PurchaseRegister
+},
+{
+  path:'/Sale-registers',
+  element: SaleRegister
+},
+{
+  path:'/PurchaseReturn-registers',
+  element: PurchaseReturnRegister
+},
+{
+  path:'/SaleReturnSale-registers',
+  element: SaleReturnSaleRegister
+},
+{
+  path:'/MillSaleReport-registers',
+  element: MillSaleReport
+},
+{
+  path:'/SaleMonthWise-registers',
+  element: SaleMonthWise
+},
+{
+  path:'/PurchaseMonthWise-registers',
+  element: PurchaseMonthWise
+},
+{
+  path:'/RCM-registers',
+  element: RCMRegister
+}
+
 ];
 
 export default routes;

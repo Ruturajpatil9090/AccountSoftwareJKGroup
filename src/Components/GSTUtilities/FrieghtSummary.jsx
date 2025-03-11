@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const API_URL = process.env.REACT_APP_API;
 
-const FrieghtSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
+const FrieghtSummary = ({ fromDate, toDate, companyCode, yearCode,accode }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -21,6 +21,7 @@ const FrieghtSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                     to_date: toDate,
                     Company_Code: companyCode,
                     Year_Code: yearCode,
+                    accode :accode
                 },
             });
             setData(response.data);
@@ -92,9 +93,13 @@ const FrieghtSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
     return (
         <div className="d-flex flex-column align-items-center" style={{ marginTop: '20px' }}>
             <button
-                className="btn btn-primary mb-3"
+                className="btn btn-primary"
                 onClick={fetchFrieghtSummary}
                 disabled={loading}
+                style={{
+                    width: '20%',  
+                    height: '60px',  
+                }}
             >
                 {loading ? 'Loading...' : 'Frieght Bill Summary'}
             </button>

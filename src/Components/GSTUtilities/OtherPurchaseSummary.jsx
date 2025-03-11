@@ -200,6 +200,10 @@ const OtherPurchaseSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                 color="primary"
                 onClick={fetchOtherPurchaseSummary}
                 disabled={loading}
+                style={{
+                    width: '20%',  
+                    height: '60px',  
+                }}
             >
                 {loading ? <CircularProgress size={24} /> : 'Other Purchase Summary'}
             </button>

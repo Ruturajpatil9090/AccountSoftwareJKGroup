@@ -213,6 +213,10 @@ const HSNWiseSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                 color="primary"
                 onClick={fetchHSNWiseSummary}
                 disabled={loading}
+                style={{
+                    width: '20%',  
+                    height: '60px',  
+                }}
             >
                 {loading ? <CircularProgress size={24} /> : 'HSNWise Summary'}
             </button>

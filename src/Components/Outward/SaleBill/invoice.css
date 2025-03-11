@@ -13,9 +13,9 @@
   }
   .auto-style3 {
     width: 100%;
-    border: 1px solid black; /* Adds a black border to the td */
+    border: 1px solid black; 
     padding: 0px; 
-    color: rgb(255, 0, 0); /* Optional: Adds some padding inside the td */
+    color: rgb(255, 0, 0); 
   }
   .style4 {
     height: 130px;

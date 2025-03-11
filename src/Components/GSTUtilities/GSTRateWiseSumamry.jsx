@@ -26,7 +26,7 @@ const GSTRateWiseSummary = ({ fromDate, toDate, companyCode, yearCode, GSTRate }
             });
             setData(response.data);
             setIsDataFetched(true);
-            openReportInNewTab(response.data); // Open the report in a new tab
+            openReportInNewTab(response.data);
         } catch (err) {
             setError('Failed to fetch data');
         } finally {
@@ -161,6 +161,10 @@ const GSTRateWiseSummary = ({ fromDate, toDate, companyCode, yearCode, GSTRate }
                 color="primary"
                 onClick={fetchGSTRateWiseSummary}
                 disabled={loading}
+                style={{
+                    width: '20%',  
+                    height: '60px',  
+                }}
             >
                 {loading ? <CircularProgress size={24} /> : 'GSTRate Summary'}
             </button>

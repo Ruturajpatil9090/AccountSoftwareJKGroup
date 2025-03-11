@@ -84,9 +84,13 @@ const CreditnoteSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
     return (
         <div className="d-flex flex-column align-items-center" style={{ marginTop: '20px' }}>
             <button
-                className="btn btn-primary mb-3"
+                className="btn btn-primary"
                 onClick={fetchCreditnoteSummary}
                 disabled={loading}
+                style={{
+                    width: '20%',  
+                    height: '60px',  
+                }}
             >
                 {loading ? 'Loading...' : 'Credit note Summary'}
             </button>

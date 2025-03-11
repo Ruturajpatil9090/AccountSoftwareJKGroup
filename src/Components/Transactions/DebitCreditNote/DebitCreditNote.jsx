@@ -1450,7 +1450,7 @@ const DebitCreditNote = () => {
             variant="contained"
             color="success"
             onClick={() => handleGenerate()}
-            disabled={isEditing && cancelButtonEnabled}
+            disabled={ isEditing || formData.Ewaybillno !== ""}
             style={{ whiteSpace: 'nowrap' }}
           >
             Generate eInvoice

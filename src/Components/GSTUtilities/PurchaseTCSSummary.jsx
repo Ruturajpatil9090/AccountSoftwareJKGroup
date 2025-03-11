@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const API_URL = process.env.REACT_APP_API;
 
-const PurchaseTCSSummary = ({ fromDate, toDate, companyCode, yearCode ,Tran_type}) => {
+const PurchaseTCSSummary = ({ fromDate, toDate, companyCode, yearCode ,Tran_type,accode}) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -21,7 +21,8 @@ const PurchaseTCSSummary = ({ fromDate, toDate, companyCode, yearCode ,Tran_type
                     to_date: toDate,
                     Company_Code: companyCode,
                     Year_Code: yearCode,
-                    Tran_type : Tran_type
+                    Tran_type : Tran_type,
+                    accode :accode
                 },
             });
             setData(response.data);
@@ -98,9 +99,13 @@ const PurchaseTCSSummary = ({ fromDate, toDate, companyCode, yearCode ,Tran_type
     return (
         <div className="d-flex flex-column align-items-center" style={{ marginTop: '20px' }}>
             <button
-                className="btn btn-primary mb-3"
+                className="btn btn-primary"
                 onClick={fetchPurchaseTCSSummary}
                 disabled={loading}
+                style={{
+                    width: '20%',  
+                    height: '60px',  
+                }}
             >
                 {loading ? 'Loading...' : 'PurchaseTCS Summary'}
             </button>

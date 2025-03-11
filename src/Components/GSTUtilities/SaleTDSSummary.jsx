@@ -5,7 +5,7 @@ import { Button, CircularProgress, Alert } from '@mui/material';
 import { formatReadableAmount } from "../../Common/FormatFunctions/FormatAmount"
 const API_URL = process.env.REACT_APP_API;
 
-const SaleTDSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type }) => {
+const SaleTDSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type,accode }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -21,7 +21,8 @@ const SaleTDSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type }) 
                     to_date: toDate,
                     Company_Code: companyCode,
                     Year_Code: yearCode,
-                    Tran_type: Tran_type
+                    Tran_type: Tran_type,
+                    accode: accode
                 },
             });
             setData(response.data);
@@ -127,6 +128,10 @@ const SaleTDSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type }) 
                 color="primary"
                 onClick={fetchSaleTDSSummary}
                 disabled={loading}
+                style={{
+                    width: '15%',  
+                    height: '60px',  
+                }}
             >
                 {loading ? <CircularProgress size={24} /> : 'Sale TDS Summary'}
             </Button>

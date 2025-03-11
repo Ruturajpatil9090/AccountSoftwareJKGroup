@@ -6,7 +6,7 @@ import { formatReadableAmount } from "../../Common/FormatFunctions/FormatAmount"
 
 const API_URL = process.env.REACT_APP_API;
 
-const SaleTCSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type }) => {
+const SaleTCSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type,accode }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -21,7 +21,8 @@ const SaleTCSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type }) 
                     to_date: toDate,
                     Company_Code: companyCode,
                     Year_Code: yearCode,
-                    Tran_type: Tran_type
+                    Tran_type: Tran_type,
+                    accode:accode
                 },
             });
 
@@ -123,6 +124,10 @@ const SaleTCSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type }) 
                 color="primary"
                 onClick={fetchSaleTCSSummary}
                 disabled={loading}
+                style={{
+                    width: '15%',  
+                    height: '60px',  
+                }}
             >
                 {loading ? <CircularProgress size={24} /> : 'Sale TCS Summary'}
             </Button>

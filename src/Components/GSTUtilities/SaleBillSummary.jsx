@@ -7,7 +7,7 @@ import { formatReadableAmount } from "../../Common/FormatFunctions/FormatAmount"
 
 const API_URL = process.env.REACT_APP_API;
 
-const SaleBillSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
+const SaleBillSummary = ({ fromDate, toDate, companyCode, yearCode,accode }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -16,14 +16,14 @@ const SaleBillSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
     const fetchSaleBillSummary = async () => {
         try {
             setLoading(true);
-            setIsDataFetched(false);
             setError('');
             const response = await axios.get(`${API_URL}/salebill-summary`, {
                 params: {
-                    from_date: fromDate,
-                    to_date: toDate,
+                    fromDate: fromDate,
+                    toDate: toDate,
                     Company_Code: companyCode,
                     Year_Code: yearCode,
+                    accode :accode
                 },
             });
             setData(response.data);
@@ -38,12 +38,12 @@ const SaleBillSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
     const columns = [
         'SR_No',
         'Invoice_No',
-        'Invoice_Date',
         'PartyGSTNo',
         'PartyCode',
         'PartyName',
         'Mill_Name',
         'billtogststatecode',
+        'Invoice_Date',
         'Vehicle_No',
         'Quintal',
         'Rate',
@@ -127,7 +127,7 @@ const SaleBillSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                         `).join('')}
                         <tr class="total-row" colspan="11" style="font-weight: bold; background-color: yellow;">
                             <td colspan="9"></td>
-                            <td style="text-align: right;">${totals.Quintal.toFixed(2)}</td>
+                            <td style="text-align: right;">${formatReadableAmount(totals.Quintal.toFixed(2))}</td>
                             <td></td>
                             <td style="text-align: right;">${formatReadableAmount(totals.TaxableAmount.toFixed(2))}</td>
                             <td style="text-align: right;">${formatReadableAmount(totals.CGST.toFixed(2))}</td>
@@ -141,7 +141,7 @@ const SaleBillSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                     <script>
                     window.exportToXlsx = function() {
                     const data = ${JSON.stringify(data)};
-                    const columnOrder = ['SR_No','Invoice_No','Invoice_Date','PartyGSTNo','PartyCode','PartyName','Mill_Name','billtogststatecode','Vehicle_No','Quintal','Rate','TaxableAmount','CGST','SGST','IGST','Payable_Amount','DO_No','ACKNo'];
+                    const columnOrder = ['SR_No','Invoice_No','PartyGSTNo','PartyCode','PartyName','Mill_Name','billtogststatecode','Invoice_Date','Vehicle_No','Quintal','Rate','TaxableAmount','CGST','SGST','IGST','Payable_Amount','DO_No','ACKNo'];
                     
                     const formattedData = data.map(row => {
                         return {
@@ -204,6 +204,10 @@ const SaleBillSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                 color="primary"
                 onClick={fetchSaleBillSummary}
                 disabled={loading}
+                style={{
+                    width: '15%',  
+                    height: '60px',  
+                }}
             >
                 {loading ? <CircularProgress size={24} /> : 'Sale Bill Summary'}
             </button>

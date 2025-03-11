@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import * as XLSX from 'xlsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { formatReadableAmount } from "../../Common/FormatFunctions/FormatAmount"
 
@@ -116,9 +115,13 @@ const CreateB2ClFile = ({ fromDate, toDate, companyCode, yearCode }) => {
     return (
         <div className="d-flex flex-column align-items-center" style={{ marginTop: '20px' }}>
             <button
-                className="btn btn-primary mb-3"
+                className="btn btn-primary"
                 onClick={fetchCreateB2ClFile}
                 disabled={loading}
+                style={{
+                    width: '20%',  
+                    height: '60px',  
+                }}
             >
                 {loading ? 'Loading...' : 'Create B2Cl File'}
             </button>

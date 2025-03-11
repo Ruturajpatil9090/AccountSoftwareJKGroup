@@ -66,6 +66,7 @@ const headerCellStyle = {
 const API_URL = process.env.REACT_APP_API;
 
 const SaleBill = () => {
+
   //GET Values from session
   const companyCode = sessionStorage.getItem("Company_Code");
   const Year_Code = sessionStorage.getItem("Year_Code");
@@ -249,7 +250,6 @@ const SaleBill = () => {
         const cgstRate = parseFloat(formData.CGSTRate) || 0;
         const sgstRate = parseFloat(formData.SGSTRate) || 0;
         const igstRate = parseFloat(formData.IGSTRate) || 0;
-
         gstRate = igstRate > 0 ? igstRate : cgstRate + sgstRate;
       }
       const updatedFormData = await calculateDependentValues(

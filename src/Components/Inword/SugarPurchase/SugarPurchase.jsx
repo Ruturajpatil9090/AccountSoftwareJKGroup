@@ -16,25 +16,23 @@ import {
   Select,
   MenuItem,
   Typography,
-} from "@mui/material";
-import { useRecordLocking } from "../../../hooks/useRecordLocking";
-import SugarPurchaseDetail from "./SugarPurchaseDetail";
-import {
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Button,
   Paper,
 } from "@mui/material";
+import { useRecordLocking } from "../../../hooks/useRecordLocking";
+import SugarPurchaseDetail from "./SugarPurchaseDetail";
 import AddButton from "../../../Common/Buttons/AddButton";
 import EditButton from "../../../Common/Buttons/EditButton";
 import DeleteButton from "../../../Common/Buttons/DeleteButton";
 import OpenButton from "../../../Common/Buttons/OpenButton";
 import UserAuditInfo from "../../../Common/UserAuditInfo/UserAuditInfo";
 import "./SugarPurchase.css"
+import SugarPurchaseReport from "./SugarPurchaseReport";
 
 //Global Variables
 var purchaseidNew = "";
@@ -1431,7 +1429,7 @@ const SugarPurchase = () => {
         modifiedBy={formData.Modified_By}
       />
       <ToastContainer autoClose={500} />
-      {/* <button style={{ marginBottom: "-80px" }} className="btn btn-primary">Print</button> */}
+      <SugarPurchaseReport doc_no={formData.doc_no} Company_Code={companyCode} Year_Code = {Year_Code} disabledFeild={!addOneButtonEnabled} />
       <div className="main-container">
         <Typography
           variant="h6"

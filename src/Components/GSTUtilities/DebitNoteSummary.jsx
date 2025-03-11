@@ -7,7 +7,7 @@ import { CircularProgress } from '@mui/material';
 
 const API_URL = process.env.REACT_APP_API;
 
-const DebitnoteSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
+const DebitnoteSummary = ({ fromDate, toDate, companyCode, yearCode,accode}) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -23,6 +23,7 @@ const DebitnoteSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                     to_date: toDate,
                     Company_Code: companyCode,
                     Year_Code: yearCode,
+                    accode :accode
                 },
             });
             setData(response.data);
@@ -196,6 +197,10 @@ const DebitnoteSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                 color="primary"
                 onClick={fetchDebitnoteSummary}
                 disabled={loading}
+                style={{
+                    width: '20%',  
+                    height: '60px',  
+                }}
             >
                 {loading ? <CircularProgress size={24} /> : 'Debitnote Summary'}
             </button>

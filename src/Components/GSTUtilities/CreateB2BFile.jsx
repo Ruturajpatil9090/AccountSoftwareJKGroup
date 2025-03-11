@@ -123,6 +123,10 @@ const CreateB2BFile = ({ fromDate, toDate, companyCode, yearCode }) => {
                 color="primary"
                 onClick={fetchHSNWiseSummary}
                 disabled={loading}
+                style={{
+                    width: '20%',  
+                    height: '60px',  
+                }}
             >
                 {loading ? <CircularProgress size={24} /> : 'Create B2B File'}
             </button>

@@ -6,7 +6,7 @@ import { formatReadableAmount } from "../../Common/FormatFunctions/FormatAmount"
 
 const API_URL = process.env.REACT_APP_API;
 
-const PurchaseTDSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type }) => {
+const PurchaseTDSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type,accode}) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -22,7 +22,8 @@ const PurchaseTDSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type
                     to_date: toDate,
                     Company_Code: companyCode,
                     Year_Code: yearCode,
-                    Tran_type: Tran_type
+                    Tran_type: Tran_type,
+                    accode :accode
                 },
             });
             setData(response.data);
@@ -121,7 +122,10 @@ const PurchaseTDSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type
                 color="primary"
                 onClick={fetchPurchaseTDSSummary}
                 disabled={loading}
-                sx={{ marginBottom: 2 }}
+                style={{
+                    width: '20%',  
+                    height: '60px',  
+                }}
             >
                 {loading ? <CircularProgress size={24} /> : 'Purchase TDS Summary'}
             </Button>

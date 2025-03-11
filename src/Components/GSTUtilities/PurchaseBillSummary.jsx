@@ -6,7 +6,7 @@ import { formatReadableAmount } from "../../Common/FormatFunctions/FormatAmount"
 
 const API_URL = process.env.REACT_APP_API;
 
-const PurchaseBillSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
+const PurchaseBillSummary = ({ fromDate, toDate, companyCode, yearCode,accode}) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -22,6 +22,7 @@ const PurchaseBillSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                     to_date: toDate,
                     Company_Code: companyCode,
                     Year_Code: yearCode,
+                    accode :accode 
                 },
             });
             setData(response.data);
@@ -213,7 +214,10 @@ const PurchaseBillSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                 color="primary"
                 onClick={fetchPurchaseBillSummary}
                 disabled={loading}
-                sx={{ marginBottom: 2 }}
+                style={{
+                    width: '20%',  
+                    height: '60px',  
+                }}
             >
                 {loading ? <CircularProgress size={24} color="inherit" /> : 'Purchase Bill Summary'}
             </Button>

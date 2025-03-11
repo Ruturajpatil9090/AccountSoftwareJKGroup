@@ -249,7 +249,7 @@ const EInvoiceGeneration = ({
 
           <Grid item>
             <Button variant="contained" color="primary" onClick={handleSubmit}  disabled={isLoading} // Disable the button while loading
-    startIcon={isLoading ? <CircularProgress size={24} /> : null}>
+              startIcon={isLoading ? <CircularProgress size={24} /> : null}>
               
               {isLoading ? 'Loading...' : 'Generate eInvoice'} 
             </Button>

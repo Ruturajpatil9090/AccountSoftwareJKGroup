@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const API_URL = process.env.REACT_APP_API;
 
-const RetailSaleBillSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
+const RetailSaleBillSummary = ({ fromDate, toDate, companyCode, yearCode,accode}) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -21,6 +21,7 @@ const RetailSaleBillSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                     to_date: toDate,
                     Company_Code: companyCode,
                     Year_Code: yearCode,
+                    accode :accode
                 },
             });
             setData(response.data);
@@ -89,6 +90,10 @@ const RetailSaleBillSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                 className="btn btn-primary mb-3"
                 onClick={fetchPurchaseBillSummary}
                 disabled={loading}
+                style={{
+                    width: '20%',  
+                    height: '60px',  
+                }}
             >
                 {loading ? 'Loading...' : 'Retail Sale Bill Summary'}
             </button>

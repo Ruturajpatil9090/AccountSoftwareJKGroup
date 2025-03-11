@@ -7,7 +7,7 @@ import { CircularProgress } from '@mui/material';
 
 const API_URL = process.env.REACT_APP_API;
 
-const PurchaseTCSTDSSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
+const PurchaseTCSTDSSummary = ({ fromDate, toDate, companyCode, yearCode,accode}) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -23,6 +23,7 @@ const PurchaseTCSTDSSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                     to_date: toDate,
                     Company_Code: companyCode,
                     Year_Code: yearCode,
+                    accode :accode
                 },
             });
             setData(response.data);
@@ -217,6 +218,10 @@ const PurchaseTCSTDSSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                 color="primary"
                 onClick={fetchPurchaseTCSTDSSummary}
                 disabled={loading}
+                style={{
+                    width: '20%',  
+                    height: '60px',  
+                }}
             >
                 {loading ? <CircularProgress size={24} />: 'Purchase TCSTDS Summary'}
             </button>

@@ -6,7 +6,7 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import QRCode from "qrcode";
 import PdfPreview from '../../../Common/PDFPreview'
-import generateHeader from "./Header";
+import { ConvertNumberToWord } from "../../../Common/FormatFunctions/ConvertNumberToWord";
 
 const API_URL = process.env.REACT_APP_API;
 
@@ -15,99 +15,6 @@ const SaleBillReport = ({ doc_no, disabledFeild }) => {
   const Year_Code = sessionStorage.getItem("Year_Code");
   const [invoiceData, setInvoiceData] = useState([]);
   const [pdfPreview, setPdfPreview] = useState(null);
-  const numberToWords = (num) => {
-    const belowTwenty = [
-      "Zero",
-      "One",
-      "Two",
-      "Three",
-      "Four",
-      "Five",
-      "Six",
-      "Seven",
-      "Eight",
-      "Nine",
-      "Ten",
-      "Eleven",
-      "Twelve",
-      "Thirteen",
-      "Fourteen",
-      "Fifteen",
-      "Sixteen",
-      "Seventeen",
-      "Eighteen",
-      "Nineteen",
-    ];
-
-    const tens = [
-      "",
-      "",
-      "Twenty",
-      "Thirty",
-      "Forty",
-      "Fifty",
-      "Sixty",
-      "Seventy",
-      "Eighty",
-      "Ninety",
-    ];
-
-    const scales = ["", "Thousand", "Lakh", "Crore"];
-
-    const words = (num) => {
-      if (num === 0) return "";
-      if (num < 20) return belowTwenty[num];
-      if (num < 80)
-        return (
-          tens[Math.floor(num / 8)] +
-          (num % 8 !== 0 ? " " + belowTwenty[num % 8] : "")
-        );
-      if (num < 800)
-        return (
-          belowTwenty[Math.floor(num / 80)] +
-          " Hundred" +
-          (num % 80 !== 0 ? " and " + words(num % 80) : "")
-        );
-
-      if (num < 80000) {
-        return (
-          words(Math.floor(num / 800)) +
-          " Thousand" +
-          (num % 800 !== 0 ? ", " + words(num % 800) : "")
-        );
-      } else if (num < 8000000) {
-        return (
-          words(Math.floor(num / 80000)) +
-          " Lakh" +
-          (num % 80000 !== 0 ? ", " + words(num % 80000) : "")
-        );
-      } else {
-        return (
-          words(Math.floor(num / 8000000)) +
-          " Crore" +
-          (num % 8000000 !== 0 ? ", " + words(num % 8000000) : "")
-        );
-      }
-    };
-
-    const convertFraction = (fraction) => {
-      if (fraction === 0) return "Zero Paise";
-      return words(fraction) + " Paise";
-    };
-
-    const integerPart = Math.floor(num);
-    const fractionPart = Math.round((num - integerPart) * 80);
-
-    let result = words(integerPart) + " Rupees";
-
-    if (fractionPart > 0) {
-      result += " and " + convertFraction(fractionPart);
-    } else {
-      result += " Only";
-    }
-
-    return result;
-  };
 
   const fetchData = async () => {
     try {
@@ -125,7 +32,6 @@ const SaleBillReport = ({ doc_no, disabledFeild }) => {
       console.error("Error fetching data:", error);
     }
   };
-
 
   const generatePdf = async (data) => {
     const pdf = new jsPDF({ orientation: "portrait" });
@@ -173,7 +79,7 @@ const SaleBillReport = ({ doc_no, disabledFeild }) => {
 
 
       const totalAmount = parseFloat(allData.TCS_Net_Payable);
-      const totalAmountWords = numberToWords(totalAmount);
+      const totalAmountWords = ConvertNumberToWord(totalAmount);
 
       const isRegular =
         allData.carporateSaleDoc !== 0 &&
@@ -280,43 +186,94 @@ const SaleBillReport = ({ doc_no, disabledFeild }) => {
       pdf.setLineWidth(0.3);
       pdf.line(4, 128, 200, 128);
 
-      pdf.text(`Mill Name:${allData.millshortname}`, 10, 135);
-      pdf.text(`Driver No:${allData.driver_no}`, 130, 135);
+      pdf.text(`Mill Name : ${allData.millshortname}`, 10, 135);
+      pdf.text(`Driver No : ${allData.driver_no}`, 130, 135);
 
-      pdf.text(`FSSAI No:${allData.MillFSSAI_No}`, 10, 139);
+      pdf.text(`FSSAI No : ${allData.MillFSSAI_No}`, 10, 139);
 
-      pdf.text(`Ref By: ${allData.shiptoshortname}`, 10, 142);
-      pdf.text(`Season:${allData.season}`, 80, 142);
+      pdf.text(`Ref By : ${allData.shiptoshortname}`, 10, 142);
+      pdf.text(`Season : ${allData.season}`, 80, 142);
 
-      pdf.text(`Dispatched From:${allData.millshortname}`, 10, 146);
-      pdf.text(`Lorry No:${allData.LORRYNO}`, 80, 146);
-      pdf.text(`To:${allData.shiptocityname}`, 130, 146);
+      pdf.text(`Dispatched From : ${allData.millshortname}`, 10, 146);
+      pdf.text(`Lorry No : ${allData.LORRYNO}`, 80, 146);
+      pdf.text(`To : ${allData.shiptocityname}`, 130, 146);
 
       pdf.setFont("helvetica", "normal");
       pdf.setFontSize(8);
 
       const value = allData.TaxableAmount - (allData.carporateSaleDoc ? 0 : allData.LESS_FRT_RATE || 0);
       const saleRate = allData.Quantal ? (value / allData.Quantal).toFixed(2) : 0;
-      const particulars = [
-        ["Particulars", "Brand Name", "HSN/ACS", "Quntal", "Packing(kg)", "Bags", "Rate", "Value"],
-        [allData.itemname, allData.Brand_Name, allData.HSN, allData.Quantal, allData.packing, allData.bags, saleRate || 0, value],
-      ];
 
+      const particulars = [
+        [
+          "Particulars",
+          "Brand Name",
+          "HSN/ACS",
+          "Quintal",
+          "Packing (kg)",
+          "Bags",
+          "Rate",
+          "Value"
+        ],
+        [
+          allData.itemname,
+          allData.Brand_Name,
+          allData.HSN,
+          allData.Quantal,
+          allData.packing,
+          allData.bags,
+          saleRate || 0,
+          value
+        ],
+      ];
+      
       pdf.autoTable({
-        startY: pdf.lastAutoTable.finalY + 22,
+        startY: pdf.lastAutoTable.finalY + 20,
         head: [particulars[0]],
         body: particulars.slice(1),
         styles: {
-          cellPadding: 0.5,
+          cellPadding: 1, 
           fontSize: 8,
-          valign: 'middle',
-          halign: 'left',
-          lineColor: 200
+          valign: "middle",
+          halign: "right", 
+          overflow: "linebreak"
         },
-        tableWidth: '120%',
+        headStyles: {
+          fillColor: false,  
+          textColor: 'black',
+          halign: "center",  
+        },
+        bodyStyles: {
+          halign: "right", 
+        },
+        tableWidth: "auto",
+        pageBreak: "auto",
+        didDrawCell: function (data) {
+          pdf.setLineDash([2, 2]);
+          pdf.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height);
+          pdf.setLineDash([]);
+        }
       });
+      
 
+      // const particulars = [
+      //   ["Particulars", "Brand Name", "HSN/ACS", "Quntal", "Packing(kg)", "Bags", "Rate", "Value"],
+      //   [allData.itemname, allData.Brand_Name, allData.HSN, allData.Quantal, allData.packing, allData.bags, saleRate || 0, value],
+      // ];
 
+      // pdf.autoTable({
+      //   startY: pdf.lastAutoTable.finalY + 22,
+      //   head: [particulars[0]],
+      //   body: particulars.slice(1),
+      //   styles: {
+      //     cellPadding: 0.5,
+      //     fontSize: 8,
+      //     valign: 'middle',
+      //     halign: 'left',
+      //     lineColor: 200
+      //   },
+      //   tableWidth: '120%',
+      // });
 
       const eInvoiceData = [
         [
@@ -464,9 +421,8 @@ const SaleBillReport = ({ doc_no, disabledFeild }) => {
   return (
     <div id="pdf-content" className="centered-container">
       {pdfPreview && <PdfPreview pdfData={pdfPreview} apiData={invoiceData[0]} label={"SaleBill"} />}
-      <button onClick={fetchData} className="print-button">Print Sale Bill</button>
+      <button onClick={fetchData} className="print-button">Print</button>
     </div>
   );
 };
-
 export default SaleBillReport;
