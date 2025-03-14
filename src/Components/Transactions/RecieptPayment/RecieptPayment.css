@@ -59,3 +59,57 @@
   gap: 10px;
   align-items: center; 
 }
+
+
+
+.receiptpaymentdiv {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.receiptpaymentlabel {
+  font-weight: bold;
+  margin-right: 16px;
+  min-width: 100px;
+  margin-top: -10px;
+}
+
+.receiptpayment-col {
+  flex-grow: 1;
+}
+
+.receiptpayment-form-group {
+  display: flex;
+  align-items: center;
+}
+
+
+
+/* Styling for the select dropdown */
+.custom-select {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  transition: border 0.3s ease, background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.custom-select:focus {
+  border-color: #007bff; /* Change border color on focus */
+  background-color: #fff;
+  outline: none;
+}
+
+.custom-select:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+}
+
+/* Optional - Add some hover effect */
+.custom-select:hover:not(:disabled) {
+  border-color: #007bff;
+}

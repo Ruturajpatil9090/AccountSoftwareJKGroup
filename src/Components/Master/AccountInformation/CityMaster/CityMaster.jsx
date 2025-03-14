@@ -441,6 +441,7 @@ const CityMaster = ({ isPopup = false }, ref) => {
         <div>
           <br></br>
           <br></br>
+          <br></br>
           <ToastContainer autoClose={500} />
           <ActionButtonGroup
             handleAddOne={handleAddOne}
@@ -474,40 +475,46 @@ const CityMaster = ({ isPopup = false }, ref) => {
       )}
       <div className="CityMaster">
         <form>
-          <Typography variant="h4" gutterBottom>
+          <Typography variant="h5" gutterBottom>
             City Master
           </Typography>
 
-          <FormGroup>
-            <TextField
-              label="Change No"
-              variant="outlined"
-              name="changeNo"
-              autoComplete="off"
-              value={formData.changeNo}
-              onKeyDown={handleKeyDown}
-              disabled={!addOneButtonEnabled}
-              fullWidth
-              margin="normal"
-              size="small"
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <FormGroup>
+                <TextField
+                  label="Change No"
+                  variant="outlined"
+                  name="changeNo"
+                  autoComplete="off"
+                  value={formData.changeNo}
+                  onKeyDown={handleKeyDown}
+                  disabled={!addOneButtonEnabled}
+                  fullWidth
+                  margin="normal"
+                  size="small"
+                />
+              </FormGroup>
+            </Grid>
 
-            />
-          </FormGroup>
+            <Grid item xs={6}>
+              <FormGroup>
+                <TextField
+                  label="City Code"
+                  variant="outlined"
+                  name="city_code"
+                  autoComplete="off"
+                  value={formData.city_code}
+                  onChange={handleChange}
+                  disabled
+                  fullWidth
+                  margin="normal"
+                  size="small"
+                />
+              </FormGroup>
+            </Grid>
+          </Grid>
 
-          <FormGroup>
-            <TextField
-              label="City Code"
-              variant="outlined"
-              name="city_code"
-              autoComplete="off"
-              value={formData.city_code}
-              onChange={handleChange}
-              disabled
-              fullWidth
-              margin="normal"
-              size="small"
-            />
-          </FormGroup>
 
           <FormGroup>
             <TextField
@@ -611,8 +618,8 @@ const CityMaster = ({ isPopup = false }, ref) => {
             />
           </FormGroup>
 
-          <div className="form-group">
-            <label htmlFor="Distance">GST State Code:</label>
+          <div className="citymaster-row">
+            <label htmlFor="Distance" className="citymasterlabel">GST State Code:</label>
             <GSTStateMasterHelp
               onAcCodeClick={handleGstStateCode}
               GstStateName={gstStateName}

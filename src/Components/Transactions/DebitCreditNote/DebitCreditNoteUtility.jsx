@@ -130,12 +130,8 @@ function DebitCreditNoteUtility() {
     const paginatedPosts = filteredData.slice((currentPage - 1) * perPage, currentPage * perPage);
 
     return (
-        <div style={{ padding: '20px', overflow: 'hidden' }}>
-            <Typography variant="h6" style={{ textAlign: 'center', fontWeight: 'bold' }}>
-                Debit Credit Note
-            </Typography>
-
-            <Grid container spacing={2} alignItems="center">
+        <div style={{ padding: '5px', overflow: 'hidden' }}>
+            <Grid container spacing={1} alignItems="center">
                 <Grid item>
                     <Button
                         variant="contained"
@@ -149,11 +145,11 @@ function DebitCreditNoteUtility() {
                         Back
                     </Button>
                 </Grid>
-                <Grid item>
+                <Grid item mt={1}>
                     <PerPageSelect value={perPage} onChange={handlePerPageChange} />
                 </Grid>
 
-                <Grid item xs={12} sm={2}>
+                <Grid item xs={12} sm={2} mt={1}>
                     <FormControl fullWidth>
                         <Select
                             labelId="filterSelect-label"
@@ -169,14 +165,19 @@ function DebitCreditNoteUtility() {
                         </Select>
                     </FormControl>
                 </Grid>
-
-                <Grid item xs={10} sm={6}>
+               
+            <Grid item xs={12} sm={2} ml={15}>
+            <Typography variant="h6" style={{ textAlign: 'center', fontWeight: 'bold' }}>
+                Debit Credit Note
+            </Typography>
+                </Grid>
+                <Grid item xs={10} sm={5}>
                     <SearchBar
                         value={searchTerm}
                         onChange={handleSearchTermChange}
                     />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} mt={-2}>
                     <Paper elevation={20}>
                         <TableContainer>
                             <Table>

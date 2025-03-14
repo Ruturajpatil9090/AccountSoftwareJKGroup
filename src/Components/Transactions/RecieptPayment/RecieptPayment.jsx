@@ -10,8 +10,7 @@ import {
   MenuItem,
   InputLabel,
   FormControl,
-  Grid,
-  Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton
+  Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton
 } from "@mui/material";
 
 import { ToastContainer, toast } from "react-toastify";
@@ -27,6 +26,9 @@ import AddButton from "../../../Common/Buttons/AddButton";
 import EditButton from "../../../Common/Buttons/EditButton";
 import DeleteButton from "../../../Common/Buttons/DeleteButton";
 import OpenButton from "../../../Common/Buttons/OpenButton";
+import DetailAddButtom from "../../../Common/Buttons/DetailAddButton";
+import DetailCloseButton from "../../../Common/Buttons/DetailCloseButton";
+import DetailUpdateButton from "../../../Common/Buttons/DetailUpdateButton";
 import { formatReadableAmount } from "../../../Common/FormatFunctions/FormatAmount";
 import RecieptPaymentReport from "./RecieptPaymentReport";
 import Swal from "sweetalert2";
@@ -121,6 +123,7 @@ const RecieptPayment = () => {
   const setFocusToFirstField = () => {
     if (firstInputRef.current) {
       firstInputRef.current.focus();
+      setAmountInWords('')
     }
   };
 
@@ -949,7 +952,7 @@ const RecieptPayment = () => {
     setShowPopup(false);
     setSelectedUser({});
     clearForm();
-
+    setAmountInWords('')
   };
 
   const handleRecieptvoucher = (Tenderno) => {
@@ -1051,6 +1054,7 @@ const RecieptPayment = () => {
   };
 
   const addUser = async () => {
+
     if (formDataDetail.amount === 0) {
       await Swal.fire({
         title: "Error",
@@ -1169,16 +1173,11 @@ const RecieptPayment = () => {
       <UserAuditInfo
         createdBy={formData.Created_By}
         modifiedBy={formData.Modified_By}
+        title={"Receipt Payment"}
       />
       <div>
         <ToastContainer autoClose={500} />
-        <RecieptPaymentReport doc_no={formData.doc_no} Tran_Type={formData.tran_type} disabledFeild={!addOneButtonEnabled} />
-        <Typography
-          variant="h5"
-          style={{ marginTop: "10px", fontWeight: "bold", fontSize: "24px" }}
-        >
-          Receipt Payment
-        </Typography>
+        <br></br>
         <ActionButtonGroup
           handleAddOne={handleAddOne}
           addOneButtonEnabled={addOneButtonEnabled}
@@ -1194,6 +1193,7 @@ const RecieptPayment = () => {
           handleBack={handleBack}
           backButtonEnabled={backButtonEnabled}
           permissions={permissions}
+          component={<RecieptPaymentReport doc_no={formData.doc_no} Tran_Type={formData.tran_type} disabledFeild={!addOneButtonEnabled} />}
         />
 
         <div>
@@ -1339,12 +1339,12 @@ const RecieptPayment = () => {
                       onClick={closePopup}
                       aria-label="Close"
                       style={{
-                        marginLeft: "80%",
-                        width: "60px",
+                        marginLeft: "90%",
+                        width: "50px",
                         height: "50px",
-                        backgroundColor: "#b2babb",
+                        backgroundColor: "#9bccf3",
+                        borderRadius: "4px",
                         marginTop: "-40px",
-                        borderRadius: "100px"
                       }}
                     >
                       <span aria-hidden="true">&times;</span>
@@ -1352,209 +1352,274 @@ const RecieptPayment = () => {
                   </div>
                   <div className="RecieptPaymentmodal-body">
                     <form>
-                      <div className="form-row">
-                        <div className="form-group col-md-6" style={{ marginBottom: "-10px" }}>
-                          <label>A/C Code:</label>
-                          <AccountMasterHelp
-                            name="credit_ac"
-                            onAcCodeClick={handleAccode}
-                            CategoryName={Creditcodecodename}
-                            CategoryCode={Creditcodecode}
-                            Ac_type=""
-                            firstInputRef={firstInputRef}
-                            disabledFeild={!isEditing && addOneButtonEnabled}
-                          />
-                        </div>
-                      </div>
-                      <div className="form-row">
-                        <div className="form-group col-md-6" style={{ marginBottom: "-10px" }}>
-                          <label>Unit A/C Code:</label>
-                          <AccountMasterHelp
-                            name="Unit_Code"
-                            onAcCodeClick={handleUnitCode}
-                            CategoryName={unitcodestatename}
-                            CategoryCode={unitcodestate}
-                            Ac_type=""
-                            disabledFeild={!isEditing && addOneButtonEnabled}
-                          />
-                        </div>
-
-                      </div>
-                      <div className="form-row">
-                        <div className="form-group col-md-6">
-                          <label>Group Code:</label>
-                          <GroupMasterHelp
-                            onAcCodeClick={handleGroupCode}
-                            CategoryName={groupName}
-                            CategoryCode={groupCode}
-                            SystemType="C"
-                            name="Group_Code"
-                            //tabIndexHelp={6}
-                            disabledField={!isEditing && addOneButtonEnabled}
-                          />
-                        </div>
-
-                      </div>
-                      <div className="form-row">
-                        <div className="form-group col-md-6">
-                          <label>Select:</label>
-                          <select
-                            id="drpFilterValue"
-                            name="drpFilterValue"
-                            value={formDataDetail.drpFilterValue}
-                            onChange={handleDropdownvalueChange}
-                            disabled={!isEditing && !addOneButtonEnabled}
-                          >
-                            {secondSelectOptions.map((option) => (
-                              <option key={option.value} value={option.value}>
-                                {option.text}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="form-group col-md-6" style={{ marginBottom: "-10px" }}>
-                          <label>Voucher_No:</label>
-                          <RecieptVoucherNoHelp
-                            onAcCodeClick={handleRecieptvoucher}
-                            name="Voucher_No"
-                            VoucherNo={
-                              newVoucher_No ||
-                              VoucherNoState ||
-                              formDataDetail.Voucher_No
-                            }
-                            disabledFeild={
-                              (!isEditing && addOneButtonEnabled) ||
-                              formDataDetail.drpFilterValue === "O"
-                            }
-                            Accode={formDataDetail.credit_ac || Creditcodecode}
-                            onTenderDetailsFetched={handleTenderDetailsFetched}
-                            FilterType={formDataDetail.drpFilterValue}
-                            Tran_Type={
-                              formData.tran_type || TyanTypeState || tranType
-                            }
-                          />
+                      <div className="receiptpaymentdiv">
+                        <label htmlFor="credit_ac" className="receiptpaymentlabel">
+                          A/C Code :
+                        </label>
+                        <div className="receiptpayment-col">
+                          <div className="receiptpayment-form-group">
+                            <AccountMasterHelp
+                              name="credit_ac"
+                              onAcCodeClick={handleAccode}
+                              CategoryName={Creditcodecodename}
+                              CategoryCode={Creditcodecode}
+                              Ac_type=""
+                              firstInputRef={firstInputRef}
+                              disabledFeild={!isEditing && addOneButtonEnabled}
+                            />
+                          </div>
                         </div>
                       </div>
 
-                      <div className="form-row" style={{ marginBottom: "-10px" }}>
-                        <div className="form-group col-md-6" >
-                          <label>Voucher Type:</label>
-                          <input
-                            type="text"
-                            name="Voucher_Type"
-                            autoComplete="off"
-                            value={formDataDetail.Voucher_Type}
-                            disabled={
-                              (!isEditing && addOneButtonEnabled) ||
-                              formDataDetail.drpFilterValue === "O"
-                            }
-                            onChange={handleChangeDetail}
-                            style={{ maxWidth: 100 }}
-                          />
-                        </div>
-                        <div className="form-group col-md-6">
-                          <label>Tender ID:</label>
-                          <input
-                            type="text"
-                            name="tenderdetailid"
-                            autoComplete="off"
-                            value={formDataDetail.tenderdetailid}
-                            disabled={
-                              (!isEditing && addOneButtonEnabled) ||
-                              formDataDetail.drpFilterValue === "O"
-                            }
-                            onChange={handleChangeDetail}
-                            style={{ maxWidth: 100, marginLeft: 10 }}
-                          />
+                      <div className="receiptpaymentdiv">
+                        <label htmlFor="Unit_Code" className="receiptpaymentlabel">
+                          Unit A/C :
+                        </label>
+                        <div className="receiptpayment-col">
+                          <div className="receiptpayment-form-group">
+                            <AccountMasterHelp
+                              name="Unit_Code"
+                              onAcCodeClick={handleUnitCode}
+                              CategoryName={unitcodestatename}
+                              CategoryCode={unitcodestate}
+                              Ac_type=""
+                              disabledFeild={!isEditing && addOneButtonEnabled}
+                            />
+                          </div>
                         </div>
                       </div>
 
-                      <div className="form-row">
-                        <div className="form-group col-md-6">
-                          <label>Amount:</label>
-                          <input
-                            type="text"
-                            name="amount"
-                            autoComplete="off"
-                            value={formDataDetail.amount}
-                            onChange={(e) => {
-                              validateNumericInput(e);
-                              handleChangeDetail(e);
-                            }}
-                            onKeyDown={handleKeyDownCalculations}
-                          />
-
-                          <p style={{ marginLeft: "20px", marginTop: '20px', color: "blue", fontWeight: "bold" }}> {amountInWords}</p>
-                        </div>
-                        <div className="form-group col-md-6" style={{ marginBottom: "-10px" }}>
-                          <label>Adjusted Amount:</label>
-                          <input
-                            type="text"
-                            name="Adjusted_Amount"
-                            autoComplete="off"
-                            value={formDataDetail.Adjusted_Amount}
-                            onChange={(e) => {
-                              validateNumericInput(e);
-                              handleChangeDetail(e);
-                            }}
-                            onKeyDown={handleKeyDownCalculations}
-                          />
+                      <div className="receiptpaymentdiv">
+                        <label htmlFor="Group_Code" className="receiptpaymentlabel">
+                          Group Code :
+                        </label>
+                        <div className="receiptpayment-col">
+                          <div className="receiptpayment-form-group">
+                            <GroupMasterHelp
+                              onAcCodeClick={handleGroupCode}
+                              CategoryName={groupName}
+                              CategoryCode={groupCode}
+                              SystemType="C"
+                              name="Group_Code"
+                              disabledField={!isEditing && addOneButtonEnabled}
+                            />
+                          </div>
                         </div>
                       </div>
 
-                      <div className="form-row">
-                        <div className="form-group col-md-6" style={{ marginBottom: "-10px" }}>
-                          <label>Adjusted A/C Code:</label>
-                          <AccountMasterHelp
-                            name="AcadjAccode"
-                            onAcCodeClick={handleAcadjAccodename}
-                            CategoryName={AcadjAccodenamename}
-                            CategoryCode={AcadjAccodenamecode}
-                            Ac_type=""
-                            disabledFeild={!isEditing && addOneButtonEnabled}
-                          />
-                        </div>
-                        <div className="form-group col-md-6" style={{ marginBottom: "-10px" }}>
-                          <label>TDS %:</label>
-                          <input
-                            type="text"
-                            name="TDS_Rate"
-                            autoComplete="off"
-                            value={formDataDetail.TDS_Rate}
-                            onChange={(e) => {
-                              validateNumericInput(e);
-                              handleChangeDetail(e);
-                            }}
-                            onKeyDown={handleKeyDownCalculations}
-                            style={{ maxWidth: 100 }}
-                          />
+                      <div className="receiptpaymentdiv">
+                        <label htmlFor="drpFilterValue" className="receiptpaymentlabel">
+                          Select :
+                        </label>
+                        <div className="receiptpayment-col">
+                          <div className="receiptpayment-form-group  col-md-2">
+                            <select
+                              id="drpFilterValue"
+                              name="drpFilterValue"
+                              value={formDataDetail.drpFilterValue}
+                              onChange={handleDropdownvalueChange}
+                              disabled={!isEditing && !addOneButtonEnabled}
+                              className="custom-select"
+                            >
+                              {secondSelectOptions.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.text}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="form-row" style={{ marginBottom: "-10px" }}>
-                        <div className="form-group col-md-6">
-                          <label>TDS Amount:</label>
-                          <input
-                            type="text"
-                            name="TDS_Amt"
-                            autoComplete="off"
-                            value={parseFloat(formDataDetail.TDS_Amt).toFixed(2)}
-                            onChange={(e) => {
-                              validateNumericInput(e);
-                              handleChangeDetail(e);
-                            }}
-
-                            style={{ maxWidth: 100 }}
-                          />
+                      <div className="receiptpaymentdiv">
+                        <label htmlFor="Voucher_No" className="receiptpaymentlabel">
+                          Voucher No :
+                        </label>
+                        <div className="receiptpayment-col">
+                          <div className="receiptpayment-form-group">
+                            <RecieptVoucherNoHelp
+                              onAcCodeClick={handleRecieptvoucher}
+                              name="Voucher_No"
+                              VoucherNo={
+                                newVoucher_No ||
+                                VoucherNoState ||
+                                formDataDetail.Voucher_No
+                              }
+                              disabledFeild={
+                                (!isEditing && addOneButtonEnabled) ||
+                                formDataDetail.drpFilterValue === "O"
+                              }
+                              Accode={formDataDetail.credit_ac || Creditcodecode}
+                              onTenderDetailsFetched={handleTenderDetailsFetched}
+                              FilterType={formDataDetail.drpFilterValue}
+                              Tran_Type={
+                                formData.tran_type || TyanTypeState || tranType
+                              }
+                            />
+                          </div>
                         </div>
-                        <div className="form-group col-md-6">
-                          <label>Narration :</label>
-                          <textarea
-                            name="narration"
-                            autoComplete="off"
-                            value={formDataDetail.narration}
-                            onChange={handleChangeDetail}
-                          />
+
+                        <label htmlFor="Voucher_Type" className="receiptpaymentlabel">
+                          Voucher Type :
+                        </label>
+                        <div className="receiptpayment-col">
+                          <div className="receiptpayment-form-group">
+                            <input
+                              type="text"
+                              name="Voucher_Type"
+                              autoComplete="off"
+                              value={formDataDetail.Voucher_Type}
+                              disabled={
+                                (!isEditing && addOneButtonEnabled) ||
+                                formDataDetail.drpFilterValue === "O"
+                              }
+                              onChange={handleChangeDetail}
+                              style={{ maxWidth: 100 }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="receiptpaymentdiv">
+                        <label htmlFor="amount" className="receiptpaymentlabel">
+                          Amount :
+                        </label>
+                        <div className="receiptpayment-col">
+                          <div className="receiptpayment-form-group col-md-6">
+                            <input
+                              type="text"
+                              name="amount"
+                              autoComplete="off"
+                              value={formDataDetail.amount}
+                              onChange={(e) => {
+                                validateNumericInput(e);
+                                handleChangeDetail(e);
+                              }}
+                              onKeyDown={handleKeyDownCalculations}
+                            />
+                          </div>
+                        </div>
+                        <label htmlFor="tenderdetailid" className="receiptpaymentlabel">
+                          Tender ID :
+                        </label>
+                        <div className="receiptpayment-col">
+                          <div className="receiptpayment-form-group">
+                            <input
+                              type="text"
+                              name="tenderdetailid"
+                              autoComplete="off"
+                              value={formDataDetail.tenderdetailid}
+                              disabled={
+                                (!isEditing && addOneButtonEnabled) ||
+                                formDataDetail.drpFilterValue === "O"
+                              }
+                              onChange={handleChangeDetail}
+                              style={{ maxWidth: 100, marginLeft: 10 }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="receiptpaymentdiv">
+                        <div className="receiptpayment-col">
+                          <div className="receiptpayment-form-group">
+                            <label style={{ fontWeight: "bold" }}>Amount in Words : </label>
+                            <p style={{ marginLeft: "5px", marginTop: '20px', color: "blue", fontWeight: "bold" }}>{amountInWords}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="receiptpaymentdiv">
+                        <label htmlFor="Adjusted_Amount" className="receiptpaymentlabel">
+                          Adj Amount :
+                        </label>
+                        <div className="receiptpayment-col">
+                          <div className="receiptpayment-form-group col-md-6">
+                            <input
+                              type="text"
+                              name="Adjusted_Amount"
+                              autoComplete="off"
+                              value={formDataDetail.Adjusted_Amount}
+                              onChange={(e) => {
+                                validateNumericInput(e);
+                                handleChangeDetail(e);
+                              }}
+                              onKeyDown={handleKeyDownCalculations}
+                            />
+                          </div>
+                        </div>
+                        <label htmlFor="AcadjAccode" className="receiptpaymentlabel">
+                          Adjusted A/C :
+                        </label>
+                        <div className="receiptpayment-col">
+                          <div className="receiptpayment-form-group">
+                            <AccountMasterHelp
+                              name="AcadjAccode"
+                              onAcCodeClick={handleAcadjAccodename}
+                              CategoryName={AcadjAccodenamename}
+                              CategoryCode={AcadjAccodenamecode}
+                              Ac_type=""
+                              disabledFeild={!isEditing && addOneButtonEnabled}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="receiptpaymentdiv">
+                        <label htmlFor="TDS_Rate" className="receiptpaymentlabel">
+                          TDS % :
+                        </label>
+                        <div className="receiptpayment-col">
+                          <div className="receiptpayment-form-group col-md-6">
+                            <input
+                              type="text"
+                              name="TDS_Rate"
+                              autoComplete="off"
+                              value={formDataDetail.TDS_Rate}
+                              onChange={(e) => {
+                                validateNumericInput(e);
+                                handleChangeDetail(e);
+                              }}
+                              onKeyDown={handleKeyDownCalculations}
+                              style={{ maxWidth: 100 }}
+                            />
+                          </div>
+                        </div>
+
+                        <label htmlFor="TDS_Amt" className="receiptpaymentlabel">
+                          TDS Amount :
+                        </label>
+                        <div className="receiptpayment-col">
+                          <div className="receiptpayment-form-group">
+                            <input
+                              type="text"
+                              name="TDS_Amt"
+                              autoComplete="off"
+                              value={parseFloat(formDataDetail.TDS_Amt).toFixed(2)}
+                              onChange={(e) => {
+                                validateNumericInput(e);
+                                handleChangeDetail(e);
+                              }}
+
+                              style={{ maxWidth: 100 }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="receiptpaymentdiv">
+                        <label htmlFor="narration" className="receiptpaymentlabel">
+                          Narration :
+                        </label>
+                        <div className="receiptpayment-col">
+                          <div className="receiptpayment-form-group">
+                            <textarea
+                              name="narration"
+                              autoComplete="off"
+                              value={formDataDetail.narration}
+                              onChange={handleChangeDetail}
+                            />
+                          </div>
                         </div>
                       </div>
 
@@ -1592,41 +1657,16 @@ const RecieptPayment = () => {
                           />
                         </div>
                       </div> */}
+
                     </form>
                   </div>
                   <div className="modal-footer">
                     {selectedUser.id ? (
-                      <button
-                        className="btn btn-primary"
-                        onClick={updateUser}
-                        onKeyDown={(event) => {
-                          if (event.key === 13) {
-                            updateUser();
-                          }
-                        }}
-                      >
-                        Update
-                      </button>
+                      <DetailUpdateButton updateUser={updateUser} />
                     ) : (
-                      <button
-                        className="btn btn-primary"
-                        onClick={addUser}
-                        onKeyDown={(event) => {
-                          if (event.key === 13) {
-                            addUser();
-                          }
-                        }}
-                      >
-                        Add
-                      </button>
+                      <DetailAddButtom addUser={addUser} />
                     )}
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={closePopup}
-                    >
-                      Cancel
-                    </button>
+                    <DetailCloseButton closePopup={closePopup} />
                   </div>
                 </div>
               </div>
@@ -1677,7 +1717,7 @@ const RecieptPayment = () => {
           </TableContainer>
 
         </div>
-        <div className="form-row" style={{ marginBottom: "50px" }}>
+        <div className="form-row" style={{ marginTop: "30px", marginBottom: '20px' }}>
           <div className="form-group col-md-6">
             <label htmlFor="total">Total:</label>
             <input

@@ -4,6 +4,7 @@ import Sign from "../../../Assets/jklogo.png";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import PdfPreview from '../../../Common/PDFPreview'
+import PrintButton from "../../../Common/Buttons/PrintPDF";
 
 const API_URL = process.env.REACT_APP_API;
 
@@ -194,7 +195,7 @@ const RecieptPaymentReport = ({ doc_no, Tran_Type,disabledFeild }) => {
     return (
         <div id="pdf-content" className="centered-container">
             {pdfPreview && <PdfPreview pdfData={pdfPreview} apiData={invoiceData[0]} label={"RecieptPayment"} />}
-            <button onClick={fetchData} className="print-button" disabled = {disabledFeild}>Print</button>
+            <PrintButton disabledFeild={disabledFeild} fetchData={fetchData} />
         </div>
     );
 };

@@ -39,3 +39,17 @@
     font-weight: bold;
     color: #007bff;
 }
+
+
+.PurchaseSaleregister-row {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-top: 10px;
+}
+
+.PurchaseSaleregisterlabel {
+    flex-shrink: 0;
+    width: 100px;
+    text-align: right;
+}

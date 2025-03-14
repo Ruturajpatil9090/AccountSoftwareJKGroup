@@ -166,18 +166,18 @@ const GstStateMaster = () => {
   };
 
   const handleDelete = async () => {
-     const result = await Swal.fire({
-          title: "Are you sure?",
-          text: `You won't be able to revert this State Code : ${formData.State_Code}`,
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#d33",
-          cancelButtonColor: "#3085d6",
-          cancelButtonText: "Cancel",
-          confirmButtonText: "Delete",
-          reverseButtons: true,
-          focusCancel: true,
-        });
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `You won't be able to revert this State Code : ${formData.State_Code}`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      cancelButtonText: "Cancel",
+      confirmButtonText: "Delete",
+      reverseButtons: true,
+      focusCancel: true,
+    });
 
     if (result.isConfirmed) {
       setIsEditMode(false);
@@ -198,10 +198,10 @@ const GstStateMaster = () => {
       }
     } else {
       Swal.fire({
-             title: "Cancelled",
-             text: "Your record is safe 🙂",
-             icon: "info",
-           });
+        title: "Cancelled",
+        text: "Your record is safe 🙂",
+        icon: "info",
+      });
     }
   };
 
@@ -354,8 +354,8 @@ const GstStateMaster = () => {
 
   return (
     <>
-    <br></br>
-    <br></br>
+      <br></br>
+      <br></br>
       <div>
         <ToastContainer autoClose={500} />
         <ActionButtonGroup
@@ -388,13 +388,13 @@ const GstStateMaster = () => {
         </div>
       </div>
       <div className="form-container">
-      <form className="state-master-form">
+        <form className="state-master-form">
           <h2 className="state-master-title">State Master</h2>
           <br />
 
-          <div className="form-group change-no-group">
+          <div className="form-groupstatemaster  change-no-group">
             <label htmlFor="changeNo" className="change-no-label">
-              Change No:
+              Change No :
             </label>
             <input
               type="text"
@@ -407,9 +407,9 @@ const GstStateMaster = () => {
             />
           </div>
 
-          <div className="form-group state-code-group">
+          <div className="form-groupstatemaster  state-code-group">
             <label htmlFor="State_Code" className="state-code-label">
-              State Code:
+              State Code :
             </label>
             <input
               type="text"
@@ -423,9 +423,9 @@ const GstStateMaster = () => {
             />
           </div>
 
-          <div className="form-group state-name-group">
+          <div className="form-groupstatemaster  state-name-group">
             <label htmlFor="State_Name" className="state-name-label">
-              State Name:
+              State Name :
             </label>
             <input
               type="text"

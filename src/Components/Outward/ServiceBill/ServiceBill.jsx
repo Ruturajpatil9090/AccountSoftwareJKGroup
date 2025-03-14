@@ -12,7 +12,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./ServiceBill.css";
 import { useRecordLocking } from "../../../hooks/useRecordLocking";
 import { HashLoader } from "react-spinners";
-import { TextField, Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Paper } from '@mui/material';
+import { TextField, Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Paper, Dialog, DialogContent, DialogTitle, IconButton } from '@mui/material';
 import UserAuditInfo from "../../../Common/UserAuditInfo/UserAuditInfo";
 import AddButton from "../../../Common/Buttons/AddButton";
 import EditButton from "../../../Common/Buttons/EditButton";
@@ -21,7 +21,12 @@ import OpenButton from "../../../Common/Buttons/OpenButton";
 import { formatReadableAmount } from "../../../Common/FormatFunctions/FormatAmount";
 import GroupMasterHelp from "../../../Helper/SystemmasterHelp";
 import ServiceBillReport from '../ServiceBill/ServiceBillReport'
+import CloseIcon from '@mui/icons-material/Close';
 import Swal from "sweetalert2";
+import EInvoiceGeneration from "../../../Common/EInvoiceGenerationProcess/EInvoiceGeneration";
+import DetailAddButtom from "../../../Common/Buttons/DetailAddButton";
+import DetailCloseButton from "../../../Common/Buttons/DetailCloseButton";
+import DetailUpdateButton from "../../../Common/Buttons/DetailUpdateButton";
 
 //Global Variables
 var newSaleid = "";
@@ -101,6 +106,7 @@ const ServiceBill = () => {
   const [isHandleChange, setIsHandleChange] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef(null)
+  const [isOpen, setIsOpen] = useState(false);
 
   const initialFormData = {
     Doc_No: '',
@@ -1077,6 +1083,9 @@ const ServiceBill = () => {
   };
 
   const addUser = async () => {
+    setTimeout(() => {
+      addButtonRef.current.focus();
+    }, 500)
     const newUser = {
       id: users.length > 0 ? Math.max(...users.map((user) => user.id)) + 1 : 1,
       Item_Code: itemCode,
@@ -1123,6 +1132,9 @@ const ServiceBill = () => {
   };
 
   const updateUser = async () => {
+    setTimeout(() => {
+      addButtonRef.current.focus();
+    }, 500)
     const updatedUsers = users.map((user) => {
       if (user.id === selectedUser.id) {
         const updatedRowaction =
@@ -1413,23 +1425,66 @@ const ServiceBill = () => {
     e.target.value = e.target.value.replace(/[^0-9.]/g, '');
   };
 
+  const handleGenerate = () => {
+    setIsOpen(true);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
+
   return (
     <>
       <UserAuditInfo
         createdBy={formData.Created_By}
         modifiedBy={formData.Modified_By}
+        title={"Service Bill"}
       />
       <ToastContainer autoClose={500} />
-      <form onSubmit={handleSubmit}>
+      <div style={{ display: 'flex', marginLeft: '45%' }} >
         <ServiceBillReport docNo={formData.Doc_No} companyCode={companyCode} yearCode={Year_Code}
           disabledFeild={!addOneButtonEnabled} />
-        <Typography
-          variant="h5"
-          style={{ marginTop: "12px", fontWeight: "bold", fontSize: "24px" }}
-        >
-          Service Bill
-        </Typography>
-        <br></br>
+        <div style={{ marginRight: '100%' }}>
+          <Button
+            variant="contained"
+            color="success"
+            onClick={() => handleGenerate()}
+            disabled={isEditing || formData.einvoiceno !== ""}
+            style={{ whiteSpace: 'nowrap' }}
+          >
+            Generate eInvoice
+          </Button>
+        </div>
+        <Dialog open={isOpen} onClose={handleClose} maxWidth={650} >
+          <DialogTitle >E-Invoice Generation</DialogTitle>
+          <IconButton
+            edge="end"
+            color="inherit"
+            onClick={handleClose}
+            aria-label="close"
+            style={{
+              position: 'absolute',
+              right: 30,
+              top: 8,
+              backgroundColor: '#555',
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          <DialogContent>
+            <EInvoiceGeneration
+              doc_no={formData.Doc_No}
+              tran_type="RB"
+              handleClose={handleClose}
+              Company_Code={companyCode}
+              Year_Code={Year_Code}
+            />
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <form onSubmit={handleSubmit}>
         <div>
           <ActionButtonGroup
             handleAddOne={handleAddOne}
@@ -1446,6 +1501,7 @@ const ServiceBill = () => {
             handleBack={handleBack}
             backButtonEnabled={backButtonEnabled}
             permissions={permissions}
+            component={""}
           />
           <NavigationButtons
             handleFirstButtonClick={handleFirstButtonClick}
@@ -1457,7 +1513,7 @@ const ServiceBill = () => {
           />
         </div>
 
-        <Grid container spacing={2} mt={2} className="ServiceBill-row">
+        <Grid container spacing={2} mt={1} className="ServiceBill-row">
           <Grid item xs={12} sm={1}>
             <TextField
               label="Change No"
@@ -1588,10 +1644,9 @@ const ServiceBill = () => {
                         marginLeft: "90%",
                         width: "50px",
                         height: "50px",
-                        backgroundColor: "#b2babb",
-                        borderRadius: "60%",
+                        backgroundColor: "#9bccf3",
+                        borderRadius: "4%",
                         marginTop: "-80px",
-
                       }}
                     >
                       <span aria-hidden="true">&times;</span>
@@ -1652,37 +1707,11 @@ const ServiceBill = () => {
                   </div>
                   <div className="modal-footer">
                     {selectedUser.id ? (
-                      <button
-                        className="btn btn-primary"
-                        onClick={updateUser}
-                        onKeyDown={(event) => {
-                          if (event.key === 13) {
-                            updateUser();
-                          }
-                        }}
-                      >
-                        Update
-                      </button>
+                      <DetailUpdateButton updateUser={updateUser} />
                     ) : (
-                      <button
-                        className="btn btn-primary"
-                        onClick={addUser}
-                        onKeyDown={(event) => {
-                          if (event.key === 13) {
-                            addUser();
-                          }
-                        }}
-                      >
-                        Add
-                      </button>
+                      <DetailAddButtom addUser={addUser} />
                     )}
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={closePopup}
-                    >
-                      Cancel
-                    </button>
+                    <DetailCloseButton closePopup={closePopup} />
                   </div>
                 </div>
               </div>

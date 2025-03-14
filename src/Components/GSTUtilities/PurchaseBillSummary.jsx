@@ -3,6 +3,7 @@ import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { Button, CircularProgress, Alert } from '@mui/material';
 import { formatReadableAmount } from "../../Common/FormatFunctions/FormatAmount"
+import Swal from 'sweetalert2';
 
 const API_URL = process.env.REACT_APP_API;
 
@@ -25,6 +26,14 @@ const PurchaseBillSummary = ({ fromDate, toDate, companyCode, yearCode,accode}) 
                     accode :accode 
                 },
             });
+            if (response.data.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Not Found.!',
+                    text: 'No purchase bill data found for the selected date range.',
+                });
+                return;
+            }
             setData(response.data);
             setIsDataFetched(true);
             openInNewWindow(response.data);

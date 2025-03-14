@@ -4,10 +4,11 @@ import * as XLSX from 'xlsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { formatReadableAmount } from "../../Common/FormatFunctions/FormatAmount"
 import { CircularProgress } from '@mui/material';
+import Swal from 'sweetalert2';
 
 const API_URL = process.env.REACT_APP_API;
 
-const DebitnoteSummary = ({ fromDate, toDate, companyCode, yearCode,accode}) => {
+const DebitnoteSummary = ({ fromDate, toDate, companyCode, yearCode, accode }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -23,9 +24,17 @@ const DebitnoteSummary = ({ fromDate, toDate, companyCode, yearCode,accode}) => 
                     to_date: toDate,
                     Company_Code: companyCode,
                     Year_Code: yearCode,
-                    accode :accode
+                    accode: accode
                 },
             });
+            if (response.data.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Not Found.!',
+                    text: 'No Debit Note data found for the selected date range.',
+                });
+                return;
+            }
             setData(response.data);
             setIsDataFetched(true);
             openNewWindow(response.data);
@@ -193,13 +202,13 @@ const DebitnoteSummary = ({ fromDate, toDate, companyCode, yearCode,accode}) => 
     return (
         <div className="d-flex flex-column align-items-center" style={{ marginTop: '20px' }}>
             <button
-               variant="contained"
+                variant="contained"
                 color="primary"
                 onClick={fetchDebitnoteSummary}
                 disabled={loading}
                 style={{
-                    width: '20%',  
-                    height: '60px',  
+                    width: '20%',
+                    height: '60px',
                 }}
             >
                 {loading ? <CircularProgress size={24} /> : 'Debitnote Summary'}

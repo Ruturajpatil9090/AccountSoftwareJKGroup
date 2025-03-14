@@ -9,15 +9,11 @@ const DashBoard = () => {
   return (
     <>
       <div className="CommonbuttonContainer">
-      <DashboardButton label="Ledger" icon={FaFileAlt} path="/ledger" />
-
+        <DashboardButton label="Ledger" icon={FaFileAlt} path="/ledger" />
         <DashboardButton label="Receipt Payment" icon={FaReceipt} path="/receipt-payment" />
-
         <DashboardButton label="UTR Entry" icon={FaMoneyBillWave} path="/utr-entry" />
-    
-        <DashboardButton label="Delivery Order" icon={FaTruck}  />
-                <DashboardButton label="Trial Balance" icon={FaBalanceScale} path="/trial-balance" />
- 
+        <DashboardButton label="Delivery Order" icon={FaTruck} />
+        <DashboardButton label="Trial Balance" icon={FaBalanceScale} path="/trial-balance" />
       </div>
 
       <div className="CommonbuttonContainer">

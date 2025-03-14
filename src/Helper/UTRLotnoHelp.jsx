@@ -5,8 +5,6 @@ import DataTableSearch from "../Common/HelpCommon/DataTableSearch";
 import DataTablePagination from "../Common/HelpCommon/DataTablePagination";
 import "../App.css";
 
-
-
 var lActiveInputFeild = "";
 const API_URL = process.env.REACT_APP_API;
 const UTRLotnoHelp = ({ onAcCodeClick, name, Tenderno, tabIndexHelp, disabledFeild, Millcode, onTenderDetailsFetched, firstInputRef }) => {
@@ -251,6 +249,10 @@ const UTRLotnoHelp = ({ onAcCodeClick, name, Tenderno, tabIndexHelp, disabledFei
                                     {itemsToDisplay.map((item, index) => (
                                         <tr
                                             key={index}
+                                            style={{
+                                                cursor: "pointer",
+                                                backgroundColor: selectedRowIndex === index ? "#d6e9f9" : "white",
+                                            }}
                                             className={
                                                 selectedRowIndex === index ? "selected-row" : ""
                                             }

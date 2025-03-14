@@ -23,7 +23,9 @@ function SearchBar({ value, onChange, onSearchClick }) {
             </InputAdornment>
           ),
           style: {
-            borderRadius: "50px",
+            borderRadius: "4px",
+            height:"80%",
+            display: "flex-end"
           },
         }}
         style={{

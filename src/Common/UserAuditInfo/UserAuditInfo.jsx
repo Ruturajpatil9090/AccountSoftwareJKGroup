@@ -2,7 +2,7 @@ import React from 'react';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 
-const UserAuditInfo = ({ createdBy, modifiedBy }) => {
+const UserAuditInfo = ({ createdBy, modifiedBy, title }) => {
   return (
     <>
       <Box sx={{
@@ -13,21 +13,21 @@ const UserAuditInfo = ({ createdBy, modifiedBy }) => {
         width: '80%',
         borderRadius: '4px',
         boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-        
+
       }}>
         <Typography variant="subtitle2" gutterBottom component="h2" sx={{
           fontSize: '14px',
           color: 'blue',
-          margin: 0,
           fontWeight: 'bold',
           letterSpacing: '1px'
-          
+
         }}>
           Created By: {createdBy}
         </Typography>
       </Box>
+
       <Box sx={{
-         backgroundColor: '#d5d8dc',
+        backgroundColor: '#d5d8dc',
         padding: '10px',
         float: 'right',
         maxWidth: '250px',
@@ -46,6 +46,17 @@ const UserAuditInfo = ({ createdBy, modifiedBy }) => {
           Modified By: {modifiedBy}
         </Typography>
       </Box>
+      <Typography variant="subtitle2" gutterBottom component="h2" sx={{
+        fontSize: '20px',
+        color: 'black',
+        fontWeight: 'bold',
+        letterSpacing: '1px',
+        marginTop:"-30px",
+        textAlign:"center",
+        marginLeft:"200px"
+      }}>
+        {title}
+      </Typography>
     </>
   );
 };

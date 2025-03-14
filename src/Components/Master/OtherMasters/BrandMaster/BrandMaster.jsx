@@ -37,14 +37,12 @@ const BrandMaster = () => {
   const [itemSelectAccoid, setItemSelectAccoid] = useState("");
 
   const inputRef = useRef(null)
-
   const navigate = useNavigate();
 
   //In utility page record doubleClicked that recod show for edit functionality
   const location = useLocation();
   const selectedRecord = location.state?.selectedRecord;
   const permissions = location.state?.permissionsData;
-
 
   const initialFormData = {
     Code: "",
@@ -364,7 +362,6 @@ const BrandMaster = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-
     setIsEditMode(false);
     setAddOneButtonEnabled(true);
     setEditButtonEnabled(true);
@@ -429,9 +426,7 @@ const BrandMaster = () => {
         createdBy={formData.Created_By}
         modifiedBy={formData.Modified_By}
       />
-      <br></br>
-      <br></br>
-      <div >
+      <div className="brandMasterMain" >
         <ToastContainer autoClose={500} />
         <ActionButtonGroup
           handleAddOne={handleAddOne}
@@ -464,10 +459,10 @@ const BrandMaster = () => {
       </div>
       <div >
         <form className="brand-master-form">
-          <h2 className="form-title">Brand Master</h2>
+          <h2 className="form-titlebrandmaster">Brand Master</h2>
           <br />
-          <div className="form-group">
-            <label htmlFor="changeNo" className="form-label">Change No:</label>
+          <div className="form-groupbrandmaster">
+            <label htmlFor="changeNo" className="form-labelbrandmaster">Change No:</label>
             <input
               type="text"
               id="changeNo"
@@ -479,8 +474,8 @@ const BrandMaster = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="Code" className="form-label">Code:</label>
+          <div className="form-groupbrandmaster">
+            <label htmlFor="Code" className="form-labelbrandmaster">Code:</label>
             <input
               type="text"
               id="Code"
@@ -493,8 +488,8 @@ const BrandMaster = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="Marka" className="form-label">Marka Name:</label>
+          <div className="form-groupbrandmaster">
+            <label htmlFor="Marka" className="form-labelbrandmaster">Marka Name:</label>
             <input
               tabIndex={1}
               type="text"
@@ -509,8 +504,8 @@ const BrandMaster = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="English_Name" className="form-label">English Name:</label>
+          <div className="form-groupbrandmaster">
+            <label htmlFor="English_Name" className="form-labelbrandmaster">English Name:</label>
             <input
               tabIndex={2}
               type="text"
@@ -524,8 +519,8 @@ const BrandMaster = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="Item_Select" className="form-label">Mal Code:</label>
+          <div className="form-groupbrandmaster">
+            <label htmlFor="Item_Select" className="form-labelbrandmaster">Mal Code:</label>
             <SystemHelpMaster
               onAcCodeClick={handleItemSelect}
               CategoryName={ItemName}
@@ -538,8 +533,8 @@ const BrandMaster = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="Aarambhi_Nag" className="form-label">Aarambhi Nag:</label>
+          <div className="form-groupbrandmaster">
+            <label htmlFor="Aarambhi_Nag" className="form-labelbrandmaster">Aarambhi Nag:</label>
             <input
               tabIndex={5}
               type="text"
@@ -553,8 +548,8 @@ const BrandMaster = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="Nagache_Vajan" className="form-label">Nagache Vajan:</label>
+          <div className="form-groupbrandmaster">
+            <label htmlFor="Nagache_Vajan" className="form-labelbrandmaster">Nagache Vajan:</label>
             <input
               tabIndex={6}
               type="text"
@@ -568,8 +563,8 @@ const BrandMaster = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="Type" className="form-label">Type:</label>
+          <div className="form-groupbrandmaster">
+            <label htmlFor="Type" className="form-labelbrandmaster">Type:</label>
             <select
               tabIndex={7}
               id="Type"
@@ -585,8 +580,8 @@ const BrandMaster = () => {
             </select>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="Wt_Per" className="form-label">Wt Per:</label>
+          <div className="form-groupbrandmaster">
+            <label htmlFor="Wt_Per" className="form-labelbrandmaster">Wt Per:</label>
             <input
               tabIndex={8}
               type="text"

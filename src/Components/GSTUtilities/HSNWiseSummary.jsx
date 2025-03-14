@@ -3,6 +3,7 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { formatReadableAmount } from "../../Common/FormatFunctions/FormatAmount"
 import { CircularProgress } from '@mui/material';
+import Swal from 'sweetalert2';
 
 const API_URL = process.env.REACT_APP_API;
 
@@ -24,6 +25,14 @@ const HSNWiseSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                     Year_Code: yearCode,
                 },
             });
+            if (response.data.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Not Found.!',
+                    text: 'No HSNWISE data found for the selected date range.',
+                });
+                return;
+            }
             setData(response.data);
             setIsDataFetched(true);
             openInNewWindow(response.data);
@@ -214,8 +223,8 @@ const HSNWiseSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                 onClick={fetchHSNWiseSummary}
                 disabled={loading}
                 style={{
-                    width: '20%',  
-                    height: '60px',  
+                    width: '20%',
+                    height: '60px',
                 }}
             >
                 {loading ? <CircularProgress size={24} /> : 'HSNWise Summary'}

@@ -3,10 +3,11 @@ import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { Button, CircularProgress, Alert, Box } from '@mui/material';
 import { formatReadableAmount } from "../../Common/FormatFunctions/FormatAmount"
+import Swal from 'sweetalert2';
 
 const API_URL = process.env.REACT_APP_API;
 
-const SaleTCSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type,accode }) => {
+const SaleTCSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type, accode }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -22,9 +23,17 @@ const SaleTCSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type,acc
                     Company_Code: companyCode,
                     Year_Code: yearCode,
                     Tran_type: Tran_type,
-                    accode:accode
+                    accode: accode
                 },
             });
+            if (response.data.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Not Found.!',
+                    text: 'No Sale TCS data found for the selected date range.',
+                });
+                return;
+            }
 
             openInNewWindow(response.data);
         } catch (err) {
@@ -125,8 +134,8 @@ const SaleTCSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type,acc
                 onClick={fetchSaleTCSSummary}
                 disabled={loading}
                 style={{
-                    width: '15%',  
-                    height: '60px',  
+                    width: '15%',
+                    height: '60px',
                 }}
             >
                 {loading ? <CircularProgress size={24} /> : 'Sale TCS Summary'}

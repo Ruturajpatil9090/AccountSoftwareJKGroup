@@ -4,10 +4,11 @@ import * as XLSX from 'xlsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { CircularProgress } from '@mui/material';
 import { formatReadableAmount } from "../../Common/FormatFunctions/FormatAmount"
+import Swal from 'sweetalert2';
 
 const API_URL = process.env.REACT_APP_API;
 
-const SaleTCSTDSSummary = ({ fromDate, toDate, companyCode, yearCode,accode }) => {
+const SaleTCSTDSSummary = ({ fromDate, toDate, companyCode, yearCode, accode }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -23,9 +24,17 @@ const SaleTCSTDSSummary = ({ fromDate, toDate, companyCode, yearCode,accode }) =
                     to_date: toDate,
                     Company_Code: companyCode,
                     Year_Code: yearCode,
-                    accode:accode
+                    accode: accode
                 },
             });
+            if (response.data.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Not Found.!',
+                    text: 'No Sale TCS/TDS data found for the selected date range.',
+                });
+                return;
+            }
             setData(response.data);
             setIsDataFetched(true);
             openInNewWindow(response.data);
@@ -94,18 +103,18 @@ const SaleTCSTDSSummary = ({ fromDate, toDate, companyCode, yearCode,accode }) =
                         </thead>
                         <tbody>
                             ${data.map(row => {
-                         return `
+            return `
                                     <tr>
                                         ${columns.map(column => {
-                                            if (['Taxable_Amt', 'CGST', 'SGST', 'IGST', 'Bill_Amt','TCS','TDS'].includes(column)) {
-                                            return `<td style="text-align: right;">${formatReadableAmount(row[column] || 0)}</td>`;
-                                            } else {
-                                            return `<td>${row[column] || ''}</td>`;
-                                            }
-                                            }).join('')}
+                if (['Taxable_Amt', 'CGST', 'SGST', 'IGST', 'Bill_Amt', 'TCS', 'TDS'].includes(column)) {
+                    return `<td style="text-align: right;">${formatReadableAmount(row[column] || 0)}</td>`;
+                } else {
+                    return `<td>${row[column] || ''}</td>`;
+                }
+            }).join('')}
                                     </tr>
                                 `;
-                     }).join('')}
+        }).join('')}
                         </tbody>
                         <tfoot>
                             <tr class="total-row">
@@ -220,11 +229,11 @@ const SaleTCSTDSSummary = ({ fromDate, toDate, companyCode, yearCode,accode }) =
                 onClick={fetchSaleTCSTDSSummary}
                 disabled={loading}
                 style={{
-                    width: '15%',   
-                    height: '60px',  
+                    width: '15%',
+                    height: '60px',
                 }}
             >
-                {loading ? <CircularProgress size={24} /> : 'Sale TCSTDS Summary'}
+                {loading ? <CircularProgress size={24} /> : 'Sale TCS/TDS Summary'}
             </button>
 
             {error && <div className="alert alert-danger">{error}</div>}

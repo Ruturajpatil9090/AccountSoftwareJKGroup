@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { formatReadableAmount } from "../../Common/FormatFunctions/FormatAmount"
+import Swal from 'sweetalert2';
 
 const API_URL = process.env.REACT_APP_API;
 
@@ -23,6 +24,14 @@ const CreateB2ClFile = ({ fromDate, toDate, companyCode, yearCode }) => {
                     Year_Code: yearCode,
                 },
             });
+            if (response.data.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Not Found.!',
+                    text: 'No CreateB2ClFile data found for the selected date range.',
+                });
+                return;
+            }
             setData(response.data);
             setIsDataFetched(true);
             openReportInNewTab(response.data); 

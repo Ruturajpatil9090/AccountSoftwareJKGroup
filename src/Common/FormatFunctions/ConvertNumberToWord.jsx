@@ -34,7 +34,7 @@ export function ConvertNumberToWord(num) {
     const integerPart = Math.floor(num);
     const fractionPart = Math.round((num - integerPart) * 100);
 
-    let result = " INR " + words(integerPart);
+    let result = words(integerPart);
 
     if (fractionPart > 0) {
         result += " and " + convertFraction(fractionPart) + " Paise "  + " Only";

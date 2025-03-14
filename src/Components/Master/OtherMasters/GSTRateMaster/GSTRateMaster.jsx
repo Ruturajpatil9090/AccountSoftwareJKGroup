@@ -357,6 +357,7 @@ const GSTRateMaster = () => {
       />
       <br></br>
       <br></br>
+      <br></br>
       <div >
         <ToastContainer autoClose={500} />
         <ActionButtonGroup
@@ -389,22 +390,22 @@ const GSTRateMaster = () => {
       </div>
       <div >
         <form className="gst-rate-master-form">
-          <h2 className="form-title">GST Rate Master</h2>
+          <h2 className="form-titlegstratemaster">GST Rate Master</h2>
           <br />
-          <div className="form-group">
-            <label htmlFor="changeNo" className="form-label">Change No:</label>
+          <div className="groupgstratemaster">
+            <label htmlFor="changeNo" className="form-labelgstratemaster">Change No :</label>
             <input
               type="text"
               id="changeNo"
               name="changeNo"
               onKeyDown={handleKeyDown}
               disabled={!addOneButtonEnabled}
-              className="form-input"
+              className="form-inputgstratemaster"
               tabIndex={1}
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="Doc_no" className="form-label">Doc No:</label>
+          <div className="groupgstratemaster">
+            <label htmlFor="Doc_no" className="form-labelgstratemaster">Doc No :</label>
             <input
               type="text"
               id="Doc_no"
@@ -413,12 +414,12 @@ const GSTRateMaster = () => {
               value={formData.Doc_no}
               onChange={handleChange}
               disabled
-              className="form-input"
+              className="form-inputgstratemaster"
               tabIndex={2}
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="GST_Name" className="form-label">GST Name:</label>
+          <div className="groupgstratemaster">
+            <label htmlFor="GST_Name" className="form-labelgstratemaster">GST Name :</label>
             <input
               type="text"
               id="GST_Name"
@@ -428,12 +429,12 @@ const GSTRateMaster = () => {
               ref={inputRef}
               onChange={handleChange}
               disabled={!isEditing && addOneButtonEnabled}
-              className="form-input"
+              className="form-inputgstratemaster"
               tabIndex={3}
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="Rate" className="form-label">Rate:</label>
+          <div className="groupgstratemaster">
+            <label htmlFor="Rate" className="form-labelgstratemaster">Rate :</label>
             <input
               type="number"
               id="Rate"
@@ -442,12 +443,12 @@ const GSTRateMaster = () => {
               value={formData.Rate}
               onChange={handleChange}
               disabled={!isEditing && addOneButtonEnabled}
-              className="form-input"
+              className="form-inputgstratemaster"
               tabIndex={4}
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="IGST" className="form-label">IGST:</label>
+          <div className="groupgstratemaster">
+            <label htmlFor="IGST" className="form-labelgstratemaster">IGST :</label>
             <input
               type="number"
               id="IGST"
@@ -456,12 +457,12 @@ const GSTRateMaster = () => {
               value={formData.IGST}
               onChange={handleChange}
               disabled={!isEditing && addOneButtonEnabled}
-              className="form-input"
+              className="form-inputgstratemaster"
               tabIndex={5}
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="SGST" className="form-label">SGST:</label>
+          <div className="groupgstratemaster">
+            <label htmlFor="SGST" className="form-labelgstratemaster">SGST :</label>
             <input
               type="number"
               id="SGST"
@@ -470,12 +471,12 @@ const GSTRateMaster = () => {
               value={formData.SGST}
               onChange={handleChange}
               disabled={!isEditing && addOneButtonEnabled}
-              className="form-input"
+              className="form-inputgstratemaster"
               tabIndex={6}
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="CGST" className="form-label">CGST:</label>
+          <div className="groupgstratemaster">
+            <label htmlFor="CGST" className="form-labelgstratemaster">CGST :</label>
             <input
               type="number"
               id="CGST"
@@ -484,7 +485,7 @@ const GSTRateMaster = () => {
               value={formData.CGST}
               onChange={handleChange}
               disabled={!isEditing && addOneButtonEnabled}
-              className="form-input"
+              className="form-inputgstratemaster"
               tabIndex={7}
             />
           </div>

@@ -41,7 +41,7 @@ body {
   border-radius: 0px 0px 25px 25px;
   height: 8vh;
   transition: color 0.3s ease, transform 0.3s ease;
-  margin: 0 10px; /* Add some spacing between nav items */
+  margin: 0 10px; 
 }
 
 .nav-item:hover {
@@ -226,11 +226,10 @@ body {
   color: #f39c12;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .navbar {
     flex-direction: column;
-    align-items: center; /* Center items vertically in mobile view */
+    align-items: center;
     padding: 10px;
   }
 

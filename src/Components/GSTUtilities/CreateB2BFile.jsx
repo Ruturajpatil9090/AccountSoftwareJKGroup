@@ -3,6 +3,7 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { formatReadableAmount } from "../../Common/FormatFunctions/FormatAmount"
 import { CircularProgress } from '@mui/material';
+import Swal from 'sweetalert2';
 
 const API_URL = process.env.REACT_APP_API;
 
@@ -24,6 +25,14 @@ const CreateB2BFile = ({ fromDate, toDate, companyCode, yearCode }) => {
                     Year_Code: yearCode,
                 },
             });
+            if (response.data.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Not Found.!',
+                    text: 'No CreateB2BFile data found for the selected date range.',
+                });
+                return;
+            }
             setData(response.data);
             setIsDataFetched(true);
             openReportInNewTab(response.data);
@@ -85,18 +94,18 @@ const CreateB2BFile = ({ fromDate, toDate, companyCode, yearCode }) => {
                         </thead>
                         <tbody>
                             ${data.map(row => {
-                                return `
+            return `
                                     <tr>
                                          ${columns.map(column => {
-                                           if (['Taxable Value','Invoice Value'].includes(column)) {
-                                           return `<td style="text-align: right;">${formatReadableAmount(row[column] || 0)}</td>`;
-                                         } else {
-                                          return `<td >${row[column] || ''}</td>`;
-                                          }
-                                       }).join('')}
+                if (['Taxable Value', 'Invoice Value'].includes(column)) {
+                    return `<td style="text-align: right;">${formatReadableAmount(row[column] || 0)}</td>`;
+                } else {
+                    return `<td >${row[column] || ''}</td>`;
+                }
+            }).join('')}
                                     </tr>
                                 `;
-                            }).join('')}
+        }).join('')}
                         </tbody>
                     </table>
                     <script>
@@ -124,8 +133,8 @@ const CreateB2BFile = ({ fromDate, toDate, companyCode, yearCode }) => {
                 onClick={fetchHSNWiseSummary}
                 disabled={loading}
                 style={{
-                    width: '20%',  
-                    height: '60px',  
+                    width: '20%',
+                    height: '60px',
                 }}
             >
                 {loading ? <CircularProgress size={24} /> : 'Create B2B File'}

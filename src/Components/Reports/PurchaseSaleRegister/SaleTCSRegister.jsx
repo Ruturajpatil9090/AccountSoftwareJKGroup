@@ -20,8 +20,6 @@ const SaleTCSRegister = () => {
     const YearCode = searchParams.get('yearCode');
     const acCode = searchParams.get('acCode');
 
-    
-
     const [reportData, setReportData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -77,13 +75,10 @@ const SaleTCSRegister = () => {
 
     const handleExportToExcel = () => {
         const wb = XLSX.utils.book_new();
-    
-        // Define column headers
         const headers = [
             "PAN", "Party Name", "Taxable Amount", "CGST", "SGST", "IGST", "Bill Amount", "TDS Amount"
         ];
-    
-        // Map reportData to ensure numeric values are formatted properly
+
         const formattedData = reportData.map(item => ({
             PAN: item.Pan,
             "Party Name": item.Name_Of_Party,
@@ -95,21 +90,19 @@ const SaleTCSRegister = () => {
             "TCS Amount": Number(item.TCS) || 0
         }));
     
-        // Convert data to worksheet
         const ws = XLSX.utils.json_to_sheet(formattedData, { header: headers });
     
-        // Set column width and alignment
         const wsCols = [
-            { wch: 15 }, // PAN
-            { wch: 30 }, // Party Name
-            { wch: 15, alignment: { horizontal: "right" } }, // Taxable Amount
-            { wch: 10, alignment: { horizontal: "right" } }, // CGST
-            { wch: 10, alignment: { horizontal: "right" } }, // SGST
-            { wch: 10, alignment: { horizontal: "right" } }, // IGST
-            { wch: 15, alignment: { horizontal: "right" } }, // Bill Amount
-            { wch: 12, alignment: { horizontal: "right" } } // TDS Amount
+            { wch: 15 }, 
+            { wch: 30 }, 
+            { wch: 15, alignment: { horizontal: "right" } },
+            { wch: 10, alignment: { horizontal: "right" } },
+            { wch: 10, alignment: { horizontal: "right" } }, 
+            { wch: 10, alignment: { horizontal: "right" } }, 
+            { wch: 15, alignment: { horizontal: "right" } },
+            { wch: 12, alignment: { horizontal: "right" } } 
         ];
-        ws["!cols"] = wsCols; // Apply column width settings
+        ws["!cols"] = wsCols;
     
         XLSX.utils.book_append_sheet(wb, ws, 'SaleTCSRegister');
         XLSX.writeFile(wb, 'SaleTCSRegister.xlsx');
@@ -261,7 +254,7 @@ const SaleTCSRegister = () => {
                     </button>
                 </div>
 
-                <div className="col-auto mb-3">
+                <div className="col-auto">
                     <input
                         type="email"
                         id="email"

@@ -15,7 +15,8 @@ const ActionButtonGroup = ({
   handleBack,
   backButtonEnabled,
   permissions,
-  nextTabIndex
+  nextTabIndex,
+  component
 }) => {
   const editButtonRef = useRef(null);
   const updateButtonRef = useRef(null);
@@ -93,8 +94,7 @@ const ActionButtonGroup = ({
       style={{
         marginTop: "-25px",
         marginBottom: "10px",
-        display: "flex",
-        gap: "10px",
+        display: "flex"
       }}
     >
       <button
@@ -193,6 +193,7 @@ const ActionButtonGroup = ({
       >
         Back
       </button>
+        {component}
     </div>
   );
 };

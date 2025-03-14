@@ -3,10 +3,11 @@ import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { Button, CircularProgress, Alert } from '@mui/material';
 import { formatReadableAmount } from "../../Common/FormatFunctions/FormatAmount"
+import Swal from 'sweetalert2';
 
 const API_URL = process.env.REACT_APP_API;
 
-const PurchaseTDSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type,accode}) => {
+const PurchaseTDSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type, accode }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -23,9 +24,17 @@ const PurchaseTDSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type
                     Company_Code: companyCode,
                     Year_Code: yearCode,
                     Tran_type: Tran_type,
-                    accode :accode
+                    accode: accode
                 },
             });
+            if (response.data.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Not Found.!',
+                    text: 'No Purchase TDS data found for the selected date range.',
+                });
+                return;
+            }
             setData(response.data);
             setIsDataFetched(true);
             openInNewWindow(response.data);
@@ -80,17 +89,17 @@ const PurchaseTDSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type
                         </thead>
                         <tbody>
                             ${data.map(row => {
-                                return `
+            return `
                                     <tr>
                                         ${columns.map(column => {
-                                            if (['Net', 'CGST','SGST', 'IGST', 'TDS'].includes(column)) {
-                                                return `<td style="text-align: right;">${formatReadableAmount(row[column] || 0)}</td>`;
-                                            } else {
-                                                return `<td>${row[column] || ''}</td>`;
-                                            }
-                                        }).join('')}
+                if (['Net', 'CGST', 'SGST', 'IGST', 'TDS'].includes(column)) {
+                    return `<td style="text-align: right;">${formatReadableAmount(row[column] || 0)}</td>`;
+                } else {
+                    return `<td>${row[column] || ''}</td>`;
+                }
+            }).join('')}
                                     </tr>`;
-                             }).join('')}
+        }).join('')}
                         </tbody>
                     </table>
                     <script>
@@ -123,8 +132,8 @@ const PurchaseTDSSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_type
                 onClick={fetchPurchaseTDSSummary}
                 disabled={loading}
                 style={{
-                    width: '20%',  
-                    height: '60px',  
+                    width: '20%',
+                    height: '60px',
                 }}
             >
                 {loading ? <CircularProgress size={24} /> : 'Purchase TDS Summary'}

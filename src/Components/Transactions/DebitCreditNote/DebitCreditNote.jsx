@@ -13,7 +13,7 @@ import "./DebitCreditNote.css";
 import { HashLoader } from "react-spinners";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField,
-  Grid, Typography, Dialog, DialogTitle, DialogContent, IconButton
+  Grid, Dialog, DialogTitle, DialogContent, IconButton
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useRecordLocking } from '../../../hooks/useRecordLocking';
@@ -27,6 +27,9 @@ import { formatReadableAmount } from "../../../Common/FormatFunctions/FormatAmou
 import DebitCreditNoteReport from "./DebitCreditNoteReport"
 import EInvoiceGeneration from "../../../Common/EInvoiceGenerationProcess/EInvoiceGeneration";
 import Swal from "sweetalert2";
+import DetailAddButtom from "../../../Common/Buttons/DetailAddButton";
+import DetailCloseButton from "../../../Common/Buttons/DetailCloseButton";
+import DetailUpdateButton from "../../../Common/Buttons/DetailUpdateButton";
 
 // Global Variables
 var newDcid = "";
@@ -344,7 +347,7 @@ const DebitCreditNote = () => {
 
   //Edit Functionality
   const handleEdit = async () => {
-    axios.get(`${API_URL}/getdebitcreditByid?Company_Code=${companyCode}&doc_no=${formData.doc_no}&tran_type=${tranType}&Year_Code=${Year_Code}`)
+    axios.get(`${API_URL}/getdebitcreditByid?Company_Code=${companyCode}&doc_no=${formData.doc_no}&tran_type=${tranType || formData.tran_type}&Year_Code=${Year_Code}`)
       .then((response) => {
         const data = response.data;
         const isLockedNew = data.last_head_data.LockedRecord;
@@ -382,7 +385,24 @@ const DebitCreditNote = () => {
   // Handle New record insert in database and update the record Functionality
   const handleSaveOrUpdate = async () => {
 
-    if (["CN", "CS",].includes(formData.tran_type || tranType)) {
+    let missingFields = [];
+    if (!formData.ac_code) missingFields.push("Bill From");
+    if (!formData.Shit_To) missingFields.push("Bill To");
+    if (!formData.Mill_Code) missingFields.push("Mill Name");
+    if (!formData.Unit_Code) missingFields.push("Ship To");
+
+    if (missingFields.length > 0) {
+      Swal.fire({
+        title: "Error",
+        text: `Please Select the following fields: ${missingFields.join(", ")}`,
+        icon: "error",
+        confirmButtonText: "OK"
+      });
+      return;
+    }
+
+
+    if (["CN", "CS",].includes(formData.tran_type || tranType || navigatedTranType)) {
       if (users.length === 0 || users.some(user => !user.Item_Code || user.Item_Code === 0 || !user.expac_code || user.expac_code === "0")) {
         Swal.fire({
           title: "Error",
@@ -409,7 +429,7 @@ const DebitCreditNote = () => {
     let headData = {
       ...formData,
       gst_code: gstCode || GSTCode,
-      tran_type: tranType
+      tran_type: tranType || navigatedTranType
     };
     if (isEditMode) {
       headData = {
@@ -1440,9 +1460,9 @@ const DebitCreditNote = () => {
       <UserAuditInfo
         createdBy={formData.Created_By}
         modifiedBy={formData.Modified_By}
+        title={"Debit Credit Note"}
       />
       <ToastContainer autoClose={500} />
-
       <div style={{ display: 'flex', marginLeft: '45%' }} >
         <DebitCreditNoteReport doc_no={formData.doc_no} tran_type={formData.tran_type} disabledFeild={isEditing && cancelButtonEnabled} />
         <div style={{ marginRight: '100%' }}>
@@ -1450,7 +1470,7 @@ const DebitCreditNote = () => {
             variant="contained"
             color="success"
             onClick={() => handleGenerate()}
-            disabled={ isEditing || formData.Ewaybillno !== ""}
+            disabled={isEditing || formData.Ewaybillno !== ""}
             style={{ whiteSpace: 'nowrap' }}
           >
             Generate eInvoice
@@ -1484,7 +1504,6 @@ const DebitCreditNote = () => {
         </Dialog>
       </div>
 
-      <Typography variant="h6" style={{ textAlign: 'center', fontSize: "24px", fontWeight: "bold" }}> Debit Credit Note</Typography>
       <div ref={resizableRef} >
         <ActionButtonGroup
           handleAddOne={handleAddOne}
@@ -1619,7 +1638,6 @@ const DebitCreditNote = () => {
             </div>
           </div>
           <div className="debitdate">
-
             <div className="debitCreditNote-row">
               <label className="label">Bill Date :</label>
               <div >
@@ -1638,7 +1656,7 @@ const DebitCreditNote = () => {
           </div>
         </div>
 
-        <div className="debitCreditNote-row">
+        <div className="debitCreditNote-row" style={{ marginTop: "10px" }}>
           <label htmlFor="Bill_To" className="label">
             Bill To :
           </label>
@@ -1736,10 +1754,10 @@ const DebitCreditNote = () => {
                       onClick={closePopup}
                       aria-label="Close"
                       style={{
-                        width: "60px",
-                        height: "55px",
-                        backgroundColor: "#b2babb",
-                        borderRadius: "100px"
+                        width: "50px",
+                        height: "45px",
+                        backgroundColor: "#9bccf3",
+                        borderRadius: "4px"
                       }}
                     >
                       <span aria-hidden="true">&times;</span>
@@ -1828,37 +1846,11 @@ const DebitCreditNote = () => {
                   </div>
                   <div className="modal-footer">
                     {selectedUser.id ? (
-                      <button
-                        className="btn btn-primary"
-                        onClick={updateUser}
-                        onKeyDown={(event) => {
-                          if (event.key === 13) {
-                            updateUser();
-                          }
-                        }}
-                      >
-                        Update
-                      </button>
+                      <DetailUpdateButton updateUser={updateUser} />
                     ) : (
-                      <button
-                        className="btn btn-primary"
-                        onClick={addUser}
-                        onKeyDown={(event) => {
-                          if (event.key === 13) {
-                            addUser();
-                          }
-                        }}
-                      >
-                        Add
-                      </button>
+                      <DetailAddButtom addUser={addUser} />
                     )}
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={closePopup}
-                    >
-                      Cancel
-                    </button>
+                    <DetailCloseButton closePopup={closePopup} />
                   </div>
                 </div>
               </div>
@@ -1887,7 +1879,7 @@ const DebitCreditNote = () => {
                   <TableRow key={user.id} sx={{
                     height: '30px', '&:hover': {
                       backgroundColor: '#f3f388',
-                     cursor : "pointer",
+                      cursor: "pointer",
                     },
                   }}>
                     <TableCell sx={{ padding: '4px 8px' }}>

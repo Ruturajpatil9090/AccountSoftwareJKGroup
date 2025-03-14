@@ -3,10 +3,11 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { formatReadableAmount } from "../../Common/FormatFunctions/FormatAmount"
 import { CircularProgress } from '@mui/material';
+import Swal from 'sweetalert2';
 
 const API_URL = process.env.REACT_APP_API;
 
-const DebitCreditNoteSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_Type,accode}) => {
+const DebitCreditNoteSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_Type, accode }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -36,9 +37,17 @@ const DebitCreditNoteSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_
                     Company_Code: companyCode,
                     Year_Code: yearCode,
                     Tran_Type: Tran_Type,
-                    accode :accode
+                    accode: accode
                 },
             });
+            if (response.data.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Not Found.!',
+                    text: 'No DebitCredit Note data found for the selected date range.',
+                });
+                return;
+            }
             setData(response.data);
             setIsDataFetched(true);
             openReportInNewTab(response.data);
@@ -230,8 +239,8 @@ const DebitCreditNoteSummary = ({ fromDate, toDate, companyCode, yearCode, Tran_
                 onClick={fetchDebitCreditNoteSummary}
                 disabled={loading}
                 style={{
-                    width: '20%',  
-                    height: '60px',  
+                    width: '20%',
+                    height: '60px',
                 }}
             >
                 {loading ? <CircularProgress size={24} /> : 'Debit Credit Note Summary'}

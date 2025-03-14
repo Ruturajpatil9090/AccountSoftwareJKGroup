@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Swal from 'sweetalert2';
 
 const API_URL = process.env.REACT_APP_API;
 
@@ -22,7 +23,14 @@ const ShowEntryNo = ({ fromDate, toDate, companyCode, yearCode }) => {
                     Year_Code: yearCode,
                 },
             });
-
+            if (response.data.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Not Found.!',
+                    text: 'No ShowEntryNo data found for the selected date range.',
+                });
+                return;
+            }
             setData(response.data);
             openReportInNewTab(response.data);
         } catch (err) {
@@ -114,10 +122,10 @@ const ShowEntryNo = ({ fromDate, toDate, companyCode, yearCode }) => {
 
     return (
         <div className="d-flex flex-column align-items-center" style={{ marginTop: '20px' }}>
-            <button className="btn btn-primary mb-3" onClick={fetchShowEntryNo} disabled={loading}   style={{
-                    width: '20%',  
-                    height: '60px',  
-                }}>
+            <button className="btn btn-primary mb-3" onClick={fetchShowEntryNo} disabled={loading} style={{
+                width: '20%',
+                height: '60px',
+            }}>
                 {loading ? 'Loading...' : 'ShowEntryNo'}
             </button>
             {error && <div className="alert alert-danger">{error}</div>}

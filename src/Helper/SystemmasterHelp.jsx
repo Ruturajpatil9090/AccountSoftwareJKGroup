@@ -276,6 +276,10 @@ const SystemHelpMaster = ({ onAcCodeClick, name, CategoryName, CategoryCode, tab
                                     {itemsToDisplay.map((item, index) => (
                                         <tr
                                             key={index}
+                                            style={{
+                                                cursor: "pointer",
+                                                backgroundColor: selectedRowIndex === index ? "#d6e9f9" : "white",
+                                            }}
                                             className={
                                                 selectedRowIndex === index ? "selected-row" : ""
                                             }
@@ -301,9 +305,9 @@ const SystemHelpMaster = ({ onAcCodeClick, name, CategoryName, CategoryCode, tab
                         itemsPerPage={itemsPerPage}
                         onPageChange={handlePageChange}
                     />
-                    <Button variant="secondary" onClick={handleCloseModal}>
+                    {/* <Button variant="secondary" onClick={handleCloseModal}>
                         Close
-                    </Button>
+                    </Button> */}
                 </Modal.Footer>
             </Modal>
         </div>

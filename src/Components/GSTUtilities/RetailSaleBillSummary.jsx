@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Swal from 'sweetalert2';
 
 const API_URL = process.env.REACT_APP_API;
 
-const RetailSaleBillSummary = ({ fromDate, toDate, companyCode, yearCode,accode}) => {
+const RetailSaleBillSummary = ({ fromDate, toDate, companyCode, yearCode, accode }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -21,9 +22,17 @@ const RetailSaleBillSummary = ({ fromDate, toDate, companyCode, yearCode,accode}
                     to_date: toDate,
                     Company_Code: companyCode,
                     Year_Code: yearCode,
-                    accode :accode
+                    accode: accode
                 },
             });
+            if (response.data.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Not Found.!',
+                    text: 'No Retail Sale Bill Summary data found for the selected date range.',
+                });
+                return;
+            }
             setData(response.data);
             setIsDataFetched(true);
         } catch (err) {
@@ -55,14 +64,14 @@ const RetailSaleBillSummary = ({ fromDate, toDate, companyCode, yearCode,accode}
         'SGST',
         'IGST',
         'Final_Amount'
-        
-        
+
+
     ];
 
     // Calculate totals for Quintal, TaxableAmount, CGST, SGST, IGST, and Payable_Amount
     const calculateTotals = () => {
         let totals = {
-           
+
             TaxableAmount: 0,
             CGST: 0,
             SGST: 0,
@@ -91,8 +100,8 @@ const RetailSaleBillSummary = ({ fromDate, toDate, companyCode, yearCode,accode}
                 onClick={fetchPurchaseBillSummary}
                 disabled={loading}
                 style={{
-                    width: '20%',  
-                    height: '60px',  
+                    width: '20%',
+                    height: '60px',
                 }}
             >
                 {loading ? 'Loading...' : 'Retail Sale Bill Summary'}
@@ -127,7 +136,7 @@ const RetailSaleBillSummary = ({ fromDate, toDate, companyCode, yearCode,accode}
 
                             <tr >
                                 <td style={{ fontWeight: 'bold', backgroundColor: 'yellow' }} colSpan="7"></td>
-                                
+
                                 <td style={{ fontWeight: 'bold', backgroundColor: 'yellow' }}></td>
                                 <td style={{ fontWeight: 'bold', backgroundColor: 'yellow' }}>{totals.TaxableAmount.toFixed(2)}</td>
                                 <td style={{ fontWeight: 'bold', backgroundColor: 'yellow' }}>{totals.CGST.toFixed(2)}</td>

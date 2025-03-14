@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import TableUtility from "../../../../Common/UtilityCommon/TableUtility";
-import { useNavigate } from "react-router-dom";
 
 const BrandMasterUtility = () => {
     const apiUrl = `${process.env.REACT_APP_API}/getall-BrandMaster`;

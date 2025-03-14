@@ -22,6 +22,9 @@ import "./Utr.css"
 import { formatReadableAmount } from "../../../Common/FormatFunctions/FormatAmount"
 import Swal from "sweetalert2";
 import { ConvertNumberToWord } from "../../../Common/FormatFunctions/ConvertNumberToWord";
+import DetailAddButtom from "../../../Common/Buttons/DetailAddButton";
+import DetailCloseButton from "../../../Common/Buttons/DetailCloseButton";
+import DetailUpdateButton from "../../../Common/Buttons/DetailUpdateButton";
 
 var lblBankname;
 var newbank_ac;
@@ -138,11 +141,11 @@ const UTREntry = () => {
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prevState) => {
-    const updatedFormData = { ...prevState, [name]: value };
-    if (name === 'amount') {
-      const convertedAmountInWords = ConvertNumberToWord(value); 
-      setAmountInWords(convertedAmountInWords); 
-    }
+      const updatedFormData = { ...prevState, [name]: value };
+      if (name === 'amount') {
+        const convertedAmountInWords = ConvertNumberToWord(value);
+        setAmountInWords(convertedAmountInWords);
+      }
       return updatedFormData;
     });
   };
@@ -795,8 +798,6 @@ const UTREntry = () => {
     }
   }, [selectedRecord, navigatedRecord]);
 
-
-
   useEffect(() => {
     if (selectedRecord) {
       setUsers(
@@ -1134,23 +1135,14 @@ const UTREntry = () => {
       <UserAuditInfo
         createdBy={formData.Created_By}
         modifiedBy={formData.Modified_By}
+        title={"UTR Entry"}
       />
-      {/* <Typography
-          variant="h5"
-          style={{ marginTop: "10px", fontWeight: "bold", fontSize: "14px" }}
-        >
-          UTR Entry
-        </Typography> */}
-      <UTRReport
-        doc_no={formData.doc_no}
-        disabledFeild={!addOneButtonEnabled}
-      />
+
       <div>
-
         <div>
-
         </div>
         <ToastContainer autoClose={500} />
+        <br></br>
         <ActionButtonGroup
           handleAddOne={handleAddOne}
           addOneButtonEnabled={addOneButtonEnabled}
@@ -1166,6 +1158,7 @@ const UTREntry = () => {
           handleBack={handleBack}
           backButtonEnabled={backButtonEnabled}
           permissions={permissions}
+          component={<UTRReport doc_no={formData.doc_no} disabledFeild={!addOneButtonEnabled} />}
         />
         <div>
           <NavigationButtons
@@ -1178,15 +1171,13 @@ const UTREntry = () => {
             isFirstRecord={formData.Company_Code === 1}
           />
         </div>
-
       </div>
-
       <div>
         <form>
           <br />
           <div className="form-group ">
             <div>
-              <Grid container spacing={2} >
+              <Grid container spacing={2} mt={1} >
                 <Grid item xs={12} sm={6} md={3}>
                   <TextField
                     label="Change No"
@@ -1307,7 +1298,7 @@ const UTREntry = () => {
                     size="small"
                   />
                 </Grid>
-                <p style={{marginLeft:"20px",marginTop:'20px',color:"blue",fontWeight:"bold"}}> {amountInWords}</p>
+                <p style={{ marginLeft: "20px", marginTop: '20px', color: "blue", fontWeight: "bold" }}> {amountInWords}</p>
               </Grid>
               <Grid container spacing={2} >
                 <Grid item xs={12} sm={6} mt={1}>
@@ -1341,7 +1332,6 @@ const UTREntry = () => {
                   />
                 </Grid>
               </Grid>
-
 
               <Grid item
                 xs={12}
@@ -1401,12 +1391,11 @@ const UTREntry = () => {
                     aria-label="Close"
                     style={{
                       marginLeft: "80%",
-                      width: "60px",
-                      height: "40px",
+                      width: "40px",
+                      height: "45px",
                       border: "none",
-                      height: "50px",
-                      backgroundColor: "#b2babb",
-                      borderRadius: "100px"
+                      backgroundColor: "#9bccf3",
+                      borderRadius: "4px"
                     }}
                   >
                     <span aria-hidden="true">&times;</span>
@@ -1414,9 +1403,9 @@ const UTREntry = () => {
                 </div>
                 <div >
                   <form>
-                    <div className="form-row">
-                      <div className="form-group col-md-6" style={{ marginTop: "10px" }}>
-                        <label>Lot No:</label>
+                    <div className="utr-form-row">
+                      <div className="utr-form-group col-md-6 utr-mt-10">
+                        <label className="utr-label">Lot No:</label>
                         <UTRLotnoHelp
                           onAcCodeClick={handlePurcno}
                           name="lot_no"
@@ -1425,70 +1414,69 @@ const UTREntry = () => {
                           Millcode={formData.mill_code}
                           onTenderDetailsFetched={handleTenderDetailsFetched}
                           firstInputRef={firstInputRef}
+                          className="utr-input"
                         />
                       </div>
                     </div>
 
-                    <div className="form-row">
-                      <div className="form-group col-md-6" style={{ marginTop: "-20px" }}>
-                        <label>Lot Company Code:</label>
+                    <div className="utr-form-row">
+                      <div className="utr-form-group col-md-6 utr-mt-10">
+                        <label className="utr-label">Lot Company Code:</label>
                         <input
                           type="text"
                           name="lotCompany_Code"
                           autoComplete="off"
                           value={formDataDetail.lotCompany_Code}
                           onChange={handleChangeDetail}
-                          className="form-control"
+                          className="utr-input"
                         />
                       </div>
-                      <div className="form-group col-md-6" style={{ marginTop: "-20px" }}>
-                        <label>Lot Year Code:</label>
+                      <div className="utr-form-group col-md-6 utr-mt-10">
+                        <label className="utr-label">Lot Year Code:</label>
                         <input
                           type="text"
                           name="lotYear_Code"
                           autoComplete="off"
                           value={formDataDetail.lotYear_Code}
                           onChange={handleChangeDetail}
-                          className="form-control"
+                          className="utr-input"
                         />
                       </div>
                     </div>
-
-                    <div className="form-row">
-                      <div className="form-group col-md-6" style={{ marginTop: "-20px" }}>
-                        <label>Grade:</label>
+                    <div className="utr-form-row">
+                      <div className="utr-form-group col-md-6 utr-mt-10">
+                        <label className="utr-label">Grade:</label>
                         <input
                           type="text"
                           name="grade_no"
                           autoComplete="off"
                           value={formDataDetail.grade_no}
                           onChange={handleChangeDetail}
-                          className="form-control"
+                          className="utr-input"
                         />
                       </div>
                     </div>
-
-                    <div className="form-row">
-                      <div className="form-group col-md-6" style={{ marginTop: "-20px" }}>
-                        <label>Amount:</label>
+                    <div className="utr-form-row">
+                      <div className="utr-form-group col-md-6 utr-mt-10">
+                        <label className="utr-label">Amount:</label>
                         <input
                           type="text"
                           name="amount"
                           autoComplete="off"
                           value={formDataDetail.amount}
                           onChange={handleChangeDetail}
-                          className="form-control"
+                          className="utr-input"
                         />
                       </div>
-                      <div className="form-group col-md-6">
-                        <label>Adjusted Amount:</label>
+                      <div className="utr-form-group col-md-6 utr-mt-10">
+                        <label className="utr-label">Adjusted Amount:</label>
                         <input
                           type="text"
                           name="Adjusted_Amt"
                           autoComplete="off"
                           value={formDataDetail.Adjusted_Amt}
                           onChange={handleChangeDetail}
-                          className="form-control"
+                          className="utr-input"
                         />
                       </div>
                     </div>
@@ -1497,37 +1485,11 @@ const UTREntry = () => {
 
                 <div className="modal-footer">
                   {selectedUser.id ? (
-                    <button
-                      className="btn btn-primary"
-                      onClick={updateUser}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") {
-                          updateUser();
-                        }
-                      }}
-                    >
-                      Update
-                    </button>
+                     <DetailUpdateButton updateUser={updateUser} />
                   ) : (
-                    <button
-                      className="btn btn-primary"
-                      onClick={addUser}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") {
-                          addUser();
-                        }
-                      }}
-                    >
-                      Add
-                    </button>
+                      <DetailAddButtom addUser={addUser} />
                   )}
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={closePopup}
-                  >
-                    Cancel
-                  </button>
+                   <DetailCloseButton closePopup={closePopup} />
                 </div>
               </div>
             </div>

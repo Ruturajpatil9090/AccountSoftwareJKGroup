@@ -145,10 +145,9 @@ function RecieptPaymentUtility() {
 
     return (
         <div>
-            <Typography variant="h6" style={{ textAlign: 'center', fontSize: "24px", fontWeight: "bold", marginTop: "5px" }}>Receipt Payment</Typography>
-            <Grid container spacing={1} >
+            <Grid  >
                 <Grid item xs={12}>
-                    <Grid container alignItems="center" spacing={2}>
+                    <Grid container alignItems="center" spacing={1}>
                         <Grid item>
                             <Button
                                 variant="contained"
@@ -169,10 +168,10 @@ function RecieptPaymentUtility() {
                                 Back
                             </Button>
                         </Grid>
-                        <Grid item>
+                        <Grid item mt={1}>
                             <PerPageSelect value={perPage} onChange={handlePerPageChange} />
                         </Grid>
-                        <Grid item>
+                        <Grid item mt={1}>
                             <FormControl>
                                 <Select value={tranType} onChange={handleTranTypeChange} size="small">
                                     <MenuItem value="BR">Bank Receipt</MenuItem>
@@ -182,7 +181,11 @@ function RecieptPaymentUtility() {
                                 </Select>
                             </FormControl>
                         </Grid>
-                        <Grid item xs={6} sm={3} md={5}>
+                        <Grid item xs={2} ml={40} >
+                        <Typography variant="h6" style={{ textAlign: 'center', fontSize: "20px", fontWeight: "bold"}}>Receipt Payment</Typography>
+                        </Grid>
+                       
+                        <Grid item xs={4} sx={{justifyContent:"flex-end"}} >
                             <SearchBar value={searchTerm} onChange={handleSearchTermChange} />
                         </Grid>
                     </Grid>
@@ -238,7 +241,7 @@ function RecieptPaymentUtility() {
                     )}
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid item xs={12} mb={15}>
                     <Pagination
                         pageCount={paginatedData.pageCount}
                         currentPage={currentPage}

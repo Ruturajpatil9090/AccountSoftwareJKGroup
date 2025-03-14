@@ -4,6 +4,7 @@ import * as XLSX from 'xlsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { formatReadableAmount } from "../../Common/FormatFunctions/FormatAmount"
 import { CircularProgress } from '@mui/material';
+import Swal from 'sweetalert2';
 
 const API_URL = process.env.REACT_APP_API;
 
@@ -25,6 +26,14 @@ const OtherPurchaseSummary = ({ fromDate, toDate, companyCode, yearCode }) => {
                     Year_Code: yearCode,
                 },
             });
+             if (response.data.length === 0) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Data Not Found.!',
+                                text: 'No Other Purchase data found for the selected date range.',
+                            });
+                            return;
+                        }
             setData(response.data);
             setIsDataFetched(true);
             openInNewTab(response.data);

@@ -6,6 +6,7 @@ import Header from "../../../Assets/Header.png";
 import DirectorSign from "../../../Assets/DirectorSign.png";
 import RBFooter from "../../../Assets/RBFooter.png";
 import PdfPreview from "../../../Common/PDFPreview";
+import PrintButton from "../../../Common/Buttons/PrintPDF";
 
 const ServiceBill = ({ companyCode, yearCode, docNo, disabledFeild }) => {
     const [loading, setLoading] = useState(false);
@@ -415,13 +416,7 @@ const ServiceBill = ({ companyCode, yearCode, docNo, disabledFeild }) => {
 
     return (
         <div id="pdf-content" className="centered-container">
-            <button
-                onClick={fetchBillData}
-                className="print-button"
-                disabled={disabledFeild}
-            >
-                Print
-            </button>
+            <PrintButton disabledFeild={disabledFeild} fetchData={fetchBillData} />
             {pdfData && (
                 <PdfPreview pdfData={pdfData} apiData={apiData} label="ServiceBill" />
             )}

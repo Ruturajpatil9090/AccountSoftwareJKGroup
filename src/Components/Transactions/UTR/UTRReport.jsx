@@ -5,6 +5,8 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import PdfPreview from "../../../Common/PDFPreview";
 import { formatDate } from "../../../Common/FormatFunctions/FormatDate"
+import PrintButton from "../../../Common/Buttons/PrintPDF";
+
 const UTRReport = ({ doc_no, disabledFeild }) => {
     const API_URL = process.env.REACT_APP_API;
     const apikey = process.env.REACT_APP_API_URL;
@@ -137,7 +139,8 @@ const UTRReport = ({ doc_no, disabledFeild }) => {
 return (
     <div id="pdf-content" className="centered-container">
         {pdfBlob && <PdfPreview pdfData={pdfBlob} apiData={apiData[0]} label={"UTR"} />}
-        <button onClick={fetchData} className="print-button" disabled={disabledFeild}>Print</button>
+        {/* <button onClick={fetchData} className="print-button" disabled={disabledFeild}>Print</button> */}
+        <PrintButton disabledFeild={disabledFeild} fetchData={fetchData} />
     </div>
 );
 };

@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Swal from 'sweetalert2';
 
 const API_URL = process.env.REACT_APP_API;
 
-const FrieghtSummary = ({ fromDate, toDate, companyCode, yearCode,accode }) => {
+const FrieghtSummary = ({ fromDate, toDate, companyCode, yearCode, accode }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -21,9 +22,17 @@ const FrieghtSummary = ({ fromDate, toDate, companyCode, yearCode,accode }) => {
                     to_date: toDate,
                     Company_Code: companyCode,
                     Year_Code: yearCode,
-                    accode :accode
+                    accode: accode
                 },
             });
+            if (response.data.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Not Found.!',
+                    text: 'No FrieghtSummary data found for the selected date range.',
+                });
+                return;
+            }
             setData(response.data);
             setIsDataFetched(true);
         } catch (err) {
@@ -61,8 +70,8 @@ const FrieghtSummary = ({ fromDate, toDate, companyCode, yearCode,accode }) => {
         'SGST',
         'IGST',
         'FinalAmount',
-        
-        
+
+
     ];
 
     // Calculate totals for Quintal, TaxableAmount, CGST, SGST, IGST, and Payable_Amount
@@ -97,8 +106,8 @@ const FrieghtSummary = ({ fromDate, toDate, companyCode, yearCode,accode }) => {
                 onClick={fetchFrieghtSummary}
                 disabled={loading}
                 style={{
-                    width: '20%',  
-                    height: '60px',  
+                    width: '20%',
+                    height: '60px',
                 }}
             >
                 {loading ? 'Loading...' : 'Frieght Bill Summary'}

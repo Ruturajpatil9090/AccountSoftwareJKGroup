@@ -11,13 +11,13 @@ import BackButton from "../Buttons/BackButton";
 
 const styles = {
     tableHeaderCell: {
-      backgroundColor: '#f4f4f4',
-      fontSize: '26px',
-      fontWeight: '800',
-      padding: '10px',
-      cursor: 'pointer',
+        backgroundColor: '#f4f4f4',
+        fontSize: '26px',
+        fontWeight: '800',
+        padding: '10px',
+        cursor: 'pointer',
     },
-  };
+};
 
 function TableUtility({
     title,
@@ -58,9 +58,9 @@ function TableUtility({
                 if (response.data?.UserDetails?.canView === 'Y') {
                     setCanView(true);
                     fetchData();
-                    setTimeout(()=>{
+                    setTimeout(() => {
                         inputRef.current.focus();
-                    },0)
+                    }, 0)
                 } else {
                     setCanView(false);
                 }
@@ -157,87 +157,108 @@ function TableUtility({
 
     return (
         <div>
-            <Typography variant="h6" style={{ textAlign: 'center', fontSize: "24px", fontWeight: "bold", marginTop:"10px" }}>{title}</Typography>
-            <Grid container spacing={2}>
-                <Grid item>
-                    <Button variant="contained" color="primary" onClick={handleAddClick} ref= {inputRef} disabled={permissionsData.canSave === "N"}>Create New</Button>
+            <Grid container spacing={2} alignItems="center" justifyContent="space-between">
+                <Grid item xs="auto" container spacing={1} alignItems="center">
+                    <Grid item>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleAddClick}
+                            ref={inputRef}
+                            disabled={permissionsData.canSave === "N"}
+                        >
+                            Create New
+                        </Button>
+                    </Grid>
+
+                    <Grid item>
+                        <Button variant="contained" color="secondary" onClick={handleBackClick}>
+                            Back
+                        </Button>
+                    </Grid>
+
+                    <Grid item >
+                        <PerPageSelect value={perPage} onChange={handlePerPageChange} />
+                    </Grid>
                 </Grid>
-                <Grid item>
-                    <Button variant="contained" color="secondary" onClick={handleBackClick}>Back</Button>
+
+                <Grid item xs={12} sm="auto" display="flex" justifyContent="center" marginRight={-80}>
+                    <Typography variant="h6" fontWeight="bold">
+                        {title}
+                    </Typography>
                 </Grid>
-                <Grid item>
-                    <PerPageSelect value={perPage} onChange={handlePerPageChange} />
-                </Grid>
+
                 <Grid item xs={12} sm={6}>
                     <SearchBar value={searchTerm} onChange={handleSearchTermChange} />
                 </Grid>
-                {dropdownOptions && (
-                    <Grid item xs={3} sm={3}>
-                        <FormControl fullWidth>
-                            <InputLabel>Filter by Type</InputLabel>
-                            <Select
-                                value={localDropdownValue}
-                                onChange={(e) => {
-                                    setLocalDropdownValue(e.target.value);
-                                    onDropdownChange(e);
-                                }}
-                            >
-                                {dropdownOptions.map((option, index) => (
-                                    <MenuItem key={index} value={option.value}>
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                )}
-             
-                <Grid item xs={12}>
-                    <Paper elevation={20}>
-                        <TableContainer>
-                            {loading ? (
-                                <Box display="flex" justifyContent="center" alignItems="center" height="300px">
-                                    <RingLoader />
-                                </Box>
-                            ) : (
-                                <Table>
-                                    <TableHead>
-                                        <TableRow style={styles.tableHeaderCell}>
+            </Grid>
+
+            {dropdownOptions && (
+                <Grid item xs={3} sm={3}>
+                    <FormControl fullWidth>
+                        <InputLabel>Filter by Type</InputLabel>
+                        <Select
+                            value={localDropdownValue}
+                            onChange={(e) => {
+                                setLocalDropdownValue(e.target.value);
+                                onDropdownChange(e);
+                            }}
+                        >
+                            {dropdownOptions.map((option, index) => (
+                                <MenuItem key={index} value={option.value}>
+                                    {option.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Grid>
+            )}
+
+            <Grid item xs={12} mt={-2}>
+                <Paper elevation={20}>
+                    <TableContainer >
+                        {loading ? (
+                            <Box display="flex" justifyContent="center" alignItems="center" height="300px">
+                                <RingLoader />
+                            </Box>
+                        ) : (
+                            <Table>
+                                <TableHead>
+                                    <TableRow style={styles.tableHeaderCell}>
+                                        {columns.map((column, index) => (
+                                            <TableCell key={index}>{column.label}</TableCell>
+                                        ))}
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {paginatedPosts.map((post) => (
+                                        <TableRow
+                                            key={post[rowKey]}
+                                            style={{ cursor: "pointer" }}
+                                            onDoubleClick={() => handleRowClick(post[rowKey])}
+                                            sx={{
+                                                '&:hover': {
+                                                    backgroundColor: '#f3f388',
+                                                },
+                                            }}
+                                        >
                                             {columns.map((column, index) => (
-                                                <TableCell key={index}>{column.label}</TableCell>
+                                                <TableCell key={index}>{post[column.key]}</TableCell>
                                             ))}
                                         </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {paginatedPosts.map((post) => (
-                                            <TableRow
-                                                key={post[rowKey]}
-                                                style={{ cursor: "pointer" }}
-                                                onDoubleClick={() => handleRowClick(post[rowKey])}
-                                                sx={{
-                                                    '&:hover': {
-                                                      backgroundColor: '#f3f388',
-                                                    },
-                                                  }}
-                                            >
-                                                {columns.map((column, index) => (
-                                                    <TableCell key={index}>{post[column.key]}</TableCell>
-                                                ))}
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            )}
-                        </TableContainer>
-                    </Paper>
-                </Grid>
-                <Grid item xs={12}>
-                    <Pagination
-                        pageCount={pageCount}
-                        currentPage={currentPage}
-                        onPageChange={handlePageChange}
-                    />
-                </Grid>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
+                    </TableContainer>
+                </Paper>
+            </Grid>
+            <Grid item xs={12} mb={15}>
+                <Pagination
+                    pageCount={pageCount}
+                    currentPage={currentPage}
+                    onPageChange={handlePageChange}
+                />
             </Grid>
         </div>
     );

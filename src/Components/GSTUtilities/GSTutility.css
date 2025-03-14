@@ -1,19 +1,27 @@
 .GSTUtilities-row {
     display: flex;
     align-items: center;
-    gap: 30px;
+    gap: 20px;
 }
 
 .GSTUtilitieslabel {
     flex-shrink: 0;
     width: 100px;
     text-align: right;
+    white-space: nowrap;
+    margin-bottom: 10px;
 }
 
 input[type="date"] {
-    width: 150px;
-    padding: 8px;
-    margin-bottom: 5px;
+    width: 180px;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.form-select{
+    width: 130px;
+    margin-top: 10px;
+    margin-left: 20px;
 }
 
 .form-control {

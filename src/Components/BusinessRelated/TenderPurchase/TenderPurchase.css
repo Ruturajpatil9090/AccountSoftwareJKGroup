@@ -214,13 +214,7 @@ textarea {
 }
 
 /* Adjusted Form Row for Compact Layout */
-.form-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-  flex-wrap: nowrap;
-}
+
 
 .form-row label {
   width: auto;

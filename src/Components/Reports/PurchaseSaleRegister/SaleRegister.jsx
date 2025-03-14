@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { formatReadableAmount } from "../../../Common/FormatFunctions/FormatAmount";
 import { RingLoader } from 'react-spinners';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography } from "@mui/material";
@@ -12,9 +12,7 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 const apikey = process.env.REACT_APP_API_URL;
 
 const SaleRegister = () => {
-    const navigate = useNavigate();
     const location = useLocation();
-
     const Company_Name = sessionStorage.getItem('Company_Name')
     const searchParams = new URLSearchParams(location.search);
     const fromDate = searchParams.get('fromDate');
@@ -26,7 +24,6 @@ const SaleRegister = () => {
     const [reportData, setReportData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [emailId, setEmailId] = useState('');
 
     const [grandTotals, setGrandTotals] = useState({
         TotalTaxable_Amt: 0,
@@ -131,50 +128,32 @@ const SaleRegister = () => {
         XLSX.writeFile(wb, 'SaleRegister.xlsx');
     };
     
-    const handleSendEmail = async () => {
-        if (!emailId) {
-            setError('Please enter an email address');
-            return;
-        }
-
-        const pdfBlob = await generatePDF();
-        const pdfFileToSend = new File([pdfBlob], 'report.pdf');
-        const formData = new FormData();
-        formData.append('email', emailId);
-        formData.append('pdf', pdfFileToSend);
-
-        try {
-            const response = await axios.post(`${apikey}/api/sugarian/send-pdf-email`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            alert(response.data.message || 'Email sent successfully.!');
-        } catch (error) {
-            console.error('Error sending email:', error);
-            setError('Failed to send email');
-        }
-    };
-
-    const handlePrint = () => {
-        const printContent = document.getElementById('reportTable').outerHTML;
-        const win = window.open('', '', 'height=700,width=900');
-        win.document.write('<html><head><title>Print Report</title>');
-        win.document.write('</head><body>');
-        win.document.write(printContent);
-        win.document.write('</body></html>');
+    const handlePrint = async () => {
+        const companyName = Company_Name; 
+        const fromDate = searchParams.get('fromDate'); 
+        const toDate = searchParams.get('toDate'); 
+        const pdfBlob = await generatePDF(companyName, fromDate, toDate);
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        const win = window.open(pdfUrl, '', );
         win.document.close();
-        win.print();
+        win.print(); 
     };
-
-    const generatePDF = async () => {
+    
+    
+    const generatePDF = async (companyName, fromDate, toDate) => {
         const doc = new jsPDF();
-        const groupedData = groupReportData(reportData);
+        
+        const groupedData = groupReportData(reportData);  
         const tableData = [];
     
-        // Adding headers
-        tableData.push(['Bill No', 'Date', 'Customer Name', 'GST No', 'NetQntl', 'Rate', 'Taxable Amount', 'CGST Amt', 'SGST Amt', 'IGST Amt', 'Bill Amount']);
+        doc.setFontSize(16);
+        doc.text(companyName, doc.internal.pageSize.width / 2, 10, { align: 'center' });
     
+        doc.setFontSize(10);
+        doc.text(`Sale Register From: ${formatDate(fromDate)} To ${formatDate(toDate)}`, 10, 20);
+
+        tableData.push(['Bill No', 'Date', 'Customer Name', 'GST No', 'NetQntl', 'Rate', 'Taxable Amount', 'CGST Amt', 'SGST Amt', 'IGST Amt', 'Bill Amount']);
+
         Object.entries(groupedData).forEach(([key, group]) => {
             group.items.forEach((item) => {
                 tableData.push([
@@ -192,27 +171,49 @@ const SaleRegister = () => {
                 ]);
             });
         });
+
+        const totalRow = [
+            '', '', 'Total', '', 
+            formatReadableAmount(grandTotals.netqntl),
+            '', 
+            formatReadableAmount(grandTotals.TotalTaxable_Amt),
+            formatReadableAmount(grandTotals.CGSTAmt),
+            formatReadableAmount(grandTotals.SGSTAmt),
+            formatReadableAmount(grandTotals.IGSTAmt),
+            formatReadableAmount(grandTotals.BillamountAmt)
+        ];
     
-        // Use autoTable to generate the table in the PDF with proper formatting
+        tableData.push(totalRow);
+    
         doc.autoTable({
             headStyles: {
                 fillColor: [255, 0, 0],
                 fontStyle: 'bold',
             },
             body: tableData,
-            margin: { top: 10 },
+            margin: { top: 25 },
             styles: {
-                fontSize: 10,
-                cellPadding: 2,
-                halign: 'center', // Center align the text
+                fontSize: 5,
+                cellPadding: 1,
+                halign: 'center',
             },
-            theme: 'grid', // Optionally use grid for table
+            columnStyles: {
+                2: { halign: 'left' },
+                4: { halign: 'right' },
+                5: { halign: 'right' },
+                6: { halign: 'right' },
+                7: { halign: 'right' },
+                8: { halign: 'right' },
+                9: { halign: 'right' },
+                10: { halign: 'right' },
+            },
+            theme: 'grid',
         });
     
         return doc.output('blob');
     };
     
-
+    
     const groupReportData = (data) => {
         const groupedData = {};
         data.forEach((item) => {
@@ -231,13 +232,9 @@ const SaleRegister = () => {
 
     const groupedReportData = groupReportData(reportData);
 
-    const handleBack = () => {
-        navigate('/purchase-sale-registers');
-    };
-
     return (
         <>
-            <Typography variant="h6" style={{ textAlign: 'center', fontSize: "24px", fontWeight: "bold", marginTop: "30px" }}>{Company_Name}</Typography>
+            <Typography variant="h6" style={{ textAlign: 'center', fontSize: "24px", fontWeight: "bold", marginTop: "-25px" }}>{Company_Name}</Typography>
             <div>
                 <div className="mb-3 row align-items-center">
                     <div className="col-auto">
@@ -246,28 +243,6 @@ const SaleRegister = () => {
                         </button>
                         <button className="btn btn-success" onClick={handleExportToExcel}>
                             Export to Excel
-                        </button>
-                        <button className="btn btn-warning ms-2" onClick={handleBack}>
-                            Back
-                        </button>
-                    </div>
-
-                    <div className="col-auto">
-                        <input
-                            type="email"
-                            id="email"
-                            className="form-control"
-                            autoComplete='off'
-                            value={emailId}
-                            onChange={(e) => setEmailId(e.target.value)}
-                            placeholder="Enter email..."
-                            style={{ width: "400px", padding: '10px' }}
-                        />
-                    </div>
-
-                    <div className="col-auto">
-                        <button className="btn btn-primary" onClick={handleSendEmail}>
-                            Send Email
                         </button>
                     </div>
                 </div>
@@ -291,7 +266,6 @@ const SaleRegister = () => {
                         </TableHead>
                         <TableBody>
                             {Object.entries(groupedReportData).map(([key, { items, totalQty }]) => {
-                                const [mc, millName] = key.split("-");
                                 return (
                                     <React.Fragment key={key}>
                                         {items.map((item, index) => (
@@ -299,9 +273,9 @@ const SaleRegister = () => {
                                                 key={index}
                                                 sx={{
                                                     cursor: "pointer",
-                                                    "&:hover": {
-                                                        backgroundColor: "#fdfd96",
-                                                    },
+                                                    // "&:hover": {
+                                                    //     backgroundColor: "#fdfd96",
+                                                    // },
                                                 }}
                                             >
                                                 <TableCell>{item.doc_no}</TableCell>

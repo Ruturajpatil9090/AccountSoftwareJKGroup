@@ -3,7 +3,6 @@ import axios from 'axios';
 import {
   TextField,
   IconButton,
-  Button,
   Container,
   Typography,
   Box,
@@ -19,7 +18,6 @@ import Swal from 'sweetalert2';
 import './Login.css';
 
 const API_URL = process.env.REACT_APP_API;
-const COMPANY_NAME = process.env.COMPANY_NAME;
 
 const Login = () => {
   const navigate = useNavigate();
@@ -100,10 +98,6 @@ const Login = () => {
   useEffect(() => {
     UsernameRef.current.focus();
   }, []);
-
-  const togglePasswordVisibility = () => {
-    setPasswordVisible(!passwordVisible);
-  };
 
   return (
     <Container className="login-container">

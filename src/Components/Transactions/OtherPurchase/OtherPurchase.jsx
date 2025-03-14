@@ -207,7 +207,6 @@ const OtherPurchase = () => {
     updatedFormData.Taxable_Amount = (provisionAmt + expAmt).toFixed(2)
     const rate = gstRate;
 
-
     if (matchStatus === "TRUE") {
       updatedFormData.CGST_Rate = (rate / 2).toFixed(2);
       updatedFormData.SGST_Rate = (rate / 2).toFixed(2);
@@ -235,7 +234,6 @@ const OtherPurchase = () => {
       updatedFormData.SGST_Amount = 0.0;
     }
 
-
     const miscAmount = parseFloat(updatedFormData.Other_Amount) || 0.0;
     updatedFormData.Bill_Amount = (
       (parseFloat(updatedFormData.Taxable_Amount) || 0.0) +
@@ -245,14 +243,10 @@ const OtherPurchase = () => {
       miscAmount
     ).toFixed(2);
 
-
     const tdsRate = parseFloat(updatedFormData.TDS_Per) || 0.0;
-    const tdsAmount = Math.floor((updatedFormData.TDS_Amt * tdsRate) / 100);
+    const tdsAmount = Math.round((updatedFormData.TDS_Amt * tdsRate) / 100);
     const formattedTDS = (tdsAmount / 1.00).toFixed(2);
-
     updatedFormData.TDS = formattedTDS;
-
-
     return updatedFormData;
   };
 
@@ -297,6 +291,17 @@ const OtherPurchase = () => {
         return;
       }
     };
+
+    if (formData.Supplier_Code === "") {
+      Swal.fire({
+        title: "Error",
+        text: "Please Select Supplier Code.!",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
+      return;
+    };
+
     if (formData.GST_RateCode === "") {
       Swal.fire({
         title: "Error",
@@ -872,9 +877,10 @@ const OtherPurchase = () => {
       gcid: accoid
     });
   };
-  const handleTDSCutting = (code, accoid) => {
+  const handleTDSCutting = (code, accoid, name) => {
     setIsTDSACCodeManually(true)
     setTDSCuttAcCode(code);
+    setTDSCutAcCodeName(name)
     setFormData({
       ...formData,
       TDS_Cutt_AcCode: code,
@@ -931,15 +937,11 @@ const OtherPurchase = () => {
       <UserAuditInfo
         createdBy={formData.Created_By}
         modifiedBy={formData.Modified_By}
+        title={"Other Purchase"}
       />
       <div>
-        <Typography
-          variant="h5"
-          style={{ marginTop: "10px", fontWeight: "bold", fontSize: "24px" }}
-        >
-          Other Purchase
-        </Typography>
         <ToastContainer autoClose={500} />
+        <br></br>
         <ActionButtonGroup
           handleAddOne={handleAddOne}
           addOneButtonEnabled={addOneButtonEnabled}

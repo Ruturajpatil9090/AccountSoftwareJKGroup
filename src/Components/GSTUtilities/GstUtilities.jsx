@@ -101,7 +101,6 @@ const GStUtilities = () => {
 
     return (
         <>
-
             <Typography
                 variant="h6"
                 style={{
@@ -131,7 +130,7 @@ const GStUtilities = () => {
                 </div>
 
                 <div className="GSTUtilities-row">
-                    <label htmlFor="fromDate" className="GSTUtilitieslabel">From Date</label>
+                    <label htmlFor="fromDate" className="GSTUtilitieslabel">From Date :</label>
                     <input
                         type="date"
                         id="fromDate"
@@ -140,7 +139,7 @@ const GStUtilities = () => {
                         onChange={(e) => setFromDate(e.target.value)}
                     />
 
-                    <label htmlFor="toDate" className="GSTUtilitieslabel">To Date</label>
+                    <label htmlFor="toDate" className="GSTUtilitieslabel">To Date :</label>
                     <input
                         type="date"
                         id="toDate"
@@ -151,7 +150,7 @@ const GStUtilities = () => {
                 </div>
 
                 <div className="GSTUtilities-row">
-                    <label htmlFor="SaleTCSTDS" className="GSTUtilitieslabel">Sale Type:</label>
+                    <label htmlFor="SaleTCSTDS" className="GSTUtilitieslabel">Sale Type :</label>
                     <select
                         id="SaleTCSTDS"
                         name="SaleTCSTDS"
@@ -169,10 +168,8 @@ const GStUtilities = () => {
                         <option value="CB">Cold Storage Sale</option>
                         <option value="RB">Rent Bill</option>
                     </select>
-                </div>
 
-                <div className="GSTUtilities-row">
-                    <label htmlFor="PurchaseTCSTDS" className="GSTUtilitieslabel">Purchase Type:</label>
+                    <label htmlFor="PurchaseTCSTDS" className="GSTUtilitieslabel">Purchase Type :</label>
                     <select
                         id="PurchaseTCSTDS"
                         name="PurchaseTCSTDS"
@@ -184,10 +181,8 @@ const GStUtilities = () => {
                         <option value="PS">Purchase Bill</option>
                         <option value="RP">Retail Purchase</option>
                     </select>
-                </div>
 
-                <div className="GSTUtilities-row">
-                    <label htmlFor="GSTRate" className="GSTUtilitieslabel">GST Rate</label>
+                    <label htmlFor="GSTRate" className="GSTUtilitieslabel">GST Rate :</label>
                     <select
                         id="GSTRate"
                         name="GSTRate"
@@ -204,10 +199,8 @@ const GStUtilities = () => {
                             </option>
                         ))}
                     </select>
-                </div>
 
-                <div className="GSTUtilities-row">
-                    <label htmlFor="DebitCreditNote" className="GSTUtilitieslabel">Debit Credit Note</label>
+                    <label htmlFor="DebitCreditNote" className="GSTUtilitieslabel">Debit/Credit Note :</label>
                     <select
                         id="DebitCreditNote"
                         name="DebitCreditNote"
@@ -225,20 +218,8 @@ const GStUtilities = () => {
             </div>
 
             <div >
-                <Tabs defaultActiveKey="sale" id="gst-tabs" >
-                    <Tab eventKey="sale" title="1 .Sale Bill Summary">
-                        <Row >
-                            <SaleBillSummary fromDate={fromDate} toDate={toDate} companyCode={Company_Code} yearCode={Year_Code} accode={acCode || ""} />
-
-                            <SaleTCSSummary fromDate={fromDate} toDate={toDate} companyCode={Company_Code} yearCode={Year_Code} Tran_type={accountType} accode={acCode || ""} />
-
-                            <SaleTDSSummary fromDate={fromDate} toDate={toDate} companyCode={Company_Code} yearCode={Year_Code} Tran_type={accountType} accode={acCode || ""} />
-
-                            <SaleTCSTDSSummary fromDate={fromDate} toDate={toDate} companyCode={Company_Code} yearCode={Year_Code} accode={acCode || ""} />
-                        </Row>
-                    </Tab>
-
-                    <Tab eventKey="purchase" title="2 .Purchase Bill Summary">
+                <Tabs defaultActiveKey="purchase" id="gst-tabs" >
+                <Tab eventKey="purchase" title="1 .Purchase Bill Summary">
                         <Container>
                             <Row>
                                 <PurchaseBillSummary fromDate={fromDate} toDate={toDate} companyCode={Company_Code} yearCode={Year_Code} accode={acCode || ""} />
@@ -248,6 +229,18 @@ const GStUtilities = () => {
                             </Row>
 
                         </Container>
+                    </Tab>
+
+                    <Tab eventKey="sale" title="2 .Sale Bill Summary">
+                        <Row >
+                            <SaleBillSummary fromDate={fromDate} toDate={toDate} companyCode={Company_Code} yearCode={Year_Code} accode={acCode || ""} />
+
+                            <SaleTCSSummary fromDate={fromDate} toDate={toDate} companyCode={Company_Code} yearCode={Year_Code} Tran_type={accountType} accode={acCode || ""} />
+
+                            <SaleTDSSummary fromDate={fromDate} toDate={toDate} companyCode={Company_Code} yearCode={Year_Code} Tran_type={accountType} accode={acCode || ""} />
+
+                            <SaleTCSTDSSummary fromDate={fromDate} toDate={toDate} companyCode={Company_Code} yearCode={Year_Code} accode={acCode || ""} />
+                        </Row>
                     </Tab>
 
                     <Tab eventKey="DebitCredit" title="3 .Debit/Credit Note Summary">

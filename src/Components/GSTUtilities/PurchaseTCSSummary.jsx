@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Swal from 'sweetalert2';
 
 const API_URL = process.env.REACT_APP_API;
 
@@ -25,6 +26,14 @@ const PurchaseTCSSummary = ({ fromDate, toDate, companyCode, yearCode ,Tran_type
                     accode :accode
                 },
             });
+            if (response.data.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Not Found.!',
+                    text: 'No Purchase TCS data found for the selected date range.',
+                });
+                return;
+            }
             setData(response.data);
             setIsDataFetched(true);
         } catch (err) {
@@ -47,16 +56,12 @@ const PurchaseTCSSummary = ({ fromDate, toDate, companyCode, yearCode ,Tran_type
             return;
         }
     
-        // Extract column headers from the first object in data (preserving order)
         const columnOrder = Object.keys(data[0]);
-    
-        // Convert JSON to sheet, ensuring order
+
         const ws = XLSX.utils.json_to_sheet(data, { header: columnOrder, skipHeader: false });
     
-        // Convert worksheet to CSV format
         const csv = XLSX.utils.sheet_to_csv(ws);
     
-        // Create and trigger CSV download
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
@@ -107,7 +112,7 @@ const PurchaseTCSSummary = ({ fromDate, toDate, companyCode, yearCode ,Tran_type
                     height: '60px',  
                 }}
             >
-                {loading ? 'Loading...' : 'PurchaseTCS Summary'}
+                {loading ? 'Loading...' : 'Purchase TCS Summary'}
             </button>
 
             {isDataFetched && (

@@ -8,7 +8,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AccountMasterHelp from "../../../Helper/AccountMasterHelp";
 import { HashLoader } from "react-spinners";
-import { TextField, Box, Typography } from "@mui/material";
+import { TextField, Box } from "@mui/material";
 import { useRecordLocking } from "../../../hooks/useRecordLocking";
 import {
   Table,
@@ -18,7 +18,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Button,
 } from "@mui/material";
 import UserAuditInfo from "../../../Common/UserAuditInfo/UserAuditInfo";
 import AddButton from "../../../Common/Buttons/AddButton";
@@ -30,6 +29,10 @@ import { formatReadableAmount } from "../../../Common/FormatFunctions/FormatAmou
 import { fetchAccountBalance } from "../../../Common/GetAccountBalance/GetAccountBalance";
 import Swal from "sweetalert2";
 import { ConvertNumberToWord } from "../../../Common/FormatFunctions/ConvertNumberToWord";
+import PrintButton from "../../../Common/Buttons/PrintPDF";
+import DetailAddButtom from "../../../Common/Buttons/DetailAddButton";
+import DetailCloseButton from "../../../Common/Buttons/DetailCloseButton";
+import DetailUpdateButton from "../../../Common/Buttons/DetailUpdateButton";
 
 var newDebit_ac;
 var lblacname;
@@ -603,14 +606,14 @@ const JournalVoucher = () => {
   const handleChangeDetail = (event) => {
     const { name, value } = event.target;
     let updatedFormDataDetail = { ...formDataDetail, [name]: value };
-  
+
     if (name === 'amount') {
-      const convertedAmountInWords = ConvertNumberToWord(value); 
-      setAmountInWords(convertedAmountInWords); 
+      const convertedAmountInWords = ConvertNumberToWord(value);
+      setAmountInWords(convertedAmountInWords);
     }
     setFormDataDetail(updatedFormDataDetail);
   };
-  
+
 
   const [popupMode, setPopupMode] = useState("add");
 
@@ -627,7 +630,7 @@ const JournalVoucher = () => {
       setFormDataDetail(prevDetail => ({
         ...prevDetail,
         amount: Math.abs(initialAmount),
-        drcr : diff <= 0 ? "C": "D",
+        drcr: diff <= 0 ? "C" : "D",
         narration: prevDetail.narration
       }));
     }
@@ -671,7 +674,7 @@ const JournalVoucher = () => {
   };
 
   const addUser = () => {
-    setAmountInWords(""); 
+    setAmountInWords("");
     if (formDataDetail.amount === 0 || formDataDetail.amount === "") {
       Swal.fire({
         title: "Error",
@@ -724,7 +727,7 @@ const JournalVoucher = () => {
     setTimeout(() => {
       addButtonRef.current.focus();
     }, 500)
-   
+
   };
 
   const editUser = (user) => {
@@ -743,7 +746,7 @@ const JournalVoucher = () => {
       trandetailid: user.trandetailid,
       id: user.trandetailid,
     });
-   
+
     openPopup("edit");
     let amount = ConvertNumberToWord(user.amount)
     setAmountInWords(amount)
@@ -1091,22 +1094,10 @@ const JournalVoucher = () => {
       <UserAuditInfo
         createdBy={formData.Created_By}
         modifiedBy={formData.Modified_By}
+        title={"Journal Voucher"}
       />
       <div>
-        <button
-          className="print-button"
-          onClick={handleJVreport}
-          disabled={!addOneButtonEnabled}
-        >
-          Print
-        </button>
-
-        <Typography
-          variant="h5"
-          style={{ marginTop: "10px", fontWeight: "bold", fontSize: "24px" }}
-        >
-          Journal Voucher
-        </Typography>
+        <br></br>
         <ToastContainer autoClose={500} />
         <ActionButtonGroup
           handleAddOne={handleAddOne}
@@ -1123,6 +1114,7 @@ const JournalVoucher = () => {
           handleBack={handleBack}
           backButtonEnabled={backButtonEnabled}
           permissions={permissions}
+          component={<PrintButton disabledFeild={!addOneButtonEnabled} fetchData={handleJVreport} />}
         />
         <div>
           <NavigationButtons
@@ -1227,10 +1219,10 @@ const JournalVoucher = () => {
                       aria-label="Close"
                       style={{
                         marginLeft: "80%",
-                        width: "80px",
+                        width: "50px",
                         height: "50px",
-                        backgroundColor: "#b2babb",
-                        borderRadius: "100px"
+                        backgroundColor: "#9bccf3",
+                        borderRadius: "4px",
                       }}
                     >
                       <span aria-hidden="true">&times;</span>
@@ -1241,7 +1233,7 @@ const JournalVoucher = () => {
                     <form>
                       <div
                         style={{
-                          marginBottom: "15px",
+                          marginBottom: "5px",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "space-between",
@@ -1254,8 +1246,9 @@ const JournalVoucher = () => {
                               fontWeight: "600",
                               marginRight: "10px",
                               display: "inline-block",
-                              fontSize: "20px",
+                              fontSize: "16px",
                               fontWeight: "bold",
+                              marginBottom: "20px",
                             }}
                           >
                             Account Code:
@@ -1271,7 +1264,6 @@ const JournalVoucher = () => {
                             firstInputRef={firstInputRef}
                             style={{
                               width: "50%",
-
                               fontSize: "14px",
                               borderRadius: "4px",
                               border: "1px solid #ccc",
@@ -1301,7 +1293,7 @@ const JournalVoucher = () => {
                         <label
                           htmlFor="drcr"
                           style={{
-                            fontSize: "20px",
+                            fontSize: "16px",
                             fontWeight: "bold",
                             marginRight: "10px",
                             display: "inline-block",
@@ -1340,7 +1332,7 @@ const JournalVoucher = () => {
                         <label
                           htmlFor="amount"
                           style={{
-                            fontSize: "20px",
+                            fontSize: "16px",
                             fontWeight: "bold",
                             marginRight: "10px",
                             display: "inline-block",
@@ -1377,7 +1369,7 @@ const JournalVoucher = () => {
                         <label
                           htmlFor="narration"
                           style={{
-                            fontSize: "20px",
+                            fontSize: "16px",
                             fontWeight: "bold",
                             marginRight: "10px",
                             display: "inline-block",
@@ -1413,7 +1405,7 @@ const JournalVoucher = () => {
                         <label
                           htmlFor="narration"
                           style={{
-                            fontSize: "20px",
+                            fontSize: "16px",
                             fontWeight: "bold",
                             marginRight: "10px",
                             display: "inline-block",
@@ -1421,44 +1413,18 @@ const JournalVoucher = () => {
                         >
                           Amount in Words:
                         </label>
-                        <p style={{marginLeft:"20px",marginTop:'20px',color:"blue",fontWeight:"bold"}}> {amountInWords}</p>
+                        <p style={{ marginLeft: "20px", marginTop: '20px', color: "blue", fontWeight: "bold" }}> {amountInWords}</p>
                       </div>
                     </form>
                   </div>
 
                   <div className="modal-footer">
                     {selectedUser.id ? (
-                      <button
-                        className="btn btn-primary"
-                        onClick={updateUser}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter") {
-                            updateUser();
-                          }
-                        }}
-                      >
-                        Update
-                      </button>
+                      <DetailUpdateButton updateUser={updateUser} />
                     ) : (
-                      <button
-                        className="btn btn-primary"
-                        onClick={addUser}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter") {
-                            addUser();
-                          }
-                        }}
-                      >
-                        Add
-                      </button>
+                      <DetailAddButtom addUser={addUser} />
                     )}
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={closePopup}
-                    >
-                      Cancel
-                    </button>
+                    <DetailCloseButton closePopup={closePopup} />
                   </div>
                 </div>
               </div>
@@ -1485,7 +1451,7 @@ const JournalVoucher = () => {
                   <TableRow key={user.id} sx={{
                     height: '30px', '&:hover': {
                       backgroundColor: '#f3f388',
-                     cursor : "pointer",
+                      cursor: "pointer",
                     },
                   }}>
                     <TableCell sx={{ padding: '4px 8px' }}>

@@ -4,10 +4,11 @@ import * as XLSX from 'xlsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { CircularProgress } from '@mui/material';
 import { formatReadableAmount } from "../../Common/FormatFunctions/FormatAmount"
+import Swal from 'sweetalert2';
 
 const API_URL = process.env.REACT_APP_API;
 
-const SaleBillSummary = ({ fromDate, toDate, companyCode, yearCode,accode }) => {
+const SaleBillSummary = ({ fromDate, toDate, companyCode, yearCode, accode }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -23,9 +24,17 @@ const SaleBillSummary = ({ fromDate, toDate, companyCode, yearCode,accode }) => 
                     toDate: toDate,
                     Company_Code: companyCode,
                     Year_Code: yearCode,
-                    accode :accode
+                    accode: accode
                 },
             });
+            if (response.data.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Not Found.!',
+                    text: 'No Sale bill data found for the selected date range.',
+                });
+                return;
+            }
             setData(response.data);
             setIsDataFetched(true);
         } catch (err) {
@@ -205,8 +214,8 @@ const SaleBillSummary = ({ fromDate, toDate, companyCode, yearCode,accode }) => 
                 onClick={fetchSaleBillSummary}
                 disabled={loading}
                 style={{
-                    width: '15%',  
-                    height: '60px',  
+                    width: '15%',
+                    height: '60px',
                 }}
             >
                 {loading ? <CircularProgress size={24} /> : 'Sale Bill Summary'}

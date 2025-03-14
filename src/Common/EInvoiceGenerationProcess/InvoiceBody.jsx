@@ -2,7 +2,9 @@ export const invoiceDataEwayBills = (InvoiceData, tran_type) => {
   const formData = InvoiceData;
   //Format the address.
   const formatAddress = (inputString) => {
+    if (!inputString) return "";
     let cleanedString = inputString.replace(/[^a-zA-Z0-9]/g, " ");
+    if (!cleanedString) return "";
     cleanedString = cleanedString.replace(/\s+/g, " ").trim();
     if (cleanedString.length < 3) {
       return "Error: String is too short. Minimum length is 3.";
@@ -24,6 +26,7 @@ export const invoiceDataEwayBills = (InvoiceData, tran_type) => {
   };
 
   const formatName = (inputString = "") => {
+    if (!inputString) return "";
     return inputString.replace(/[^a-zA-Z0-9 ]/g, " ").trim();
   };
 
@@ -41,11 +44,11 @@ export const invoiceDataEwayBills = (InvoiceData, tran_type) => {
       },
       DocDtls: {
         Typ: formData.docType,
-        No: formData.Doc_No,
+        No: '888',
         Dt: formatDate(formData.doc_date),
       },
       SellerDtls: {
-        Gstin: "27AMBPG7773M016",
+        Gstin: '27AMBPG7773M016',
         LglNm: formatName(formData.Company_Name_E),
         TrdNm: formData.Company_Name_E,
         Addr1: formatAddress(formData.Address_E),
@@ -104,7 +107,7 @@ export const invoiceDataEwayBills = (InvoiceData, tran_type) => {
           SlNo: "1",
           PrdDesc: formData.System_Name_E,
           IsServc: formData.IsService,
-          HsnCd: String(formData.HSN || ""),
+          HsnCd: formData.HSN.toString(),
           Qty: formData.NETQNTL,
           Unit: formData.unit,
           UnitPrice: parseFloat(formData.rate),
@@ -143,14 +146,12 @@ export const invoiceDataEwayBills = (InvoiceData, tran_type) => {
   if (tran_type && tran_type.trim().toUpperCase() === "RB") {
     console.log(tran_type);
     invoiceData.invoice_data.DispDtls = {
-      Gstin: "27AMBPG7773M016",
-      LglNm: formData.Company_Name_E,
-      TrdNm: formData.Company_Name_E,
+      Nm: formData.Company_Name_E,
       Addr1: formatAddress(formData.Address_E),
       Loc: formData.City_E,
+      Gstin: "27AMBPG7773M016",
       Pin: formData.PIN || 0,
       Stcd: formData.GSTStateCode.toString(),
-      Em: formData.EmailId,
     };
 
     invoiceData.invoice_data.ShipDtls = {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { CircularProgress } from '@mui/material';
+import Swal from 'sweetalert2';
 
 const API_URL = process.env.REACT_APP_API;
 
@@ -24,6 +25,14 @@ const GSTRateWiseSummary = ({ fromDate, toDate, companyCode, yearCode, GSTRate }
                     GSTRate: GSTRate
                 },
             });
+            if (response.data.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Not Found.!',
+                    text: 'No GSTRateWise data found for the selected date range.',
+                });
+                return;
+            }
             setData(response.data);
             setIsDataFetched(true);
             openReportInNewTab(response.data);
@@ -162,8 +171,8 @@ const GSTRateWiseSummary = ({ fromDate, toDate, companyCode, yearCode, GSTRate }
                 onClick={fetchGSTRateWiseSummary}
                 disabled={loading}
                 style={{
-                    width: '20%',  
-                    height: '60px',  
+                    width: '20%',
+                    height: '60px',
                 }}
             >
                 {loading ? <CircularProgress size={24} /> : 'GSTRate Summary'}
